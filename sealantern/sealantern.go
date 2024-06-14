@@ -96,7 +96,7 @@ func (c *Core) tick() {
 		for _, instance := range c.instances {
 			instance.Tick()
 		}
-		time.Sleep(1000 * time.Millisecond) // 1 second
+		time.Sleep(500 * time.Millisecond) // 2 ticks / s
 	}
 }
 
@@ -126,6 +126,7 @@ func (c *Core) handleConnection(conn *socket.Conn, id int) {
 			if err != nil {
 				break
 			}
+			time.Sleep(time.Millisecond * 1) // 1000 packets / sec
 		}
 	}()
 

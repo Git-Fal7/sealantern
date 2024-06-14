@@ -39,7 +39,7 @@ func (m *Map) GetChunk(x int32, z int32) *chunk.Chunk {
 	return c
 }
 
-func (m *Map) SendChunksAroundPlayer(p player.IPlayer) {
+func (m *Map) SendChunksAroundPlayer(p player.IPlayer) (map[chunk.ChunkKey]bool, map[chunk.ChunkKey]bool) {
 	prevChunks := make(map[chunk.ChunkKey]bool)
 	for k, v := range p.KnownChunks() {
 		prevChunks[k] = v
@@ -63,10 +63,10 @@ func (m *Map) SendChunksAroundPlayer(p player.IPlayer) {
 	}
 
 	if len(newChunks) == 0 && len(prevChunks) == 0 {
-		return
+		return nil, nil
 	}
 
-	for key, _ := range newChunks {
+	for key := range newChunks {
 		p.KnownChunks()[key] = true
 	}
 
@@ -111,4 +111,5 @@ func (m *Map) SendChunksAroundPlayer(p player.IPlayer) {
 		})
 		delete(p.KnownChunks(), key)
 	}
+	return newChunks, prevChunks
 }

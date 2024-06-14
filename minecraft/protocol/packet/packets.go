@@ -1711,3 +1711,27 @@ func (packet *PacketPlaySpawnMob) Write(w *readerwriter.ConnReadWrite) (err erro
 func (packet *PacketPlaySpawnMob) Id() int32 {
 	return 0x0F
 }
+
+type PacketPlayDestroyEntities struct {
+	EntitiesID []uint16
+}
+
+func (packet *PacketPlayDestroyEntities) Write(w *readerwriter.ConnReadWrite) (err error) {
+	err = w.WriteVarInt(len(packet.EntitiesID))
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	for _, entitiyID := range packet.EntitiesID {
+		err = w.WriteVarInt(int(entitiyID))
+		if err != nil {
+			log.Print(err)
+			return
+		}
+	}
+	return
+}
+
+func (packet *PacketPlayDestroyEntities) Id() int32 {
+	return 0x13
+}

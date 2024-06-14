@@ -9,7 +9,9 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
+	"github.com/git-fal7/sealantern/minecraft/world/chunk"
 	"github.com/git-fal7/sealantern/minecraft/world/map_world"
+	"github.com/git-fal7/sealantern/pkg/npc"
 
 	"github.com/google/uuid"
 )
@@ -19,6 +21,7 @@ type GameInstance struct {
 	Gamemode   types.Gamemode
 	Difficulty world.Difficulty
 	Players    *player.PlayerRegistry
+	NPCs       []*npc.NPC
 }
 
 func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
@@ -28,9 +31,9 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 	p.WritePacket(&packet.PacketPlayServerDifficulty{
 		Difficulty: instance.Difficulty,
 	})
+	instance.Players.RegisterPlayer(p)
 	p.Teleport(instance.World.Spawn)
 	instance.World.SendChunksAroundPlayer(p)
-	instance.Players.RegisterPlayer(p)
 	entries := make([]types.PlayerListEntry, 0)
 	players := instance.Players.GetPlayers()
 	for _, player := range players {
@@ -82,47 +85,11 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 			}
 		}
 	}
-
-	/*
-		p.WritePacket(&packet.PacketPlayTeams{
-			TeamName:          "01",
-			Mode:              types.TeamModeCreate,
-			TeamDisplayName:   "",
-			TeamPrefix:        "&c",
-			TeamSuffix:        "",
-			FriendlyFire:      types.TeamFriendlyFireOff,
-			NameTagVisibility: types.TeamNameTagVisibilityAlways,
-			Color:             0,
-			Players: []string{
-				p.Username(),
-			},
-		})
-		for _, player := range players {
-			if player.UUID() == p.UUID() {
-				continue
-			}
-			p.WritePacket(&packet.PacketPlayTeams{
-				TeamName:          "02",
-				Mode:              types.TeamModeCreate,
-				TeamDisplayName:   "",
-				TeamPrefix:        "&d",
-				TeamSuffix:        "",
-				FriendlyFire:      types.TeamFriendlyFireOff,
-				NameTagVisibility: types.TeamNameTagVisibilityAlways,
-				Color:             0,
-				Players: []string{
-					player.Username(),
-				},
-			})
-			player.WritePacket(&packet.PacketPlayTeams{
-				TeamName: "01",
-				Mode:     types.TeamModeAddPlayer,
-				Players: []string{
-					p.Username(),
-				},
-			})
+	for _, npc := range instance.NPCs {
+		for _, npcPacket := range npc.GetCreationPacket() {
+			p.WritePacket(npcPacket)
 		}
-	*/
+	}
 	return nil
 }
 
@@ -203,7 +170,51 @@ func (instance *GameInstance) HasPlayerFromUUID(uuid uuid.UUID) bool {
 
 // basically load chunks around player
 func (instance *GameInstance) Tick() {
-	for _, player := range instance.Players.GetPlayers() {
-		instance.World.SendChunksAroundPlayer(player)
+	players := instance.Players.GetPlayers()
+	for _, player := range players {
+		newChunks, prevChunks := instance.World.SendChunksAroundPlayer(player)
+		if len(newChunks) == 0 {
+			continue
+		}
+		destroyedEntities := make([]uint16, 0)
+		for _, p := range players {
+			if p.UUID() == player.UUID() {
+				continue
+			}
+			pBlockPos := p.Position().ToBlockPosition()
+			chunkKey := chunk.ChunkKey{
+				X: int32(pBlockPos.X) / 16,
+				Z: int32(pBlockPos.Z) / 16,
+			}
+			if newChunks[chunkKey] {
+				player.WritePacket(&packet.PacketPlaySpawnPlayer{
+					EntityID:       p.ID(),
+					PlayerUUID:     p.UUID(),
+					PlayerPosition: p.Position(),
+					CurrentItem:    0,
+				})
+			} else if prevChunks[chunkKey] {
+				destroyedEntities = append(destroyedEntities, p.ID())
+			}
+		}
+		for _, npc := range instance.NPCs {
+			pBlockPos := npc.Position.ToBlockPosition()
+			chunkKey := chunk.ChunkKey{
+				X: int32(pBlockPos.X) / 16,
+				Z: int32(pBlockPos.Z) / 16,
+			}
+			if newChunks[chunkKey] {
+				for _, npcPacket := range npc.GetCreationPacket() {
+					player.WritePacket(npcPacket)
+				}
+			} else if prevChunks[chunkKey] {
+				destroyedEntities = append(destroyedEntities, npc.EntityID)
+			}
+		}
+		if len(destroyedEntities) != 0 {
+			player.WritePacket(&packet.PacketPlayDestroyEntites{
+				EntityIDs: destroyedEntities,
+			})
+		}
 	}
 }

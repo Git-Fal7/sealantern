@@ -21,7 +21,7 @@ type GameInstance struct {
 	Gamemode   types.Gamemode
 	Difficulty world.Difficulty
 	Players    *player.PlayerRegistry
-	NPCs       []*npc.NPC
+	NPCs       []npc.NPC
 }
 
 func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
@@ -198,7 +198,7 @@ func (instance *GameInstance) Tick() {
 			}
 		}
 		for _, npc := range instance.NPCs {
-			pBlockPos := npc.Position.ToBlockPosition()
+			pBlockPos := npc.Position().ToBlockPosition()
 			chunkKey := chunk.ChunkKey{
 				X: int32(pBlockPos.X) / 16,
 				Z: int32(pBlockPos.Z) / 16,
@@ -208,7 +208,7 @@ func (instance *GameInstance) Tick() {
 					player.WritePacket(npcPacket)
 				}
 			} else if prevChunks[chunkKey] {
-				destroyedEntities = append(destroyedEntities, npc.EntityID)
+				destroyedEntities = append(destroyedEntities, npc.EntityID())
 			}
 		}
 		if len(destroyedEntities) != 0 {

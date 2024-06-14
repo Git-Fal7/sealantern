@@ -3,6 +3,7 @@ package events
 import (
 	"github.com/git-fal7/sealantern/minecraft/player"
 	"github.com/git-fal7/sealantern/minecraft/player/socket"
+	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/gameinstance"
@@ -111,5 +112,14 @@ type PlayerDamageEvent struct {
 }
 
 func (e *PlayerDamageEvent) SetAllowed(allowed bool) {
+	e.Allowed = allowed
+}
+
+type ServerListPingEvent struct {
+	ServerListPing *types.ServerListPing
+	Allowed        bool
+}
+
+func (e *ServerListPingEvent) SetAllowed(allowed bool) {
 	e.Allowed = allowed
 }

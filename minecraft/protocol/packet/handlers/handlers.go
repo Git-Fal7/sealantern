@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"crypto/md5"
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -34,32 +35,33 @@ type StatusRequestHandler struct {
 }
 
 func (h *StatusRequestHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) {
-	/*
-		func (packet *PacketStatusRequest) Handle(player *Player) {
-			protocol := COMPATIBLE_PROTO[0]
-			if IsCompatible(player.protocol) {
-				protocol = player.protocol
-			}
-
-			max_players := config.TyphoonConfig.MaxPlayers
-			motd := config.TyphoonConfig.Motd
-
-			count := player.core.playerRegistry.GetPlayerCount()
-			if max_players < count && !config.TyphoonConfig.Restricted {
-				max_players = count
-			}
-
-			response := PacketStatusResponse{
-				Response: fmt.Sprintf(`{"version":{"name":"Typhoon","protocol":%d},"players":{"max":%d,"online":%d,"sample":[]},"description":{"text":"%s"},"favicon":"%s","modinfo":{"type":"FML","modList":[]}}`, protocol, max_players, count, JsonEscape(motd), JsonEscape(config.TyphoonConfig.Favicon)),
-			}
-			player.WritePacket(&response)
-		}
-	*/
-	// todo: motd, maxplayers
-	response := &packet.PacketStatusResponse{
-		Response: `{"version":{"name":"Typhoon","protocol":47},"players":{"max":0,"online":0,"sample":[]},"description":{"text":"Big smonk"},"favicon":"","modinfo":{"type":"FML","modList":[]}}`,
+	serverListPing := &types.ServerListPing{
+		Version: types.ServerListPingVersion{
+			Name:     "SeaLantern",
+			Protocol: 47,
+		},
+		Players: types.ServerListPingPlayers{
+			MaxPlayers:    0,
+			OnlinePlayers: 0,
+			Sample:        make([]types.ServerListPingSample, 0),
+		},
+		Description: types.ServerListPingDescription{
+			Motd: "",
+		},
+		Favicon: "",
 	}
-	p.WritePacket(response)
+	serverListPingEvent := &events.ServerListPingEvent{
+		ServerListPing: serverListPing,
+		Allowed:        true,
+	}
+	h.Server.Event().Fire(serverListPingEvent)
+	if !serverListPingEvent.Allowed {
+		return
+	}
+	b, _ := json.Marshal(serverListPing)
+	p.WritePacket(&packet.PacketStatusResponse{
+		Response: string(b),
+	})
 }
 
 type StatusPingHandler struct {

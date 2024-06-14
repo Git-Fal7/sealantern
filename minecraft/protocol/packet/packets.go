@@ -1632,3 +1632,82 @@ func (packet *PacketPlayTeams) Write(w *readerwriter.ConnReadWrite) (err error) 
 func (packet *PacketPlayTeams) Id() int32 {
 	return 0x3E
 }
+
+type PacketPlaySpawnMob struct {
+	EntityID  uint16
+	MobType   types.MobType
+	Position  world.Position
+	HeadPitch uint8
+	VelocityX uint16
+	VelocityY uint16
+	VelocityZ uint16
+	Metadata  metadata.MetadataMap
+}
+
+func (packet *PacketPlaySpawnMob) Write(w *readerwriter.ConnReadWrite) (err error) {
+	err = w.WriteVarInt(int(packet.EntityID))
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt8(uint8(packet.MobType))
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntX())
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntY())
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntZ())
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt8(packet.Position.IntYaw())
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt8(packet.Position.IntPitch())
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt8(packet.HeadPitch)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt16(packet.VelocityX)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt16(packet.VelocityY)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt16(packet.VelocityZ)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteMetadata(packet.Metadata)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}
+
+func (packet *PacketPlaySpawnMob) Id() int32 {
+	return 0x0F
+}

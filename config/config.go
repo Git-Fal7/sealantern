@@ -20,7 +20,7 @@ type Config struct {
 }
 
 var (
-	TyphoonConfig Config
+	LanternConfig Config
 )
 
 func InitConfig() (err error) {
@@ -28,7 +28,7 @@ func InitConfig() (err error) {
 	if err != nil {
 		panic(err)
 	}
-	if err := json.Unmarshal(file, &TyphoonConfig); err != nil {
+	if err := json.Unmarshal(file, &LanternConfig); err != nil {
 		panic(err)
 	}
 	return

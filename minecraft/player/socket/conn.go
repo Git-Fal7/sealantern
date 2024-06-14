@@ -79,7 +79,7 @@ func (c *Conn) WritePacketWithoutCompression(packet protocol.PacketOut) (err err
 	c.Conn.Write(ln.Bytes())
 	c.Conn.Write(buff.Bytes())
 
-	if config.TyphoonConfig.Logs {
+	if config.LanternConfig.Logs {
 		log.Printf("# <- %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
 	}
 	return nil
@@ -89,7 +89,7 @@ func (c *Conn) HandlePacket(id int, length int) (handledPacket protocol.PacketIn
 	typ := packet.GetPacketTypeFromRegistry(c.State, id)
 
 	if typ == nil {
-		if config.TyphoonConfig.Logs {
+		if config.LanternConfig.Logs {
 			log.Printf(" -> Unknown packet #%d\n", id)
 		}
 

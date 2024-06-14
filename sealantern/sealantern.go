@@ -1,4 +1,4 @@
-package typhoon
+package sealantern
 
 import (
 	"encoding/json"
@@ -39,7 +39,7 @@ func Init() *Core {
 	config.InitConfig()
 	c := &Core{
 		connCounter:    0,
-		brand:          "typhoon",
+		brand:          "SeaLantern",
 		playerRegistry: player.NewPlayerRegistry(),
 		instances:      make(map[string]*gameinstance.GameInstance),
 		commandMgr:     command.NewManager(),
@@ -52,11 +52,11 @@ func Init() *Core {
 }
 
 func (c *Core) Start() {
-	ln, err := net.Listen("tcp", config.TyphoonConfig.ListenAddress)
+	ln, err := net.Listen("tcp", config.LanternConfig.ListenAddress)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Server launched on port", config.TyphoonConfig.ListenAddress)
+	log.Println("Server launched on port", config.LanternConfig.ListenAddress)
 	go c.keepAlive()
 	go c.tick()
 	for {
@@ -183,7 +183,7 @@ func (c *Core) handlePacket(conn *socket.Conn) (packet protocol.PacketIn, err er
 	if err != nil {
 		return
 	} else if packet != nil {
-		if config.TyphoonConfig.Logs {
+		if config.LanternConfig.Logs {
 			log.Printf("# -> %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
 		}
 		packethandler.ExecutePacketHandler(conn, packet, nil)
@@ -239,7 +239,7 @@ func (c *Core) readPlayPacketWithoutCompression(conn *socket.Conn) (packet proto
 	if err != nil {
 		return
 	} else if packet != nil {
-		if config.TyphoonConfig.Logs {
+		if config.LanternConfig.Logs {
 			log.Printf("# -> %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
 		}
 		packethandler.ExecutePacketHandler(conn, packet, c.playerRegistry)

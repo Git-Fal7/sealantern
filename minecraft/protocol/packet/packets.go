@@ -27,7 +27,7 @@ func (packet *PacketHandshake) Read(r *readerwriter.ConnReadWrite, length int) (
 		log.Print(err)
 		return
 	}
-	packet.Address, err = r.ReadStringLimited(config.TyphoonConfig.BufferConfig.HandshakeAddress)
+	packet.Address, err = r.ReadStringLimited(config.LanternConfig.BufferConfig.HandshakeAddress)
 	if err != nil {
 		log.Print(err)
 		return
@@ -110,7 +110,7 @@ type PacketLoginStart struct {
 }
 
 func (packet *PacketLoginStart) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
-	packet.Username, err = r.ReadStringLimited(config.TyphoonConfig.BufferConfig.PlayerName)
+	packet.Username, err = r.ReadStringLimited(config.LanternConfig.BufferConfig.PlayerName)
 	if err != nil {
 		log.Print(err)
 		return

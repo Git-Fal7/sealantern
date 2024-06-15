@@ -9,6 +9,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
+	"github.com/git-fal7/sealantern/pkg/hologram"
 	"github.com/google/uuid"
 )
 
@@ -18,6 +19,7 @@ type NPCPlayer struct {
 	uuid       uuid.UUID
 	properties []profile.Property
 	position   world.Position
+	holograms  []*hologram.Hologram
 }
 
 func NewNPCPlayer(entityID uint16, position world.Position, properties []profile.Property) *NPCPlayer {
@@ -31,6 +33,24 @@ func NewNPCPlayer(entityID uint16, position world.Position, properties []profile
 		uuid:       npcUUID,
 		properties: properties,
 		position:   position,
+		holograms:  make([]*hologram.Hologram, 0),
+	}
+}
+
+func (npc *NPCPlayer) SetText(text ...string) {
+	if len(npc.holograms) > len(text) {
+		npc.holograms = npc.holograms[0:len(text)]
+	} else if len(npc.holograms) < len(text) {
+		for i := len(npc.holograms); i < len(text); i++ {
+			npc.holograms = append(npc.holograms, hologram.NewHologram(npc.entityID+1000+uint16(i), "", world.Position{
+				X: npc.position.X,
+				Y: npc.position.Y + 1.5 + (0.3 * float64(len(text)-i)),
+				Z: npc.position.Z,
+			}))
+		}
+	}
+	for i, hologram := range npc.holograms {
+		hologram.DisplayName = text[i]
 	}
 }
 
@@ -43,7 +63,7 @@ func (npc NPCPlayer) Position() world.Position {
 }
 
 func (npc NPCPlayer) GetCreationPacket() []protocol.PacketOut {
-	return []protocol.PacketOut{
+	packets := []protocol.PacketOut{
 		&packet.PacketPlayPlayerListItem{
 			Action: types.PlayerListActionAddPlayer,
 			Entries: []types.PlayerListEntry{
@@ -93,4 +113,24 @@ func (npc NPCPlayer) GetCreationPacket() []protocol.PacketOut {
 			},
 		},
 	}
+	for _, hologram := range npc.holograms {
+		if hologram.DisplayName == "" {
+			continue
+		}
+		packets = append(packets, hologram.GetCreationPacket()...)
+	}
+	return packets
+}
+
+func (npc NPCPlayer) GetDestructionID() []uint16 {
+	entitiesId := []uint16{
+		npc.entityID,
+	}
+	for _, hologram := range npc.holograms {
+		if hologram.DisplayName == "" {
+			continue
+		}
+		entitiesId = append(entitiesId, hologram.EntityID())
+	}
+	return entitiesId
 }

@@ -63,6 +63,12 @@ var (
 	MetadataAge = MetadataIndex{
 		Index:     12,
 		Type:      MetadataTypeByte,
-		AppliesTo: "Ageable",
+		AppliesTo: "AGEABLE",
+	}
+
+	MetadataArmorstandFlags = MetadataIndex{
+		Index:     10,
+		Type:      MetadataTypeByte,
+		AppliesTo: "ARMORSTAND",
 	}
 )

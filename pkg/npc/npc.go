@@ -9,4 +9,5 @@ type NPC interface {
 	EntityID() uint16
 	Position() world.Position
 	GetCreationPacket() []protocol.PacketOut
+	GetDestructionID() []uint16
 }

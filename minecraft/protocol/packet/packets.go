@@ -1712,18 +1712,69 @@ func (packet *PacketPlaySpawnMob) Id() int32 {
 	return 0x0F
 }
 
-type PacketPlayDestroyEntities struct {
-	EntitiesID []uint16
+type PacketPlaySpawnObject struct {
+	EntityID   uint16
+	ObjectType types.ObjectType
+	Position   world.Position
+	Data       int
+	VelocityX  uint16
+	VelocityY  uint16
+	VelocityZ  uint16
 }
 
-func (packet *PacketPlayDestroyEntities) Write(w *readerwriter.ConnReadWrite) (err error) {
-	err = w.WriteVarInt(len(packet.EntitiesID))
+func (packet *PacketPlaySpawnObject) Write(w *readerwriter.ConnReadWrite) (err error) {
+	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
 		log.Print(err)
 		return
 	}
-	for _, entitiyID := range packet.EntitiesID {
-		err = w.WriteVarInt(int(entitiyID))
+	err = w.WriteUInt8(uint8(packet.ObjectType))
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntX())
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntY())
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntZ())
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt8(packet.Position.IntPitch())
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt8(packet.Position.IntYaw())
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteInt32(int32(packet.Data))
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	if packet.Data != 0 {
+		err = w.WriteUInt16(packet.VelocityX)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		err = w.WriteUInt16(packet.VelocityY)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		err = w.WriteUInt16(packet.VelocityZ)
 		if err != nil {
 			log.Print(err)
 			return
@@ -1732,6 +1783,6 @@ func (packet *PacketPlayDestroyEntities) Write(w *readerwriter.ConnReadWrite) (e
 	return
 }
 
-func (packet *PacketPlayDestroyEntities) Id() int32 {
-	return 0x13
+func (packet *PacketPlaySpawnObject) Id() int32 {
+	return 0x0E
 }

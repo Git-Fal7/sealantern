@@ -44,3 +44,9 @@ func (npc NPCMob) GetCreationPacket() []protocol.PacketOut {
 		},
 	}
 }
+
+func (npc NPCMob) GetDestructionID() []uint16 {
+	return []uint16{
+		npc.entityID,
+	}
+}

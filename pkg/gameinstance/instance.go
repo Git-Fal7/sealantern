@@ -208,7 +208,7 @@ func (instance *GameInstance) Tick() {
 					player.WritePacket(npcPacket)
 				}
 			} else if prevChunks[chunkKey] {
-				destroyedEntities = append(destroyedEntities, npc.EntityID())
+				destroyedEntities = append(destroyedEntities, npc.GetDestructionID()...)
 			}
 		}
 		if len(destroyedEntities) != 0 {

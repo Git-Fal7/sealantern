@@ -7,6 +7,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/gameinstance"
+	"github.com/git-fal7/sealantern/pkg/npc"
 	"github.com/git-fal7/sealantern/pkg/permission"
 )
 
@@ -122,4 +123,10 @@ type ServerListPingEvent struct {
 
 func (e *ServerListPingEvent) SetAllowed(allowed bool) {
 	e.Allowed = allowed
+}
+
+type NpcInteractEvent struct {
+	Player       player.IPlayer
+	NPC          npc.NPC
+	InteractType types.UseEntityType
 }

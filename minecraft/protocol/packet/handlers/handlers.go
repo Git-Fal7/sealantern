@@ -376,15 +376,24 @@ type PlayEntityUseHandler struct {
 
 func (h *PlayEntityUseHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
 	entityUsePacket, _ := protoPacket.(*packet.PacketPlayUseEntity)
-	if entityUsePacket.Type != types.UseEntityAttack {
-		return
-	}
 	instance := h.Server.GetInstanceFromUUID(p.UUID())
 	// get victim id from instnace
 	// the id exists in id, p is just for the attacker
 	targetID := uint16(entityUsePacket.TargetID)
 	victim := instance.Players.GetPlayerFromEID(targetID)
 	if victim == nil {
+		for _, npc := range instance.NPCs {
+			if npc.EntityID() == targetID {
+				h.Server.Event().Fire(&events.NpcInteractEvent{
+					Player:       p,
+					NPC:          npc,
+					InteractType: entityUsePacket.Type,
+				})
+			}
+		}
+		return
+	}
+	if entityUsePacket.Type != types.UseEntityAttack {
 		return
 	}
 	if victim.Invincibile {

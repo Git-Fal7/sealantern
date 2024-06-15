@@ -10,6 +10,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/metadata"
 	"github.com/git-fal7/sealantern/pkg/readerwriter"
+	"github.com/git-fal7/sealantern/pkg/slot"
 
 	"github.com/google/uuid"
 )
@@ -1784,5 +1785,125 @@ func (packet *PacketPlaySpawnObject) Write(w *readerwriter.ConnReadWrite) (err e
 }
 
 func (packet *PacketPlaySpawnObject) Id() int32 {
+	return 0x0E
+}
+
+type PacketPlayOpenWindow struct {
+	WindowID      uint8
+	WindowType    types.WindowType
+	WindowTitle   string
+	NumberOfSlots uint8
+	HorseEntityID uint16
+}
+
+func (packet *PacketPlayOpenWindow) Write(w *readerwriter.ConnReadWrite) (err error) {
+	err = w.WriteUInt8(packet.WindowID)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteString(string(packet.WindowType))
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteString(packet.WindowTitle)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt8(packet.NumberOfSlots)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	if packet.WindowType == types.WindowTypeEntityHorse {
+		err = w.WriteVarInt(int(packet.HorseEntityID))
+		if err != nil {
+			log.Print(err)
+			return
+		}
+	}
+	return
+}
+
+func (packet *PacketPlayOpenWindow) Id() int32 {
+	return 0x2D
+}
+
+type PacketPlayWindowItems struct {
+	WindowID uint8
+	SlotData []slot.SlotItem
+}
+
+func (packet *PacketPlayWindowItems) Write(w *readerwriter.ConnReadWrite) (err error) {
+	err = w.WriteUInt8(packet.WindowID)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt16(uint16(len(packet.SlotData)))
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	for _, slot := range packet.SlotData {
+		err = w.WriteSlotItem(slot)
+		if err != nil {
+			log.Print(err)
+			return
+		}
+	}
+	return
+}
+
+func (packet *PacketPlayWindowItems) Id() int32 {
+	return 0x30
+}
+
+type PacketPlayClickWindow struct {
+	WindowID     uint8
+	Slot         uint16
+	Button       uint8
+	ActionNumber uint16
+	Mode         uint8
+	ClickedItem  slot.SlotItem
+}
+
+func (packet *PacketPlayClickWindow) Read(r *readerwriter.ConnReadWrite) (err error) {
+	packet.WindowID, err = r.ReadUInt8()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.Slot, err = r.ReadUInt16()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.Button, err = r.ReadUInt8()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.ActionNumber, err = r.ReadUInt16()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.Mode, err = r.ReadUInt8()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.ClickedItem, err = r.ReadSlotItem()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}
+
+func (packet *PacketPlayClickWindow) Id() int32 {
 	return 0x0E
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/metadata"
+	"github.com/git-fal7/sealantern/pkg/slot"
 
 	"github.com/google/uuid"
 	"github.com/seebs/nbt"
@@ -231,5 +232,29 @@ func (w *ConnReadWrite) WriteMetadata(entries metadata.MetadataMap) (err error) 
 		}
 	}
 	err = w.WriteUInt8(127)
+	return
+}
+
+func (w *ConnReadWrite) WriteSlotItem(item slot.SlotItem) (err error) {
+	if item.ID == 0 {
+		err = w.WriteInt16(-1)
+		return
+	}
+	err = w.WriteUInt16(item.ID)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(item.Amount)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt16(item.Durability)
+	if err != nil {
+		return
+	}
+	err = w.WriteNBTCompound(item.NBT)
+	if err != nil {
+		return
+	}
 	return
 }

@@ -7,6 +7,8 @@ import (
 	"math"
 
 	"github.com/git-fal7/sealantern/minecraft/world"
+	"github.com/git-fal7/sealantern/pkg/slot"
+	"github.com/seebs/nbt"
 )
 
 func (r *ConnReadWrite) ReadByte() (b byte, err error) {
@@ -155,4 +157,42 @@ func (r *ConnReadWrite) ReadByteArray(length int) (data []byte, err error) {
 	data = make([]byte, length)
 	_, err = r.Rdr.Read(data)
 	return data, err
+}
+
+func (r *ConnReadWrite) ReadNBTCompound() (tag nbt.Compound, err error) {
+	nbtTag, _, err := nbt.LoadUncompressed(r.Rdr)
+	tag, ok := nbtTag.(nbt.Compound)
+	if !ok {
+		return nil, fmt.Errorf("not a compound tag")
+	}
+	return tag, err
+}
+
+func (r *ConnReadWrite) ReadSlotItem() (slotItem slot.SlotItem, err error) {
+	slotType, err := r.ReadUInt16()
+	if err != nil {
+		return slot.SlotItem{}, err
+	}
+	if int16(slotType) == -1 {
+		return slot.SlotItem{}, err
+	}
+	amount, err := r.ReadUInt8()
+	if err != nil {
+		return slot.SlotItem{}, err
+	}
+	durability, err := r.ReadUInt16()
+	if err != nil {
+		return slot.SlotItem{}, err
+	}
+	compoundTag, err := r.ReadNBTCompound()
+	if err != nil {
+		return slot.SlotItem{}, err
+	}
+	slotItem = slot.SlotItem{
+		ID:         slotType,
+		Amount:     amount,
+		Durability: durability,
+		NBT:        compoundTag,
+	}
+	return slotItem, err
 }

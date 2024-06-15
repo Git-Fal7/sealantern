@@ -1113,11 +1113,11 @@ func (packet *PacketPlaySpawnPlayer) Id() int32 {
 	return 0x0C
 }
 
-type PacketPlayDestroyEntites struct {
+type PacketPlayDestroyEntities struct {
 	EntityIDs []uint16
 }
 
-func (packet *PacketPlayDestroyEntites) Write(w *readerwriter.ConnReadWrite) (err error) {
+func (packet *PacketPlayDestroyEntities) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(len(packet.EntityIDs))
 	if err != nil {
 		log.Print(err)
@@ -1133,7 +1133,7 @@ func (packet *PacketPlayDestroyEntites) Write(w *readerwriter.ConnReadWrite) (er
 	return
 }
 
-func (packet *PacketPlayDestroyEntites) Id() int32 {
+func (packet *PacketPlayDestroyEntities) Id() int32 {
 	return 0x13
 }
 

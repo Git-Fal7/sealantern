@@ -106,7 +106,7 @@ func (instance *GameInstance) QuitPlayer(p *connplayer.ConnectedPlayer) error {
 		Action:  types.PlayerListActionRemovePlayer,
 		Entries: entries,
 	}
-	packetDestroyEntities := &packet.PacketPlayDestroyEntites{
+	packetDestroyEntities := &packet.PacketPlayDestroyEntities{
 		EntityIDs: make([]uint16, 0),
 	}
 	packetDestroyEntities.EntityIDs = append(packetDestroyEntities.EntityIDs, p.ID())
@@ -212,7 +212,7 @@ func (instance *GameInstance) Tick() {
 			}
 		}
 		if len(destroyedEntities) != 0 {
-			player.WritePacket(&packet.PacketPlayDestroyEntites{
+			player.WritePacket(&packet.PacketPlayDestroyEntities{
 				EntityIDs: destroyedEntities,
 			})
 		}

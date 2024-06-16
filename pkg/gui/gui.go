@@ -19,11 +19,11 @@ func NewGUIInventory(title string, rows int) *GUIInventory {
 	}
 }
 
-func (gui *GUIInventory) SetItem(slot slot.SlotItem, slotIndex uint8) {
-	if slotIndex >= uint8(len(gui.slots)) {
+func (gui *GUIInventory) SetItem(slot slot.SlotItem, row int, column int) {
+	if column+(row*9) >= len(gui.slots) {
 		return
 	}
-	gui.slots[slotIndex] = slot
+	gui.slots[column+(row*9)] = slot
 }
 
 func (gui GUIInventory) GetCreationPacket() []protocol.PacketOut {
@@ -40,4 +40,35 @@ func (gui GUIInventory) GetCreationPacket() []protocol.PacketOut {
 		},
 	}
 	return packets
+}
+
+func (gui *GUIInventory) Fill(slotItem slot.SlotItem) {
+	for i := range gui.slots {
+		gui.slots[i] = slotItem
+	}
+}
+
+func (gui *GUIInventory) FillRow(row int, slotItem slot.SlotItem) {
+	if row >= (len(gui.slots) / 9) {
+		return
+	}
+	for i := 0; i < 9; i++ {
+		gui.slots[i+(row*9)] = slotItem
+	}
+}
+
+func (gui *GUIInventory) FillColumn(column int, slotItem slot.SlotItem) {
+	if column >= 9 {
+		return
+	}
+	for i := 0; i < (len(gui.slots) / 9); i++ {
+		gui.slots[column+(i*9)] = slotItem
+	}
+}
+
+func (gui *GUIInventory) FillBorder(slotItem slot.SlotItem) {
+	gui.FillRow(0, slotItem)
+	gui.FillRow((len(gui.slots)/9)-1, slotItem)
+	gui.FillColumn(0, slotItem)
+	gui.FillColumn(8, slotItem)
 }

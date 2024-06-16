@@ -163,7 +163,7 @@ func (r *ConnReadWrite) ReadNBTCompound() (tag nbt.Compound, err error) {
 	nbtTag, _, err := nbt.LoadUncompressed(r.Rdr)
 	tag, ok := nbtTag.(nbt.Compound)
 	if !ok {
-		return nil, fmt.Errorf("not a compound tag")
+		return nil, nil
 	}
 	return tag, err
 }

@@ -252,9 +252,16 @@ func (w *ConnReadWrite) WriteSlotItem(item slot.SlotItem) (err error) {
 	if err != nil {
 		return
 	}
-	err = w.WriteNBTCompound(item.NBT)
-	if err != nil {
-		return
+	if item.NBT != nil || len(item.NBT) > 0 {
+		err = w.WriteNBTCompound(item.NBT)
+		if err != nil {
+			return
+		}
+	} else {
+		err = w.WriteUInt8(0)
+		if err != nil {
+			return
+		}
 	}
 	return
 }

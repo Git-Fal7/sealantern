@@ -7,6 +7,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/gameinstance"
+	"github.com/git-fal7/sealantern/pkg/inventory"
 	"github.com/git-fal7/sealantern/pkg/npc"
 	"github.com/git-fal7/sealantern/pkg/permission"
 	"github.com/git-fal7/sealantern/pkg/slot"
@@ -134,7 +135,7 @@ type NpcInteractEvent struct {
 
 type InventoryInteractEvent struct {
 	Player         player.IPlayer
-	WindowID       uint8
+	Inventory      inventory.Inventory
 	InteractedSlot uint16
 	InteractedItem slot.SlotItem
 	Allowed        bool

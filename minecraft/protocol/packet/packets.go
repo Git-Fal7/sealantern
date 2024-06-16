@@ -1908,13 +1908,32 @@ func (packet *PacketPlayClickWindow) Id() int32 {
 	return 0x0E
 }
 
-type PacketPlayConfirmTransactionClient struct {
+type PacketPlayConfirmTransaction struct {
 	WindowID     uint8
 	ActionNumber uint16
 	Accepted     bool
 }
 
-func (packet *PacketPlayConfirmTransactionClient) Write(w *readerwriter.ConnReadWrite) (err error) {
+func (packet *PacketPlayConfirmTransaction) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
+	packet.WindowID, err = r.ReadUInt8()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.ActionNumber, err = r.ReadUInt16()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.Accepted, err = r.ReadBool()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}
+
+func (packet *PacketPlayConfirmTransaction) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteUInt8(packet.WindowID)
 	if err != nil {
 		log.Print(err)
@@ -1933,7 +1952,7 @@ func (packet *PacketPlayConfirmTransactionClient) Write(w *readerwriter.ConnRead
 	return
 }
 
-func (packet *PacketPlayConfirmTransactionClient) Id() int32 {
+func (packet *PacketPlayConfirmTransaction) Id() int32 {
 	return 0x32
 }
 

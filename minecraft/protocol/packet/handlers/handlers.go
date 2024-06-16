@@ -17,6 +17,7 @@ import (
 	"github.com/git-fal7/sealantern/pkg/command"
 	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/events"
+	"github.com/git-fal7/sealantern/pkg/inventory"
 	"github.com/git-fal7/sealantern/pkg/rayutil"
 	"github.com/git-fal7/sealantern/pkg/slot"
 	"github.com/git-fal7/sealantern/sealantern/server"
@@ -457,15 +458,24 @@ type PlayClickWindowHandler struct {
 
 func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
 	clickWindowPacket, _ := protoPacket.(*packet.PacketPlayClickWindow)
+	var clickedInventory inventory.Inventory
+	if clickWindowPacket.WindowID == 0 {
+		clickedInventory = p.Inventory
+	} else {
+		clickedInventory = p.OpenedInventory
+	}
+	if clickWindowPacket.Slot == 64537 {
+		return // Dropping
+	}
 	clickEvent := &events.InventoryInteractEvent{
 		Player:         p,
-		WindowID:       clickWindowPacket.WindowID,
+		Inventory:      clickedInventory,
 		InteractedSlot: clickWindowPacket.Slot,
 		InteractedItem: clickWindowPacket.ClickedItem,
 		Allowed:        true,
 	}
 	h.Server.Event().Fire(clickEvent)
-	p.WritePacket(&packet.PacketPlayConfirmTransactionClient{
+	p.WritePacket(&packet.PacketPlayConfirmTransaction{
 		WindowID:     clickWindowPacket.WindowID,
 		ActionNumber: clickWindowPacket.ActionNumber,
 		Accepted:     clickEvent.Allowed,
@@ -478,9 +488,7 @@ func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 				ID: 0,
 			},
 		})
-		if p.OpenedInventory != nil {
-			p.WritePacket(p.OpenedInventory.GetCreationPacket()[1])
-		}
+		p.UpdateInventory()
 		return
 	}
 }

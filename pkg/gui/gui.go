@@ -19,6 +19,18 @@ func NewGUIInventory(title string, rows int) *GUIInventory {
 	}
 }
 
+func (gui GUIInventory) ID() uint8 {
+	return 1
+}
+
+func (gui GUIInventory) Title() string {
+	return gui.title
+}
+
+func (gui GUIInventory) Size() uint16 {
+	return uint16(len(gui.slots))
+}
+
 func (gui *GUIInventory) SetItem(slot slot.SlotItem, row int, column int) {
 	if column+(row*9) >= len(gui.slots) {
 		return
@@ -26,7 +38,7 @@ func (gui *GUIInventory) SetItem(slot slot.SlotItem, row int, column int) {
 	gui.slots[column+(row*9)] = slot
 }
 
-func (gui GUIInventory) GetCreationPacket() []protocol.PacketOut {
+func (gui GUIInventory) Packets() []protocol.PacketOut {
 	packets := []protocol.PacketOut{
 		&packet.PacketPlayOpenWindow{
 			WindowID:      1,

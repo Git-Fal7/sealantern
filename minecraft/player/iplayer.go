@@ -8,7 +8,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/chunk"
 	"github.com/git-fal7/sealantern/pkg/component"
-	"github.com/git-fal7/sealantern/pkg/gui"
+	"github.com/git-fal7/sealantern/pkg/inventory"
 	"github.com/git-fal7/sealantern/pkg/scoreboard/team"
 
 	"github.com/google/uuid"
@@ -29,7 +29,7 @@ type IPlayer interface {
 	KnownChunks() map[chunk.ChunkKey]bool
 	Team() *team.Team
 	SetTeam(team *team.Team)
-	OpenInventory(inventory *gui.GUIInventory)
+	OpenInventory(inventory inventory.Inventory)
 	PlayerInventory() *playerinventory.PlayerInventory
 	UpdateInventory()
 }

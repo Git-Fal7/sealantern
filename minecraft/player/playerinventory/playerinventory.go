@@ -17,6 +17,18 @@ func NewPlayerInventory() *PlayerInventory {
 	return &PlayerInventory{}
 }
 
+func (inv PlayerInventory) ID() uint8 {
+	return 0
+}
+
+func (inv PlayerInventory) Title() string {
+	return ""
+}
+
+func (inv PlayerInventory) Size() uint16 {
+	return 45
+}
+
 func (inv *PlayerInventory) SetArmor(slot types.PlayerInventoryArmor, slotData slot.SlotItem) {
 	if slot >= 4 {
 		return
@@ -38,13 +50,15 @@ func (inv *PlayerInventory) SetCrafting(slot int, slotData slot.SlotItem) {
 	inv.crafting[slot] = slotData
 }
 
-func (inv PlayerInventory) GetUpdatePacket() protocol.PacketOut {
+func (inv PlayerInventory) Packets() []protocol.PacketOut {
 	slots := []slot.SlotItem{}
 	slots = append(slots, inv.crafting[:]...)
 	slots = append(slots, inv.armor[:]...)
 	slots = append(slots, inv.slots[:]...)
-	return &packet.PacketPlayWindowItems{
-		WindowID: 0,
-		SlotData: slots,
+	return []protocol.PacketOut{
+		&packet.PacketPlayWindowItems{
+			WindowID: 0,
+			SlotData: slots,
+		},
 	}
 }

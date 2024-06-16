@@ -13,7 +13,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/chunk"
 	"github.com/git-fal7/sealantern/pkg/component"
-	"github.com/git-fal7/sealantern/pkg/gui"
+	"github.com/git-fal7/sealantern/pkg/inventory"
 	"github.com/git-fal7/sealantern/pkg/permission"
 	"github.com/git-fal7/sealantern/pkg/scoreboard/team"
 
@@ -32,7 +32,7 @@ type ConnectedPlayer struct {
 	Settings        clientsettings.ClientSettings
 	CurrentTeam     *team.Team
 	KnownChunkKeys  map[chunk.ChunkKey]bool
-	OpenedInventory *gui.GUIInventory
+	OpenedInventory inventory.Inventory
 	Inventory       *playerinventory.PlayerInventory
 }
 
@@ -162,13 +162,16 @@ func (p *ConnectedPlayer) PlayerInventory() *playerinventory.PlayerInventory {
 	return p.Inventory
 }
 
-func (p *ConnectedPlayer) OpenInventory(inventory *gui.GUIInventory) {
+func (p *ConnectedPlayer) OpenInventory(inventory inventory.Inventory) {
 	p.OpenedInventory = inventory
-	for _, packet := range inventory.GetCreationPacket() {
+	for _, packet := range inventory.Packets() {
 		p.WritePacket(packet)
 	}
 }
 
 func (p *ConnectedPlayer) UpdateInventory() {
-	p.WritePacket(p.Inventory.GetUpdatePacket())
+	if p.OpenedInventory != nil {
+		p.WritePacket(p.OpenedInventory.Packets()[1])
+	}
+	p.WritePacket(p.Inventory.Packets()[0])
 }

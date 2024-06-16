@@ -1870,7 +1870,7 @@ type PacketPlayClickWindow struct {
 	ClickedItem  slot.SlotItem
 }
 
-func (packet *PacketPlayClickWindow) Read(r *readerwriter.ConnReadWrite) (err error) {
+func (packet *PacketPlayClickWindow) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
 	packet.WindowID, err = r.ReadUInt8()
 	if err != nil {
 		log.Print(err)
@@ -1906,4 +1906,62 @@ func (packet *PacketPlayClickWindow) Read(r *readerwriter.ConnReadWrite) (err er
 
 func (packet *PacketPlayClickWindow) Id() int32 {
 	return 0x0E
+}
+
+type PacketPlayConfirmTransactionClient struct {
+	WindowID     uint8
+	ActionNumber uint16
+	Accepted     bool
+}
+
+func (packet *PacketPlayConfirmTransactionClient) Write(w *readerwriter.ConnReadWrite) (err error) {
+	err = w.WriteUInt8(packet.WindowID)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt16(packet.ActionNumber)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteBool(packet.Accepted)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}
+
+func (packet *PacketPlayConfirmTransactionClient) Id() int32 {
+	return 0x32
+}
+
+type PacketPlaySetSlot struct {
+	WindowID uint8
+	Slot     int16
+	SlotData slot.SlotItem
+}
+
+func (packet *PacketPlaySetSlot) Write(w *readerwriter.ConnReadWrite) (err error) {
+	err = w.WriteUInt8(packet.WindowID)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteInt16(packet.Slot)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteSlotItem(packet.SlotData)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}
+
+func (packet *PacketPlaySetSlot) Id() int32 {
+	return 0x2F
 }

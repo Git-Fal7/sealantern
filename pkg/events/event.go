@@ -9,6 +9,7 @@ import (
 	"github.com/git-fal7/sealantern/pkg/gameinstance"
 	"github.com/git-fal7/sealantern/pkg/npc"
 	"github.com/git-fal7/sealantern/pkg/permission"
+	"github.com/git-fal7/sealantern/pkg/slot"
 )
 
 type PlayerPreLoginResult uint8
@@ -129,4 +130,16 @@ type NpcInteractEvent struct {
 	Player       player.IPlayer
 	NPC          npc.NPC
 	InteractType types.UseEntityType
+}
+
+type InventoryInteractEvent struct {
+	Player         player.IPlayer
+	WindowID       uint8
+	InteractedSlot uint16
+	InteractedItem slot.SlotItem
+	Allowed        bool
+}
+
+func (e *InventoryInteractEvent) SetAllowed(allowed bool) {
+	e.Allowed = allowed
 }

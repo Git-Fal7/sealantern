@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/git-fal7/sealantern/minecraft/player/clientsettings"
+	"github.com/git-fal7/sealantern/minecraft/player/playerinventory"
 	"github.com/git-fal7/sealantern/minecraft/player/profile"
 	"github.com/git-fal7/sealantern/minecraft/player/socket"
 	"github.com/git-fal7/sealantern/minecraft/protocol"
@@ -12,6 +13,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/chunk"
 	"github.com/git-fal7/sealantern/pkg/component"
+	"github.com/git-fal7/sealantern/pkg/gui"
 	"github.com/git-fal7/sealantern/pkg/permission"
 	"github.com/git-fal7/sealantern/pkg/scoreboard/team"
 
@@ -19,27 +21,31 @@ import (
 )
 
 type ConnectedPlayer struct {
-	Conn           *socket.Conn
-	profile        *profile.PlayerProfile
-	Pos            world.Position
-	PermFunc       permission.Func
-	eid            uint16
-	Sneaking       bool
-	Health         float32
-	Invincibile    bool
-	Settings       clientsettings.ClientSettings
-	CurrentTeam    *team.Team
-	KnownChunkKeys map[chunk.ChunkKey]bool
+	Conn            *socket.Conn
+	profile         *profile.PlayerProfile
+	Pos             world.Position
+	PermFunc        permission.Func
+	eid             uint16
+	Sneaking        bool
+	Health          float32
+	Invincibile     bool
+	Settings        clientsettings.ClientSettings
+	CurrentTeam     *team.Team
+	KnownChunkKeys  map[chunk.ChunkKey]bool
+	OpenedInventory *gui.GUIInventory
+	Inventory       *playerinventory.PlayerInventory
 }
 
 func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16) *ConnectedPlayer {
 	return &ConnectedPlayer{
-		profile:        profile,
-		Conn:           conn,
-		eid:            eid,
-		Health:         20,
-		Invincibile:    false,
-		KnownChunkKeys: make(map[chunk.ChunkKey]bool),
+		profile:         profile,
+		Conn:            conn,
+		eid:             eid,
+		Health:          20,
+		Invincibile:     false,
+		KnownChunkKeys:  make(map[chunk.ChunkKey]bool),
+		OpenedInventory: nil,
+		Inventory:       playerinventory.NewPlayerInventory(),
 	}
 }
 
@@ -150,4 +156,19 @@ func (p *ConnectedPlayer) Team() *team.Team {
 func (p *ConnectedPlayer) SetTeam(team *team.Team) {
 	team.Players = append(team.Players, p.Username())
 	p.CurrentTeam = team
+}
+
+func (p *ConnectedPlayer) PlayerInventory() *playerinventory.PlayerInventory {
+	return p.Inventory
+}
+
+func (p *ConnectedPlayer) OpenInventory(inventory *gui.GUIInventory) {
+	p.OpenedInventory = inventory
+	for _, packet := range inventory.GetCreationPacket() {
+		p.WritePacket(packet)
+	}
+}
+
+func (p *ConnectedPlayer) UpdateInventory() {
+	p.WritePacket(p.Inventory.GetUpdatePacket())
 }

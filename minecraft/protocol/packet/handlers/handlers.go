@@ -168,7 +168,9 @@ type PlayKeepAliveHandler struct{}
 func (h *PlayKeepAliveHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
 	// set player's keepalive identifier
 	packet, _ := protoPacket.(*packet.PacketPlayKeepAlive)
-	p.Conn.KeepAlive = packet.Identifier
+	if p.Conn.KeepAlive == packet.Identifier {
+		p.Conn.KeepAlive = 0
+	}
 }
 
 type PlayChatHandler struct {

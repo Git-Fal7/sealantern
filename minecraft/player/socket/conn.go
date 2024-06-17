@@ -80,7 +80,9 @@ func (c *Conn) WritePacketWithoutCompression(packet protocol.PacketOut) (err err
 	c.Conn.Write(buff.Bytes())
 
 	if config.LanternConfig.Logs {
-		log.Printf("# <- %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
+		if packet.Id() != 0x26 {
+			log.Printf("# <- %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
+		}
 	}
 	return nil
 }

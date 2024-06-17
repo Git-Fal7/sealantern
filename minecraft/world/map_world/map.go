@@ -1,6 +1,8 @@
 package map_world
 
 import (
+	"slices"
+
 	"github.com/git-fal7/sealantern/minecraft/player"
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
 	"github.com/git-fal7/sealantern/minecraft/world"
@@ -44,6 +46,7 @@ func (m *Map) SendChunksAroundPlayer(p player.IPlayer) (map[chunk.ChunkKey]bool,
 	for k, v := range p.KnownChunks() {
 		prevChunks[k] = v
 	}
+	newChunksSlice := make([]chunk.ChunkKey, 0)
 	newChunks := make(map[chunk.ChunkKey]bool)
 
 	blockPos := p.Position().ToBlockPosition()
@@ -57,6 +60,7 @@ func (m *Map) SendChunksAroundPlayer(p player.IPlayer) (map[chunk.ChunkKey]bool,
 			if _, ok := prevChunks[key]; ok {
 				delete(prevChunks, key)
 			} else {
+				newChunksSlice = append(newChunksSlice, key)
 				newChunks[key] = true
 			}
 		}
@@ -66,6 +70,22 @@ func (m *Map) SendChunksAroundPlayer(p player.IPlayer) (map[chunk.ChunkKey]bool,
 		return nil, nil
 	}
 
+	slices.SortFunc(newChunksSlice, func(a chunk.ChunkKey, b chunk.ChunkKey) int {
+		dx := 16*float64(a.X) + 8 - p.Position().X
+		dz := 16*float64(a.Z) + 8 - p.Position().Z
+		da := dx*dx + dz*dz
+		dx = 16*float64(b.X) + 8 - p.Position().X
+		dz = 16*float64(b.Z) + 8 - p.Position().Z
+		db := dx*dx + dz*dz
+		if da > db {
+			return 1
+		} else if da == db {
+			return 0
+		} else {
+			return -1
+		}
+	})
+
 	for key := range newChunks {
 		p.KnownChunks()[key] = true
 	}
@@ -73,7 +93,7 @@ func (m *Map) SendChunksAroundPlayer(p player.IPlayer) (map[chunk.ChunkKey]bool,
 	bulkSize := 6
 	skyLight := m.Dimension == world.OVERWORLD
 	packets := make([]packet.PacketPlayChunkData, 0)
-	for key := range newChunks {
+	for _, key := range newChunksSlice {
 		c := m.GetChunk(key.X, key.Z)
 		data, sectionBitmask := c.ToData(skyLight)
 		messageSize := 10 + len(data)

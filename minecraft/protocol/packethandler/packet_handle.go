@@ -57,7 +57,9 @@ func InitRegistry(server server.Server) {
 		Server: server,
 	}
 	playPackets[0x15] = &handlers.PlayClientSettingsHandler{}
-	playPackets[0x17] = &handlers.PlayPluginMessageHandler{}
+	playPackets[0x17] = &handlers.PlayPluginMessageHandler{
+		Server: server,
+	}
 }
 
 func ExecutePacketHandler(conn *socket.Conn, packet protocol.Packet, id int, playerRegistry *player.PlayerRegistry) {

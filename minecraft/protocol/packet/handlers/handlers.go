@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"crypto/md5"
+	"encoding/binary"
 	"encoding/json"
 	"strings"
 	"time"
@@ -213,14 +214,13 @@ type PlayPluginMessageHandler struct {
 
 func (h *PlayPluginMessageHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
 	packet, _ := protoPacket.(*packet.PacketPlayPluginMessage)
-	/*
-		if packet.Channel == "MC|Brand" || packet.Channel == "minecraft:brand" {
-			log.Printf("%s is using %s client", player.name, string(packet.Data))
-			buff := make([]byte, len(player.core.brand)+1)
-			length := binary.PutUvarint(buff, uint64(len(player.core.brand)))
-			copy(buff[length:], []byte(player.core.brand))
-		}
-	*/
+	if packet.Channel == "MC|Brand" {
+		serverBrand := h.Server.Brand()
+		buff := make([]byte, len(serverBrand)+1)
+		length := binary.PutUvarint(buff, uint64(len(serverBrand)))
+		copy(buff[length:], []byte(serverBrand))
+	}
+
 	h.Server.Event().Fire(&events.PluginMessageEvent{
 		Channel: packet.Channel,
 		Data:    packet.Data,

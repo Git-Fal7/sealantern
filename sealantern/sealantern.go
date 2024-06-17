@@ -77,6 +77,10 @@ func (c *Core) SetBrand(brand string) {
 	c.brand = string(br)
 }
 
+func (c *Core) Brand() string {
+	return c.brand
+}
+
 func (c *Core) GetPlayerRegistry() *player.PlayerRegistry {
 	return c.playerRegistry
 }

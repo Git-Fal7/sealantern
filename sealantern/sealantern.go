@@ -130,7 +130,6 @@ func (c *Core) handleConnection(conn *socket.Conn, id int) {
 			if err != nil {
 				break
 			}
-			time.Sleep(time.Millisecond * 1) // 1000 packets / sec
 		}
 	}()
 

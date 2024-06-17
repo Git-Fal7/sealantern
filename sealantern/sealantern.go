@@ -187,7 +187,7 @@ func (c *Core) handlePacket(conn *socket.Conn) (packet protocol.PacketIn, err er
 		if config.LanternConfig.Logs {
 			log.Printf("# -> %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
 		}
-		packethandler.ExecutePacketHandler(conn, packet, nil)
+		packethandler.ExecutePacketHandler(conn, packet, id, nil)
 	}
 	return
 }
@@ -243,7 +243,7 @@ func (c *Core) readPlayPacketWithoutCompression(conn *socket.Conn) (packet proto
 		if config.LanternConfig.Logs {
 			log.Printf("# -> %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
 		}
-		packethandler.ExecutePacketHandler(conn, packet, c.playerRegistry)
+		packethandler.ExecutePacketHandler(conn, packet, id, c.playerRegistry)
 	}
 	return
 }

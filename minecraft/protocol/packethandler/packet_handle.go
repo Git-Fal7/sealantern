@@ -60,9 +60,9 @@ func InitRegistry(server server.Server) {
 	playPackets[0x17] = &handlers.PlayPluginMessageHandler{}
 }
 
-func ExecutePacketHandler(conn *socket.Conn, packet protocol.Packet, playerRegistry *player.PlayerRegistry) {
+func ExecutePacketHandler(conn *socket.Conn, packet protocol.Packet, id int, playerRegistry *player.PlayerRegistry) {
 	if conn.State == types.PLAY {
-		handler, ok := playPackets[packet.Id()]
+		handler, ok := playPackets[int32(id)]
 		if !ok {
 			return
 		}
@@ -75,6 +75,6 @@ func ExecutePacketHandler(conn *socket.Conn, packet protocol.Packet, playerRegis
 		}
 		handler.Handle(playerRegistry.GetPlayerFromUUID(conn.UUID), packet)
 	} else {
-		packets[packetTypeHash(conn.State, int(packet.Id()))].Handle(conn, packet)
+		packets[packetTypeHash(conn.State, int(id))].Handle(conn, packet)
 	}
 }

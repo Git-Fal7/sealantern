@@ -5,7 +5,6 @@ import (
 )
 
 type Packet interface {
-	Id() int32
 }
 
 // Server
@@ -17,5 +16,6 @@ type PacketIn interface {
 // Client
 type PacketOut interface {
 	Packet
+	Id() int32
 	Write(*readerwriter.ConnReadWrite) error
 }

@@ -21,7 +21,6 @@ type ChunkBlockPalette struct {
 type ChunkSection struct {
 	Palette BlockPalette
 	// This is a ridiculous way to put blocks in.. lmao
-	NBlocks    [16][256]byte
 	Blocks     [4096]byte // 16 * 16 * 16
 	SkyLight   [2048]byte
 	BlockLight [2048]byte

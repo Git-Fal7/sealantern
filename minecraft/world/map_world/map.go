@@ -3,6 +3,7 @@ package map_world
 import (
 	"slices"
 
+	"github.com/git-fal7/sealantern/minecraft/blocks"
 	"github.com/git-fal7/sealantern/minecraft/player"
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
 	"github.com/git-fal7/sealantern/minecraft/world"
@@ -24,6 +25,12 @@ func (m *Map) SetBlock(x, y, z int, typ string, overrideAir bool) {
 	chunk := m.GetChunk(int32(x)/16, int32(z)/16)
 	chunkSection := chunk.GetSection(y/16, m.Dimension == world.OVERWORLD)
 	chunkSection.SetBlock(x%16, y%16, z%16, typ)
+}
+
+func (m *Map) GetBlock(x, y, z int) int {
+	chunk := m.GetChunk(int32(x)/16, int32(z)/16)
+	chunkSection := chunk.GetSection(y/16, m.Dimension == world.OVERWORLD)
+	return blocks.BLOCK_REGISTRY.GetBlockId(chunkSection.Palette.RecoverName(int(chunkSection.Blocks[(y%16)<<8|(z%16)<<4|(x%16)])))
 }
 
 func (m *Map) GetChunk(x int32, z int32) *chunk.Chunk {

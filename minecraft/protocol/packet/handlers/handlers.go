@@ -507,3 +507,38 @@ func (h *PlayCloseWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 		p.OpenedInventory = nil
 	}
 }
+
+type PlayPlayerDiggingHandler struct {
+	Server server.Server
+}
+
+func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
+	diggingPacket, _ := protoPacket.(*packet.PacketPlayPlayerDigging)
+	if diggingPacket.Status == types.FinishedDigging {
+		// Break event
+		instance := h.Server.GetInstanceFromUUID(p.UUID())
+		block := instance.World.GetBlock(diggingPacket.Location.X, diggingPacket.Location.Y, diggingPacket.Location.Z)
+		breakEvent := &events.PlayerBreakBlockEvent{
+			Player:   p,
+			Block:    block,
+			Location: diggingPacket.Location,
+			Allowed:  true,
+		}
+		h.Server.Event().Fire(breakEvent)
+		if !breakEvent.Allowed {
+			p.WritePacket(&packet.PacketPlayBlockChange{
+				Location: diggingPacket.Location,
+				Type:     block,
+			})
+			return
+		}
+		blockChangePacket := &packet.PacketPlayBlockChange{
+			Location: diggingPacket.Location,
+			Type:     0,
+		}
+		instance.World.SetBlock(diggingPacket.Location.X, diggingPacket.Location.Y, diggingPacket.Location.Z, "minecraft:air", true)
+		for _, player := range instance.Players.GetPlayers() {
+			player.WritePacket(blockChangePacket)
+		}
+	}
+}

@@ -91,7 +91,7 @@ func (w *ConnReadWrite) WriteUInt64(i uint64) (err error) {
 	return
 }
 
-func (w *ConnReadWrite) WriteBlockPosition(i world.Position) (err error) {
+func (w *ConnReadWrite) WriteBlockPosition(i world.BlockPosition) (err error) {
 	return w.WriteUInt64(
 		((uint64(i.X) & 0x3FFFFFF) << 38) |
 			((uint64(i.Y) & 0xFFF) << 26) |

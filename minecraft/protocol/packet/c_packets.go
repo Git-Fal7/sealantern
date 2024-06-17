@@ -507,7 +507,7 @@ type PacketPlaySpawnPosition struct {
 }
 
 func (packet *PacketPlaySpawnPosition) Write(w *readerwriter.ConnReadWrite) (err error) {
-	err = w.WriteBlockPosition(packet.Position)
+	err = w.WriteBlockPosition(packet.Position.ToBlockPosition())
 	if err != nil {
 		log.Print(err)
 		return
@@ -1572,4 +1572,27 @@ func (packet *PacketPlayCloseWindow) Write(w *readerwriter.ConnReadWrite) (err e
 
 func (packet *PacketPlayCloseWindow) Id() int32 {
 	return 0x2E
+}
+
+type PacketPlayBlockChange struct {
+	Location world.BlockPosition
+	Type     int
+}
+
+func (packet *PacketPlayBlockChange) Write(w *readerwriter.ConnReadWrite) (err error) {
+	err = w.WriteBlockPosition(packet.Location)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteVarInt(packet.Type)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}
+
+func (packet *PacketPlayBlockChange) Id() int32 {
+	return 0x23
 }

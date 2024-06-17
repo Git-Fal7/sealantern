@@ -144,3 +144,15 @@ type InventoryInteractEvent struct {
 func (e *InventoryInteractEvent) SetAllowed(allowed bool) {
 	e.Allowed = allowed
 }
+
+// TODO: Implement block.
+type PlayerBreakBlockEvent struct {
+	Player   player.IPlayer
+	Block    int
+	Location world.BlockPosition
+	Allowed  bool
+}
+
+func (e *PlayerBreakBlockEvent) SetAllowed(allowed bool) {
+	e.Allowed = allowed
+}

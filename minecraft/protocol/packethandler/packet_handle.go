@@ -47,6 +47,9 @@ func InitRegistry(server server.Server) {
 	playPackets[0x06] = &handlers.PlayPlayerPositionAndLookHandler{
 		Server: server,
 	}
+	playPackets[0x07] = &handlers.PlayPlayerDiggingHandler{
+		Server: server,
+	}
 	playPackets[0x0A] = &handlers.PlayAnimationServerHandler{
 		Server: server,
 	}

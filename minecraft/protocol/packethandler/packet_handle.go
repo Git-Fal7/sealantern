@@ -50,10 +50,11 @@ func InitRegistry(server server.Server) {
 	playPackets[0x0A] = &handlers.PlayAnimationServerHandler{
 		Server: server,
 	}
-	playPackets[0x0E] = &handlers.PlayClickWindowHandler{
+	playPackets[0x0B] = &handlers.PlayEntityActionHandler{
 		Server: server,
 	}
-	playPackets[0x0B] = &handlers.PlayEntityActionHandler{
+	playPackets[0x0D] = &handlers.PlayCloseWindowHandler{}
+	playPackets[0x0E] = &handlers.PlayClickWindowHandler{
 		Server: server,
 	}
 	playPackets[0x15] = &handlers.PlayClientSettingsHandler{}

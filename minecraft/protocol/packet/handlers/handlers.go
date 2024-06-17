@@ -494,3 +494,12 @@ func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 		return
 	}
 }
+
+type PlayCloseWindowHandler struct{}
+
+func (h *PlayCloseWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
+	closeWindowPacket, _ := protoPacket.(*packet.PacketPlayCloseWindow)
+	if closeWindowPacket.WindowID != 0 {
+		p.OpenedInventory = nil
+	}
+}

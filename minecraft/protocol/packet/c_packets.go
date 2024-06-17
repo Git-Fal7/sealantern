@@ -1547,3 +1547,29 @@ func (packet *PacketPlaySetSlot) Write(w *readerwriter.ConnReadWrite) (err error
 func (packet *PacketPlaySetSlot) Id() int32 {
 	return 0x2F
 }
+
+type PacketPlayCloseWindow struct {
+	WindowID uint8
+}
+
+func (packet *PacketPlayCloseWindow) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
+	packet.WindowID, err = r.ReadUInt8()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}
+
+func (packet *PacketPlayCloseWindow) Write(w *readerwriter.ConnReadWrite) (err error) {
+	err = w.WriteUInt8(packet.WindowID)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}
+
+func (packet *PacketPlayCloseWindow) Id() int32 {
+	return 0x2E
+}

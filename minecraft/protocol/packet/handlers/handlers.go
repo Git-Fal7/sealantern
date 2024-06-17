@@ -52,6 +52,10 @@ func (h *StatusRequestHandler) Handle(p *socket.Conn, protoPacket protocol.Packe
 			Motd: "",
 		},
 		Favicon: "",
+		ModInfo: types.ServerListPingModInfo{
+			ModType: "FML",
+			ModList: make([]string, 0),
+		},
 	}
 	serverListPingEvent := &events.ServerListPingEvent{
 		ServerListPing: serverListPing,

@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"reflect"
+	"sync"
 
 	"github.com/git-fal7/sealantern/config"
 	"github.com/git-fal7/sealantern/minecraft/protocol"
@@ -27,6 +28,8 @@ type Conn struct {
 	Compression  bool
 	KeepAlive    int
 	PacketsQueue chan protocol.PacketOut
+
+	writerMutex sync.Mutex
 
 	State        types.State
 	Protocol     int32
@@ -57,27 +60,28 @@ func (c *Conn) PrivateWritePacket(packet protocol.PacketOut) (err error) {
 	return c.WritePacketWithoutCompression(packet)
 }
 
+// TODO: seperate writer and reader.
 func (c *Conn) WritePacketWithoutCompression(packet protocol.PacketOut) (err error) {
-	buff := bytes.NewBuffer(nil) // 256
-	tmp := c.IO
-	c.IO = &readerwriter.ConnReadWrite{
-		Rdr: tmp.Rdr,
-		Wtr: buff,
-	}
-
 	id := packet.Id()
 	if id == -1 {
 		return
 	}
-	c.IO.WriteVarInt(int(id))
-	packet.Write(c.IO)
+	buff := bytes.NewBuffer(nil)
+	writer := &readerwriter.ConnReadWrite{
+		Wtr: buff,
+	}
+	writer.WriteVarInt(int(id))
+	packet.Write(writer)
 
-	ln := bytes.NewBuffer(nil) // 256
-	c.IO.Wtr = ln
-	c.IO.WriteVarInt(buff.Len())
-	c.IO = tmp
+	ln := bytes.NewBuffer(nil)
+	writer.Wtr = ln
+	writer.WriteVarInt(buff.Len())
+	writer.WriteByteArray(buff.Bytes())
+
+	c.writerMutex.Lock()
+	defer c.writerMutex.Unlock()
+
 	c.Conn.Write(ln.Bytes())
-	c.Conn.Write(buff.Bytes())
 
 	if config.LanternConfig.Logs {
 		if packet.Id() != 0x26 {

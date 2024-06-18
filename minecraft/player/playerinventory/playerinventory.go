@@ -8,9 +8,7 @@ import (
 )
 
 type PlayerInventory struct {
-	slots    [36]slot.SlotItem
-	armor    [4]slot.SlotItem
-	crafting [5]slot.SlotItem
+	slots [45]slot.SlotItem
 }
 
 func NewPlayerInventory() *PlayerInventory {
@@ -33,32 +31,35 @@ func (inv *PlayerInventory) SetArmor(slot types.PlayerInventoryArmor, slotData s
 	if slot >= 4 {
 		return
 	}
-	inv.armor[slot] = slotData
+	inv.slots[5+slot] = slotData // starts at index 5
 }
 
 func (inv *PlayerInventory) SetSlot(slot int, slotData slot.SlotItem) {
 	if slot >= 36 {
 		return
 	}
-	inv.slots[slot] = slotData
+	inv.slots[9+slot] = slotData // starts at index 9
 }
 
 func (inv *PlayerInventory) SetCrafting(slot int, slotData slot.SlotItem) {
 	if slot >= 5 {
 		return
 	}
-	inv.crafting[slot] = slotData
+	inv.slots[slot] = slotData // starts at index 0
+}
+
+func (inv *PlayerInventory) SetHotbar(slot int, slotData slot.SlotItem) {
+	if slot >= 9 {
+		return
+	}
+	inv.slots[36+slot] = slotData // starts at index 36
 }
 
 func (inv PlayerInventory) Packets() []protocol.PacketOut {
-	slots := []slot.SlotItem{}
-	slots = append(slots, inv.crafting[:]...)
-	slots = append(slots, inv.armor[:]...)
-	slots = append(slots, inv.slots[:]...)
 	return []protocol.PacketOut{
 		&packet.PacketPlayWindowItems{
 			WindowID: 0,
-			SlotData: slots,
+			SlotData: inv.slots[:],
 		},
 	}
 }

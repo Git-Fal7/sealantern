@@ -424,3 +424,28 @@ func (packet *PacketPlayBlockPlacement) Read(r *readerwriter.ConnReadWrite, leng
 	}
 	return
 }
+
+type PacketPlayPlayerAbilitiesServer struct {
+	Flags        uint8
+	FlyingSpeed  float32
+	WalkingSpeed float32
+}
+
+func (packet *PacketPlayPlayerAbilitiesServer) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
+	packet.Flags, err = r.ReadUInt8()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.FlyingSpeed, err = r.ReadFloat32()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.WalkingSpeed, err = r.ReadFloat32()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}

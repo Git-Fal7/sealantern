@@ -116,7 +116,7 @@ func (c *Core) keepAlive() {
 				player.WritePacket(keepalive)
 			}
 		}
-		time.Sleep(200 * time.Millisecond)
+		time.Sleep(5 * time.Second)
 	}
 }
 

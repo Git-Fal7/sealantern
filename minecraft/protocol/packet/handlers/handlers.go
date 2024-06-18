@@ -361,11 +361,11 @@ func (h *PlayEntityActionHandler) Handle(p *connplayer.ConnectedPlayer, protoPac
 	}
 }
 
-type PlayAnimationServerHandler struct {
+type PlaySwingArmHandler struct {
 	Server server.Server
 }
 
-func (h *PlayAnimationServerHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
+func (h *PlaySwingArmHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
 	instance := h.Server.GetInstanceFromUUID(p.UUID())
 	animationPacket := &packet.PacketPlayAnimationClient{
 		EntityID:  p.ID(),

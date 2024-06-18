@@ -229,10 +229,10 @@ func (packet *PacketPlayEntityAction) Read(r *readerwriter.ConnReadWrite, length
 	return
 }
 
-type PacketPlayAnimationServer struct {
+type PacketPlaySwingArm struct {
 }
 
-func (packet *PacketPlayAnimationServer) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
+func (packet *PacketPlaySwingArm) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
 	return
 }
 

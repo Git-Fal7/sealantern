@@ -1596,3 +1596,59 @@ func (packet *PacketPlayBlockChange) Write(w *readerwriter.ConnReadWrite) (err e
 func (packet *PacketPlayBlockChange) Id() int32 {
 	return 0x23
 }
+
+type PacketPlayHeldItemChange struct {
+	Slot uint8
+}
+
+func (packet *PacketPlayHeldItemChange) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
+	slot, err := r.ReadUInt16()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.Slot = uint8(slot)
+	return
+}
+
+func (packet *PacketPlayHeldItemChange) Write(w *readerwriter.ConnReadWrite) (err error) {
+	err = w.WriteUInt8(packet.Slot)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}
+
+func (packet *PacketPlayHeldItemChange) Id() int32 {
+	return 0x09
+}
+
+type PacketPlayEntityEquipment struct {
+	EntityID uint16
+	Slot     types.EquipmentSlot
+	Item     slot.SlotItem
+}
+
+func (packet *PacketPlayEntityEquipment) Write(w *readerwriter.ConnReadWrite) (err error) {
+	err = w.WriteVarInt(int(packet.EntityID))
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteUInt16(uint16(packet.Slot))
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	err = w.WriteSlotItem(packet.Item)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}
+
+func (packet *PacketPlayEntityEquipment) Id() int32 {
+	return 0x04
+}

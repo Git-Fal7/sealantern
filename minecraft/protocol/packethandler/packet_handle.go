@@ -50,6 +50,12 @@ func InitRegistry(server server.Server) {
 	playPackets[0x07] = &handlers.PlayPlayerDiggingHandler{
 		Server: server,
 	}
+	playPackets[0x08] = &handlers.PlayBlockPlacementHandler{
+		Server: server,
+	}
+	playPackets[0x09] = &handlers.PlayHeldItemChangeHandler{
+		Server: server,
+	}
 	playPackets[0x0A] = &handlers.PlaySwingArmHandler{
 		Server: server,
 	}

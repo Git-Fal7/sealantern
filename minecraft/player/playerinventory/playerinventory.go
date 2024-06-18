@@ -8,7 +8,8 @@ import (
 )
 
 type PlayerInventory struct {
-	slots [45]slot.SlotItem
+	slots    [45]slot.SlotItem
+	HeldSlot uint8
 }
 
 func NewPlayerInventory() *PlayerInventory {
@@ -60,6 +61,42 @@ func (inv PlayerInventory) Packets() []protocol.PacketOut {
 		&packet.PacketPlayWindowItems{
 			WindowID: 0,
 			SlotData: inv.slots[:],
+		},
+	}
+}
+
+func (inv *PlayerInventory) SetHeldItemSlot(slot uint8) {
+	if slot >= 9 {
+		return
+	}
+	inv.HeldSlot = slot
+}
+
+func (inv *PlayerInventory) GetHeldItem() slot.SlotItem {
+	return inv.slots[36+inv.HeldSlot]
+}
+
+func (inv *PlayerInventory) GetArmorPackets(eid uint16) []protocol.PacketOut {
+	return []protocol.PacketOut{
+		&packet.PacketPlayEntityEquipment{
+			EntityID: eid,
+			Slot:     types.EquipimentSlotHelmet,
+			Item:     inv.slots[5+types.PlayerInventoryArmorHelmet],
+		},
+		&packet.PacketPlayEntityEquipment{
+			EntityID: eid,
+			Slot:     types.EquipimentSlotChestplate,
+			Item:     inv.slots[5+types.PlayerInventoryArmorChestplate],
+		},
+		&packet.PacketPlayEntityEquipment{
+			EntityID: eid,
+			Slot:     types.EquipimentSlotLeggings,
+			Item:     inv.slots[5+types.PlayerInventoryArmorLeggings],
+		},
+		&packet.PacketPlayEntityEquipment{
+			EntityID: eid,
+			Slot:     types.EquipimentSlotBoots,
+			Item:     inv.slots[5+types.PlayerInventoryArmorBoots],
 		},
 	}
 }

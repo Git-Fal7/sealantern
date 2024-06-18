@@ -380,3 +380,47 @@ func (packet *PacketPlayClickWindow) Read(r *readerwriter.ConnReadWrite, length 
 	}
 	return
 }
+
+type PacketPlayBlockPlacement struct {
+	Location   world.BlockPosition
+	Face       types.BlockFace
+	HeldItem   slot.SlotItem
+	CursorPosX uint8
+	CursorPosY uint8
+	CursorPosZ uint8
+}
+
+func (packet *PacketPlayBlockPlacement) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
+	packet.Location, err = r.ReadBlockPosition()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	blockFace, err := r.ReadUInt8()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.Face = types.BlockFace(blockFace)
+	packet.HeldItem, err = r.ReadSlotItem()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.CursorPosX, err = r.ReadUInt8()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.CursorPosY, err = r.ReadUInt8()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	packet.CursorPosZ, err = r.ReadUInt8()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	return
+}

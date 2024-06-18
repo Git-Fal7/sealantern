@@ -63,18 +63,6 @@ type PlayerChatEvent struct {
 	Message string
 }
 
-type PlayerClickType byte
-
-const (
-	PlayerRightClick PlayerClickType = iota
-	PlayerLeftClick
-)
-
-type PlayerInteractEvent struct {
-	Player    player.IPlayer
-	ClickType PlayerClickType
-}
-
 type PlayerMoveEvent struct {
 	Player       player.IPlayer
 	FromPosition world.Position
@@ -154,5 +142,22 @@ type PlayerBreakBlockEvent struct {
 }
 
 func (e *PlayerBreakBlockEvent) SetAllowed(allowed bool) {
+	e.Allowed = allowed
+}
+
+type PlayerInteractItemEvent struct {
+	Player player.IPlayer
+	Slot   slot.SlotItem
+	Action types.ClickAction
+}
+
+type PlayerHeldItemChangeEvent struct {
+	Player       player.IPlayer
+	PreviousSlot uint8
+	CurrentSlot  uint8
+	Allowed      bool
+}
+
+func (e *PlayerHeldItemChangeEvent) SetAllowed(allowed bool) {
 	e.Allowed = allowed
 }

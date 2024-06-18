@@ -27,6 +27,8 @@ func InitRegistry() {
 	packets[packetTypeHash(types.PLAY, 0x05)] = reflect.TypeOf((*PacketPlayPlayerLook)(nil)).Elem()
 	packets[packetTypeHash(types.PLAY, 0x06)] = reflect.TypeOf((*PacketPlayPlayerPositionAndLook)(nil)).Elem()
 	packets[packetTypeHash(types.PLAY, 0x07)] = reflect.TypeOf((*PacketPlayPlayerDigging)(nil)).Elem()
+	packets[packetTypeHash(types.PLAY, 0x08)] = reflect.TypeOf((*PacketPlayBlockPlacement)(nil)).Elem()
+	packets[packetTypeHash(types.PLAY, 0x09)] = reflect.TypeOf((*PacketPlayHeldItemChange)(nil)).Elem()
 	packets[packetTypeHash(types.PLAY, 0x0A)] = reflect.TypeOf((*PacketPlaySwingArm)(nil)).Elem()
 	packets[packetTypeHash(types.PLAY, 0x0B)] = reflect.TypeOf((*PacketPlayEntityAction)(nil)).Elem()
 	packets[packetTypeHash(types.PLAY, 0x0E)] = reflect.TypeOf((*PacketPlayClickWindow)(nil)).Elem()

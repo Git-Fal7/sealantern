@@ -51,7 +51,7 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 		EntityID:       p.ID(),
 		PlayerUUID:     p.UUID(),
 		PlayerPosition: p.Position(),
-		CurrentItem:    0,
+		CurrentItem:    p.PlayerInventory().GetHeldItem().ID,
 	}
 	packetHeadRotation := &packet.PacketPlayEntityHeadLook{
 		EntityID: p.ID(),
@@ -65,13 +65,19 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 		if player.UUID() != p.UUID() {
 			player.WritePacket(packetPlayerListItem)
 			player.WritePacket(packetSpawnJoinedPlayer)
+			for _, eqiupmentPacket := range p.PlayerInventory().GetArmorPackets(p.ID()) {
+				player.WritePacket(eqiupmentPacket)
+			}
 			player.WritePacket(packetHeadRotation)
 			p.WritePacket(&packet.PacketPlaySpawnPlayer{
 				EntityID:       player.ID(),
 				PlayerUUID:     player.UUID(),
 				PlayerPosition: player.Position(),
-				CurrentItem:    0,
+				CurrentItem:    player.PlayerInventory().GetHeldItem().ID,
 			})
+			for _, eqiupmentPacket := range player.PlayerInventory().GetArmorPackets(player.ID()) {
+				p.WritePacket(eqiupmentPacket)
+			}
 			p.WritePacket(&packet.PacketPlayEntityHeadLook{
 				EntityID: player.ID(),
 				HeadYaw:  player.Position().IntYaw(),
@@ -171,30 +177,33 @@ func (instance *GameInstance) HasPlayerFromUUID(uuid uuid.UUID) bool {
 // basically load chunks around player
 func (instance *GameInstance) Tick() {
 	players := instance.Players.GetPlayers()
-	for _, player := range players {
-		newChunks, prevChunks := instance.World.SendChunksAroundPlayer(player)
+	for _, p := range players {
+		newChunks, prevChunks := instance.World.SendChunksAroundPlayer(p)
 		if len(newChunks) == 0 {
 			continue
 		}
 		destroyedEntities := make([]uint16, 0)
-		for _, p := range players {
-			if p.UUID() == player.UUID() {
+		for _, player := range players {
+			if player.UUID() == p.UUID() {
 				continue
 			}
-			pBlockPos := p.Position().ToBlockPosition()
+			pBlockPos := player.Position().ToBlockPosition()
 			chunkKey := chunk.ChunkKey{
 				X: int32(pBlockPos.X) / 16,
 				Z: int32(pBlockPos.Z) / 16,
 			}
 			if newChunks[chunkKey] {
-				player.WritePacket(&packet.PacketPlaySpawnPlayer{
-					EntityID:       p.ID(),
-					PlayerUUID:     p.UUID(),
-					PlayerPosition: p.Position(),
-					CurrentItem:    0,
+				p.WritePacket(&packet.PacketPlaySpawnPlayer{
+					EntityID:       player.ID(),
+					PlayerUUID:     player.UUID(),
+					PlayerPosition: player.Position(),
+					CurrentItem:    player.PlayerInventory().GetHeldItem().ID,
 				})
+				for _, eqiupmentPacket := range player.PlayerInventory().GetArmorPackets(player.ID()) {
+					p.WritePacket(eqiupmentPacket)
+				}
 			} else if prevChunks[chunkKey] {
-				destroyedEntities = append(destroyedEntities, p.ID())
+				destroyedEntities = append(destroyedEntities, player.ID())
 			}
 		}
 		for _, npc := range instance.NPCs {
@@ -205,14 +214,14 @@ func (instance *GameInstance) Tick() {
 			}
 			if newChunks[chunkKey] {
 				for _, npcPacket := range npc.GetCreationPacket() {
-					player.WritePacket(npcPacket)
+					p.WritePacket(npcPacket)
 				}
 			} else if prevChunks[chunkKey] {
 				destroyedEntities = append(destroyedEntities, npc.GetDestructionID()...)
 			}
 		}
 		if len(destroyedEntities) != 0 {
-			player.WritePacket(&packet.PacketPlayDestroyEntities{
+			p.WritePacket(&packet.PacketPlayDestroyEntities{
 				EntityIDs: destroyedEntities,
 			})
 		}

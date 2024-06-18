@@ -155,6 +155,9 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 		FlyingSpeed:  0.1,
 		FieldOfView:  0.1,
 	})
+	h.Server.Event().Fire(&events.PlayerJoinEvent{
+		Player: player,
+	})
 	err := loginEvent.Instance.JoinPlayer(player)
 	if err != nil {
 		p.Disconnect(&component.StringChatComponent{
@@ -162,9 +165,6 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 		})
 		return
 	}
-	h.Server.Event().Fire(&events.PlayerJoinEvent{
-		Player: player,
-	})
 }
 
 type PlayKeepAliveHandler struct{}
@@ -539,6 +539,52 @@ func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPa
 		instance.World.SetBlock(diggingPacket.Location.X, diggingPacket.Location.Y, diggingPacket.Location.Z, "minecraft:air", true)
 		for _, player := range instance.Players.GetPlayers() {
 			player.WritePacket(blockChangePacket)
+		}
+	}
+}
+
+type PlayBlockPlacementHandler struct {
+	Server server.Server
+}
+
+func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
+	// TODO: Placaement
+	h.Server.Event().Fire(&events.PlayerInteractItemEvent{
+		Player: p,
+		Slot:   p.PlayerInventory().GetHeldItem(),
+		Action: types.ClickActionRightClick,
+	})
+}
+
+type PlayHeldItemChangeHandler struct {
+	Server server.Server
+}
+
+func (h *PlayHeldItemChangeHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
+	heldItemChange, _ := protoPacket.(*packet.PacketPlayHeldItemChange)
+	slotChangeEvent := &events.PlayerHeldItemChangeEvent{
+		Player:       p,
+		PreviousSlot: p.PlayerInventory().HeldSlot,
+		CurrentSlot:  heldItemChange.Slot,
+		Allowed:      true,
+	}
+	h.Server.Event().Fire(slotChangeEvent)
+	if !slotChangeEvent.Allowed {
+		p.WritePacket(&packet.PacketPlayHeldItemChange{
+			Slot: p.PlayerInventory().HeldSlot,
+		})
+		return
+	}
+	p.PlayerInventory().SetHeldItemSlot(heldItemChange.Slot)
+	instance := h.Server.GetInstanceFromUUID(p.UUID())
+	entityEquipmentPacket := &packet.PacketPlayEntityEquipment{
+		EntityID: p.ID(),
+		Slot:     types.EquipmentSlotHeldItem,
+		Item:     p.PlayerInventory().GetHeldItem(),
+	}
+	for _, player := range instance.Players.GetPlayers() {
+		if player.UUID() != p.UUID() {
+			player.WritePacket(entityEquipmentPacket)
 		}
 	}
 }

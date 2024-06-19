@@ -1,8 +1,6 @@
 package packet
 
 import (
-	"log"
-
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/metadata"
@@ -18,7 +16,6 @@ type PacketStatusResponse struct {
 func (packet *PacketStatusResponse) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteString(packet.Response)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -35,7 +32,6 @@ type PacketStatusPing struct {
 func (packet *PacketStatusPing) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
 	packet.Time, err = r.ReadUInt64()
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -43,7 +39,6 @@ func (packet *PacketStatusPing) Read(r *readerwriter.ConnReadWrite, length int) 
 func (packet *PacketStatusPing) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteUInt64(packet.Time)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -56,7 +51,6 @@ func (packet *PacketStatusPing) Id() int32 {
 func (packet *PacketLoginDisconnect) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteString(packet.Component)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -74,12 +68,10 @@ type PacketLoginSuccess struct {
 func (packet *PacketLoginSuccess) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteString(packet.UUID.String())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteString(packet.Username)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -96,7 +88,6 @@ type PacketLoginSetCompression struct {
 func (packet *PacketLoginSetCompression) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(packet.Threshold)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -113,13 +104,11 @@ type PacketPlayTabComplete struct {
 func (packet *PacketPlayTabComplete) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(len(packet.Matches))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	for _, s := range packet.Matches {
 		err = w.WriteString(s)
 		if err != nil {
-			log.Print(err)
 			return
 		}
 	}
@@ -138,12 +127,10 @@ type PacketPlayMessage struct {
 func (packet *PacketPlayMessage) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteString(packet.Component)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.Position))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -160,7 +147,6 @@ type PacketPlayServerDifficulty struct {
 func (packet *PacketPlayServerDifficulty) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteUInt8(uint8(packet.Difficulty))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -178,7 +164,6 @@ type PacketPlayPluginMessage struct {
 func (packet *PacketPlayPluginMessage) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
 	packet.Channel, err = r.ReadString()
 	if err != nil {
-		log.Print(err)
 		return
 	}
 
@@ -187,7 +172,6 @@ func (packet *PacketPlayPluginMessage) Read(r *readerwriter.ConnReadWrite, lengt
 
 	packet.Data, err = r.ReadByteArray(dataLength)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -195,12 +179,10 @@ func (packet *PacketPlayPluginMessage) Read(r *readerwriter.ConnReadWrite, lengt
 func (packet *PacketPlayPluginMessage) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteString(packet.Channel)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteByteArray(packet.Data)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -217,7 +199,6 @@ type PacketPlayDisconnect struct {
 func (packet *PacketPlayDisconnect) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
 	packet.Component, err = r.ReadString()
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -225,7 +206,6 @@ func (packet *PacketPlayDisconnect) Read(r *readerwriter.ConnReadWrite, length i
 func (packet *PacketPlayDisconnect) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteString(packet.Component)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -242,7 +222,6 @@ type PacketPlayKeepAlive struct {
 func (packet *PacketPlayKeepAlive) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
 	packet.Identifier, err = r.ReadVarInt()
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -250,7 +229,6 @@ func (packet *PacketPlayKeepAlive) Read(r *readerwriter.ConnReadWrite, length in
 func (packet *PacketPlayKeepAlive) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(packet.Identifier)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -277,52 +255,42 @@ type PacketPlayParticle struct {
 func (packet *PacketPlayParticle) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteUInt32(uint32(packet.Type))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteBool(packet.LongDistance)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.X)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.Y)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.Z)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.OffsetX)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.OffsetY)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.OffsetZ)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.ParticleData)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt32(uint32(packet.Count))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -344,37 +312,30 @@ type PacketPlayJoinGame struct {
 func (packet *PacketPlayJoinGame) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteUInt8(0) // entity ids are more than 255,
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.Gamemode))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt32(uint32(packet.Dimension))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.Difficulty))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.MaxPlayers)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteString(string(packet.LevelType))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteBool(packet.ReducedDebug)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -410,17 +371,14 @@ func (packet *PacketPlayPlayerAbilities) Write(w *readerwriter.ConnReadWrite) (e
 
 	err = w.WriteUInt8(flags)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.FlyingSpeed)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.FieldOfView)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -438,32 +396,26 @@ type PacketPlayPlayerPositionAndLookClient struct {
 func (packet *PacketPlayPlayerPositionAndLookClient) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteFloat64(packet.Position.X)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat64(packet.Position.Y)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat64(packet.Position.Z)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.Position.Yaw)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.Position.Pitch)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.Flags)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -482,17 +434,14 @@ type PacketPlayUpdateHealth struct {
 func (packet *PacketPlayUpdateHealth) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteFloat32(packet.Health)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteVarInt(packet.Food)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteFloat32(packet.FoodSaturation)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -509,7 +458,6 @@ type PacketPlaySpawnPosition struct {
 func (packet *PacketPlaySpawnPosition) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteBlockPosition(packet.Position.ToBlockPosition())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -533,7 +481,6 @@ func (packet *PacketPlayerListHeaderFooter) Write(w *readerwriter.ConnReadWrite)
 	}
 	err = w.WriteString(str)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	if packet.Footer == nil {
@@ -543,7 +490,6 @@ func (packet *PacketPlayerListHeaderFooter) Write(w *readerwriter.ConnReadWrite)
 	}
 	err = w.WriteString(str)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -561,19 +507,16 @@ type PacketPlayPlayerListItem struct {
 func (packet *PacketPlayPlayerListItem) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.Action))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteVarInt(len(packet.Entries))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 
 	for _, entry := range packet.Entries {
 		err = w.WriteUUID(entry.Profile.UUID)
 		if err != nil {
-			log.Print(err)
 			return
 		}
 		switch packet.Action {
@@ -581,76 +524,63 @@ func (packet *PacketPlayPlayerListItem) Write(w *readerwriter.ConnReadWrite) (er
 			{
 				err = w.WriteString(entry.Profile.Name)
 				if err != nil {
-					log.Print(err)
 					return
 				}
 				err = w.WriteVarInt(len(entry.Profile.Properties))
 				if err != nil {
-					log.Print(err)
 					return
 				}
 				for _, property := range entry.Profile.Properties {
 					err = w.WriteString(property.Name)
 					if err != nil {
-						log.Print(err)
 						return
 					}
 					err = w.WriteString(property.Value)
 					if err != nil {
-						log.Print(err)
 						return
 					}
 					if property.Signature != "" {
 						err = w.WriteBool(true)
 						if err != nil {
-							log.Print(err)
 							return
 						}
 						err = w.WriteString(property.Signature)
 						if err != nil {
-							log.Print(err)
 							return
 						}
 					} else {
 						err = w.WriteBool(false)
 						if err != nil {
-							log.Print(err)
 							return
 						}
 					}
 				}
 				err = w.WriteVarInt(int(entry.GameMode))
 				if err != nil {
-					log.Print(err)
 					return
 				}
 				err = w.WriteVarInt(entry.Ping)
 				if err != nil {
-					log.Print(err)
 					return
 				}
 				if entry.DisplayName != nil {
 					err = w.WriteBool(true)
 					if err != nil {
-						log.Print(err)
 						return
 					}
 					var json string
 					json, err = entry.DisplayName.JSON()
 					if err != nil {
-						log.Print(err)
 						return
 					}
 					err = w.WriteString(json)
 					if err != nil {
-						log.Print(err)
 						return
 					}
 
 				} else {
 					err = w.WriteBool(false)
 					if err != nil {
-						log.Print(err)
 						return
 					}
 				}
@@ -660,7 +590,6 @@ func (packet *PacketPlayPlayerListItem) Write(w *readerwriter.ConnReadWrite) (er
 			{
 				err = w.WriteVarInt(int(entry.GameMode))
 				if err != nil {
-					log.Print(err)
 					return
 				}
 			}
@@ -668,7 +597,6 @@ func (packet *PacketPlayPlayerListItem) Write(w *readerwriter.ConnReadWrite) (er
 			{
 				err = w.WriteVarInt(entry.Ping)
 				if err != nil {
-					log.Print(err)
 					return
 				}
 			}
@@ -677,24 +605,20 @@ func (packet *PacketPlayPlayerListItem) Write(w *readerwriter.ConnReadWrite) (er
 				if entry.DisplayName != nil {
 					err = w.WriteBool(true)
 					if err != nil {
-						log.Print(err)
 						return
 					}
 					var json string
 					json, err = entry.DisplayName.JSON()
 					if err != nil {
-						log.Print(err)
 						return
 					}
 					err = w.WriteString(json)
 					if err != nil {
-						log.Print(err)
 						return
 					}
 				} else {
 					err = w.WriteBool(false)
 					if err != nil {
-						log.Print(err)
 						return
 					}
 				}
@@ -720,47 +644,38 @@ type PacketPlaySpawnPlayer struct {
 func (packet *PacketPlaySpawnPlayer) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUUID(packet.PlayerUUID)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt32(packet.PlayerPosition.IntX())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt32(packet.PlayerPosition.IntY())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt32(packet.PlayerPosition.IntZ())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.PlayerPosition.IntYaw())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.PlayerPosition.IntPitch())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt16(packet.CurrentItem)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteMetadata(packet.Metadata)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -777,13 +692,11 @@ type PacketPlayDestroyEntities struct {
 func (packet *PacketPlayDestroyEntities) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(len(packet.EntityIDs))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	for _, enitiyId := range packet.EntityIDs {
 		err = w.WriteVarInt(int(enitiyId))
 		if err != nil {
-			log.Print(err)
 			return
 		}
 	}
@@ -805,27 +718,22 @@ type PacketPlayEntityRelativeMove struct {
 func (packet *PacketPlayEntityRelativeMove) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.DeltaX))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.DeltaY))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.DeltaZ))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteBool(packet.OnGround)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -845,22 +753,18 @@ type PacketPlayEntityLook struct {
 func (packet *PacketPlayEntityLook) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.Yaw)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.Pitch)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteBool(packet.OnGround)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -883,37 +787,30 @@ type PacketPlayEntityLookAndRelativeMove struct {
 func (packet *PacketPlayEntityLookAndRelativeMove) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.DeltaX))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.DeltaY))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.DeltaZ))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.Yaw)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.Pitch)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteBool(packet.OnGround)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -931,12 +828,10 @@ type PacketPlayEntityHeadLook struct {
 func (packet *PacketPlayEntityHeadLook) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.HeadYaw)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -954,12 +849,10 @@ type PacketPlayEntityMetadata struct {
 func (packet *PacketPlayEntityMetadata) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteMetadata(packet.Metadata)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -977,12 +870,10 @@ type PacketPlayAnimationClient struct {
 func (packet *PacketPlayAnimationClient) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.Animation))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -1000,22 +891,18 @@ type PacketPlayEntityVelocity struct {
 func (packet *PacketPlayEntityVelocity) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt16(int16(packet.Velocity.X * 8000))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt16(int16(packet.Velocity.Y * 8000))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt16(int16(packet.Velocity.Z * 8000))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -1080,23 +967,19 @@ type PacketPlayScoreboardObjective struct {
 func (packet *PacketPlayScoreboardObjective) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteString(packet.ObjectiveName)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt8(int8(packet.Mode))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	if packet.Mode == types.CreateScoreboard || packet.Mode == types.UpdateScoreboard {
 		err = w.WriteString(packet.DisplayName)
 		if err != nil {
-			log.Print(err)
 			return
 		}
 		err = w.WriteString(string(packet.RenderType))
 		if err != nil {
-			log.Print(err)
 			return
 		}
 	}
@@ -1117,24 +1000,20 @@ type PacketPlayUpdateScore struct {
 func (packet *PacketPlayUpdateScore) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteString(packet.ScoreName)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt8(int8(packet.Action))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 
 	err = w.WriteString(packet.ObjectiveName)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	if packet.Action != types.RemoveScoreItem {
 		err = w.WriteVarInt(packet.Value)
 		if err != nil {
-			log.Print(err)
 			return
 		}
 	}
@@ -1153,12 +1032,10 @@ type PacketPlayDisplayScoreboard struct {
 func (packet *PacketPlayDisplayScoreboard) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteInt8(int8(packet.Position))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteString(packet.ScoreName)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -1183,44 +1060,36 @@ type PacketPlayTeams struct {
 func (packet *PacketPlayTeams) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteString(packet.TeamName)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 
 	err = w.WriteInt8(int8(packet.Mode))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	if packet.Mode == types.TeamModeCreate || packet.Mode == types.TeamModeUpdate {
 		err = w.WriteString(packet.TeamDisplayName)
 		if err != nil {
-			log.Print(err)
 			return
 		}
 		err = w.WriteString(packet.TeamPrefix)
 		if err != nil {
-			log.Print(err)
 			return
 		}
 		err = w.WriteString(packet.TeamSuffix)
 		if err != nil {
-			log.Print(err)
 			return
 		}
 		err = w.WriteInt8(int8(packet.FriendlyFire))
 		if err != nil {
-			log.Print(err)
 			return
 		}
 		err = w.WriteString(string(packet.NameTagVisibility))
 		if err != nil {
-			log.Print(err)
 			return
 		}
 		err = w.WriteInt8(int8(packet.Color))
 		if err != nil {
-			log.Print(err)
 			return
 		}
 	}
@@ -1228,13 +1097,11 @@ func (packet *PacketPlayTeams) Write(w *readerwriter.ConnReadWrite) (err error) 
 		if packet.Players != nil {
 			err = w.WriteVarInt(len(packet.Players))
 			if err != nil {
-				log.Print(err)
 				return
 			}
 			for _, player := range packet.Players {
 				err = w.WriteString(player)
 				if err != nil {
-					log.Print(err)
 					return
 				}
 			}
@@ -1261,62 +1128,50 @@ type PacketPlaySpawnMob struct {
 func (packet *PacketPlaySpawnMob) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.MobType))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt32(packet.Position.IntX())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt32(packet.Position.IntY())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt32(packet.Position.IntZ())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.Position.IntYaw())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.Position.IntPitch())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.HeadPitch)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt16(packet.VelocityX)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt16(packet.VelocityY)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt16(packet.VelocityZ)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteMetadata(packet.Metadata)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -1339,58 +1194,47 @@ type PacketPlaySpawnObject struct {
 func (packet *PacketPlaySpawnObject) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(uint8(packet.ObjectType))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt32(packet.Position.IntX())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt32(packet.Position.IntY())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt32(packet.Position.IntZ())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.Position.IntPitch())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.Position.IntYaw())
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt32(int32(packet.Data))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	if packet.Data != 0 {
 		err = w.WriteUInt16(packet.VelocityX)
 		if err != nil {
-			log.Print(err)
 			return
 		}
 		err = w.WriteUInt16(packet.VelocityY)
 		if err != nil {
-			log.Print(err)
 			return
 		}
 		err = w.WriteUInt16(packet.VelocityZ)
 		if err != nil {
-			log.Print(err)
 			return
 		}
 	}
@@ -1412,28 +1256,23 @@ type PacketPlayOpenWindow struct {
 func (packet *PacketPlayOpenWindow) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteUInt8(packet.WindowID)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteString(string(packet.WindowType))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteString(packet.WindowTitle)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt8(packet.NumberOfSlots)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	if packet.WindowType == types.WindowTypeEntityHorse {
 		err = w.WriteVarInt(int(packet.HorseEntityID))
 		if err != nil {
-			log.Print(err)
 			return
 		}
 	}
@@ -1452,18 +1291,15 @@ type PacketPlayWindowItems struct {
 func (packet *PacketPlayWindowItems) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteUInt8(packet.WindowID)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt16(uint16(len(packet.SlotData)))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	for _, slot := range packet.SlotData {
 		err = w.WriteSlotItem(slot)
 		if err != nil {
-			log.Print(err)
 			return
 		}
 	}
@@ -1483,17 +1319,14 @@ type PacketPlayConfirmTransaction struct {
 func (packet *PacketPlayConfirmTransaction) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
 	packet.WindowID, err = r.ReadUInt8()
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	packet.ActionNumber, err = r.ReadUInt16()
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	packet.Accepted, err = r.ReadBool()
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -1502,17 +1335,14 @@ func (packet *PacketPlayConfirmTransaction) Read(r *readerwriter.ConnReadWrite, 
 func (packet *PacketPlayConfirmTransaction) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteUInt8(packet.WindowID)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt16(packet.ActionNumber)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteBool(packet.Accepted)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -1531,17 +1361,14 @@ type PacketPlaySetSlot struct {
 func (packet *PacketPlaySetSlot) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteUInt8(packet.WindowID)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteInt16(packet.Slot)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteSlotItem(packet.SlotData)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -1558,7 +1385,6 @@ type PacketPlayCloseWindow struct {
 func (packet *PacketPlayCloseWindow) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
 	packet.WindowID, err = r.ReadUInt8()
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -1567,7 +1393,6 @@ func (packet *PacketPlayCloseWindow) Read(r *readerwriter.ConnReadWrite, length 
 func (packet *PacketPlayCloseWindow) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteUInt8(packet.WindowID)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -1585,12 +1410,10 @@ type PacketPlayBlockChange struct {
 func (packet *PacketPlayBlockChange) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteBlockPosition(packet.Location)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteVarInt(packet.Type)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -1607,7 +1430,6 @@ type PacketPlayHeldItemChange struct {
 func (packet *PacketPlayHeldItemChange) Read(r *readerwriter.ConnReadWrite, length int) (err error) {
 	slot, err := r.ReadUInt16()
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	packet.Slot = uint8(slot)
@@ -1617,7 +1439,6 @@ func (packet *PacketPlayHeldItemChange) Read(r *readerwriter.ConnReadWrite, leng
 func (packet *PacketPlayHeldItemChange) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteUInt8(packet.Slot)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return
@@ -1636,17 +1457,14 @@ type PacketPlayEntityEquipment struct {
 func (packet *PacketPlayEntityEquipment) Write(w *readerwriter.ConnReadWrite) (err error) {
 	err = w.WriteVarInt(int(packet.EntityID))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteUInt16(uint16(packet.Slot))
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	err = w.WriteSlotItem(packet.Item)
 	if err != nil {
-		log.Print(err)
 		return
 	}
 	return

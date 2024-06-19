@@ -17,7 +17,7 @@ import (
 )
 
 type GameInstance struct {
-	World      map_world.Map
+	World      *map_world.Map
 	Gamemode   types.Gamemode
 	Difficulty world.Difficulty
 	Players    *player.PlayerRegistry

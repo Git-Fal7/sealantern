@@ -1,6 +1,7 @@
 package map_world
 
 import (
+	"bytes"
 	"slices"
 
 	"github.com/git-fal7/sealantern/minecraft/blocks"
@@ -139,4 +140,39 @@ func (m *Map) SendChunksAroundPlayer(p player.IPlayer) (map[chunk.ChunkKey]bool,
 		delete(p.KnownChunks(), key)
 	}
 	return newChunks, prevChunks
+}
+
+func (m *Map) Copy() *Map {
+	var chunkMap map[chunk.ChunkKey]*chunk.Chunk = make(map[chunk.ChunkKey]*chunk.Chunk)
+	for key, chunkValue := range m.ChunkMap {
+		var sectionSlice [16]*chunk.ChunkSection
+		for i, section := range chunkValue.Sections {
+			if section == nil {
+				continue
+			}
+			sectionPalette := section.Palette.(*chunk.ChunkBlockPalette)
+			sectionBlocks := bytes.Clone(section.Blocks[:])
+			sectionSkylight := bytes.Clone(section.SkyLight[:])
+			sectionBlockLight := bytes.Clone(section.BlockLight[:])
+			sectionSlice[i] = &chunk.ChunkSection{
+				Palette: &chunk.ChunkBlockPalette{
+					Map: sectionPalette.Map,
+				},
+				Blocks:     [4096]byte(sectionBlocks),
+				SkyLight:   [2048]byte(sectionSkylight),
+				BlockLight: [2048]byte(sectionBlockLight),
+			}
+		}
+		chunkMap[key] = &chunk.Chunk{
+			ChunkX:   chunkValue.ChunkX,
+			ChunkZ:   chunkValue.ChunkZ,
+			Sections: sectionSlice,
+			Biomes:   [256]byte(bytes.Clone(chunkValue.Biomes[:])),
+		}
+	}
+	return &Map{
+		Spawn:     m.Spawn,
+		Dimension: m.Dimension,
+		ChunkMap:  chunkMap,
+	}
 }

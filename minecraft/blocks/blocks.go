@@ -50,16 +50,10 @@ func (registry *BlockRegistry) GetBlockId(name string) int {
 
 func (registry *BlockRegistry) GetLegacyBlockId(name string) int {
 	block := GetLegacyFromName(name)
-	for block.Protocol != 0 && block.Protocol > 47 && block.Fallback != nil {
-		block = GetLegacyFromName(*block.Fallback)
-	}
 	return block.GetBlockState()
 }
 
 func (registry *BlockRegistry) GetLegacyBlockTypeData(name string) (int, int) {
 	block := GetLegacyFromName(name)
-	for block.Protocol != 0 && block.Protocol > 47 && block.Fallback != nil {
-		block = GetLegacyFromName(*block.Fallback)
-	}
 	return block.Id, block.Data
 }

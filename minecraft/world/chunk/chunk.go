@@ -94,9 +94,6 @@ func (chunk Chunk) toData(skyLight bool, entireChunk bool) ([]byte, uint16) {
 		}
 	}
 
-	w.WriteVarInt(16)
-	w.WriteVarInt(16 * 16 * 16 * 2)
-
 	for i, section := range chunk.Sections {
 		if (bitmask & (1 << i)) == 0 {
 			continue
@@ -116,13 +113,9 @@ func (chunk Chunk) toData(skyLight bool, entireChunk bool) ([]byte, uint16) {
 
 	// Write biomes
 	if entireChunk {
-
-		w.WriteByteArray(chunk.Biomes[0:253])
+		w.WriteByteArray(chunk.Biomes[:])
 	}
-	if len(buff.Bytes()) == 259 {
-		println(buff.Bytes(), buff.Bytes()[1], buff.Bytes()[2], buff.Bytes()[3], buff.Bytes()[len(buff.Bytes())-3:][1], buff.Bytes()[len(buff.Bytes())-3:][2])
-	}
-	return buff.Bytes()[:len(buff.Bytes())], bitmask // Last 3 bytes are useless and also breaks map chunk packet
+	return buff.Bytes()[:], bitmask // Last 3 bytes are useless and also breaks map chunk packet
 }
 
 func (palette *ChunkBlockPalette) GetId(name string) int {

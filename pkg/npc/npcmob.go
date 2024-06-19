@@ -1,7 +1,7 @@
 package npc
 
 import (
-	"github.com/git-fal7/sealantern/minecraft/protocol"
+	"github.com/git-fal7/sealantern/minecraft/player"
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
@@ -30,19 +30,17 @@ func (npc NPCMob) Position() world.Position {
 	return npc.position
 }
 
-func (npc NPCMob) GetCreationPacket() []protocol.PacketOut {
-	return []protocol.PacketOut{
-		&packet.PacketPlaySpawnMob{
-			EntityID:  npc.entityID,
-			MobType:   npc.mobType,
-			Position:  npc.position,
-			HeadPitch: npc.position.IntYaw(),
-			VelocityX: 0,
-			VelocityY: 0,
-			VelocityZ: 0,
-			Metadata:  make(metadata.MetadataMap),
-		},
-	}
+func (npc NPCMob) SendPackets(p player.IPlayer) {
+	p.WritePacket(&packet.PacketPlaySpawnMob{
+		EntityID:  npc.entityID,
+		MobType:   npc.mobType,
+		Position:  npc.position,
+		HeadPitch: npc.position.IntYaw(),
+		VelocityX: 0,
+		VelocityY: 0,
+		VelocityZ: 0,
+		Metadata:  make(metadata.MetadataMap),
+	})
 }
 
 func (npc NPCMob) GetDestructionID() []uint16 {

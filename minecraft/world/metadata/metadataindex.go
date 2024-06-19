@@ -71,4 +71,25 @@ var (
 		Type:      MetadataTypeByte,
 		AppliesTo: "ARMORSTAND",
 	}
+
+	MetadataPlayerSkinFlags = MetadataIndex{
+		Index:     10,
+		Type:      MetadataTypeByte,
+		AppliesTo: "PLAYER",
+	}
+	MetadataPlayerCapeFlags = MetadataIndex{ // 0x02 = hide cape
+		Index:     16,
+		Type:      MetadataTypeByte,
+		AppliesTo: "PLAYER",
+	}
+	MetadataPlayerAbsorptionHearts = MetadataIndex{
+		Index:     17,
+		Type:      MetadataTypeFloat,
+		AppliesTo: "PLAYER",
+	}
+	MetadataPlayerScore = MetadataIndex{
+		Index:     18,
+		Type:      MetadataTypeInt,
+		AppliesTo: "PLAYER",
+	}
 )

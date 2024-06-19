@@ -92,9 +92,7 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 		}
 	}
 	for _, npc := range instance.NPCs {
-		for _, npcPacket := range npc.GetCreationPacket() {
-			p.WritePacket(npcPacket)
-		}
+		npc.SendPackets(p)
 	}
 	return nil
 }
@@ -213,9 +211,7 @@ func (instance *GameInstance) Tick() {
 				Z: int32(pBlockPos.Z) / 16,
 			}
 			if newChunks[chunkKey] {
-				for _, npcPacket := range npc.GetCreationPacket() {
-					p.WritePacket(npcPacket)
-				}
+				npc.SendPackets(p)
 			} else if prevChunks[chunkKey] {
 				destroyedEntities = append(destroyedEntities, npc.GetDestructionID()...)
 			}

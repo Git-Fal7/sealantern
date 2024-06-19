@@ -601,6 +601,7 @@ func (packet *PacketPlayPlayerListItem) Write(w *readerwriter.ConnReadWrite) (er
 						return
 					}
 					if property.Signature != "" {
+						log.Println("Signed")
 						err = w.WriteBool(true)
 						if err != nil {
 							log.Print(err)
@@ -714,6 +715,7 @@ type PacketPlaySpawnPlayer struct {
 	PlayerUUID     uuid.UUID
 	PlayerPosition world.Position
 	CurrentItem    uint16
+	Metadata       metadata.MetadataMap
 }
 
 func (packet *PacketPlaySpawnPlayer) Write(w *readerwriter.ConnReadWrite) (err error) {
@@ -757,9 +759,11 @@ func (packet *PacketPlaySpawnPlayer) Write(w *readerwriter.ConnReadWrite) (err e
 		log.Print(err)
 		return
 	}
-
-	// metadata end
-	err = w.WriteUInt8(127)
+	err = w.WriteMetadata(packet.Metadata)
+	if err != nil {
+		log.Print(err)
+		return
+	}
 	return
 }
 

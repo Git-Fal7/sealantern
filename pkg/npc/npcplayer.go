@@ -3,23 +3,25 @@ package npc
 import (
 	"crypto/rand"
 	"fmt"
+	"time"
 
+	"github.com/git-fal7/sealantern/minecraft/player"
 	"github.com/git-fal7/sealantern/minecraft/player/profile"
-	"github.com/git-fal7/sealantern/minecraft/protocol"
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
+	"github.com/git-fal7/sealantern/minecraft/world/metadata"
 	"github.com/git-fal7/sealantern/pkg/hologram"
 	"github.com/google/uuid"
 )
 
 type NPCPlayer struct {
-	entityID   uint16
-	name       string
-	uuid       uuid.UUID
-	properties []profile.Property
-	position   world.Position
-	holograms  []*hologram.Hologram
+	entityID  uint16
+	name      string
+	uuid      uuid.UUID
+	profile   profile.PlayerProfile
+	position  world.Position
+	holograms []*hologram.Hologram
 }
 
 func NewNPCPlayer(entityID uint16, position world.Position, properties []profile.Property) *NPCPlayer {
@@ -28,12 +30,16 @@ func NewNPCPlayer(entityID uint16, position world.Position, properties []profile
 	name := fmt.Sprintf("NPC-%x", b[2:6])
 	npcUUID, _ := uuid.NewRandom()
 	return &NPCPlayer{
-		entityID:   entityID,
-		name:       name,
-		uuid:       npcUUID,
-		properties: properties,
-		position:   position,
-		holograms:  make([]*hologram.Hologram, 0),
+		entityID: entityID,
+		name:     name,
+		uuid:     npcUUID,
+		profile: profile.PlayerProfile{
+			UUID:       npcUUID,
+			Name:       name,
+			Properties: properties,
+		},
+		position:  position,
+		holograms: make([]*hologram.Hologram, 0),
 	}
 }
 
@@ -62,64 +68,63 @@ func (npc NPCPlayer) Position() world.Position {
 	return npc.position
 }
 
-func (npc NPCPlayer) GetCreationPacket() []protocol.PacketOut {
-	packets := []protocol.PacketOut{
-		&packet.PacketPlayPlayerListItem{
-			Action: types.PlayerListActionAddPlayer,
-			Entries: []types.PlayerListEntry{
-				{
-					Profile: profile.PlayerProfile{
-						UUID: npc.uuid,
-						Name: npc.name,
-					},
-					GameMode:    types.SURVIVAL,
-					Ping:        0,
-					DisplayName: nil,
-				},
+func (npc NPCPlayer) SendPackets(p player.IPlayer) {
+	p.WritePacket(&packet.PacketPlayPlayerListItem{
+		Action: types.PlayerListActionAddPlayer,
+		Entries: []types.PlayerListEntry{
+			{
+				Profile:     npc.profile,
+				GameMode:    types.SURVIVAL,
+				Ping:        0,
+				DisplayName: nil,
 			},
 		},
-		&packet.PacketPlaySpawnPlayer{
-			EntityID:       npc.entityID,
-			PlayerUUID:     npc.uuid,
-			PlayerPosition: npc.position,
-			CurrentItem:    0, // Air
+	})
+	p.WritePacket(&packet.PacketPlaySpawnPlayer{
+		EntityID:       npc.entityID,
+		PlayerUUID:     npc.uuid,
+		PlayerPosition: npc.position,
+		CurrentItem:    0, // Air
+		Metadata: metadata.MetadataMap{
+			metadata.MetadataPlayerSkinFlags: uint8(126),
 		},
-		&packet.PacketPlayEntityHeadLook{
-			EntityID: npc.entityID,
-			HeadYaw:  npc.position.IntYaw(),
+	})
+	p.WritePacket(&packet.PacketPlayEntityHeadLook{
+		EntityID: npc.entityID,
+		HeadYaw:  npc.position.IntYaw(),
+	})
+	p.WritePacket(&packet.PacketPlayTeams{
+		TeamName:          npc.name,
+		Mode:              types.TeamModeCreate,
+		FriendlyFire:      types.TeamFriendlyFireOff,
+		NameTagVisibility: types.TeamNameTagVisibilityNever,
+		Color:             0,
+		Players: []string{
+			npc.name,
 		},
-		&packet.PacketPlayTeams{
-			TeamName:          npc.name,
-			Mode:              types.TeamModeCreate,
-			FriendlyFire:      types.TeamFriendlyFireOff,
-			NameTagVisibility: types.TeamNameTagVisibilityNever,
-			Color:             0,
-			Players: []string{
-				npc.name,
-			},
-		},
-		&packet.PacketPlayPlayerListItem{
+	})
+	go func() {
+		time.Sleep(time.Millisecond * 50)
+		p.WritePacket(&packet.PacketPlayPlayerListItem{
 			Action: types.PlayerListActionRemovePlayer,
 			Entries: []types.PlayerListEntry{
 				{
-					Profile: profile.PlayerProfile{
-						UUID: npc.uuid,
-						Name: npc.name,
-					},
+					Profile:     npc.profile,
 					GameMode:    types.SURVIVAL,
 					Ping:        0,
 					DisplayName: nil,
 				},
 			},
-		},
-	}
+		})
+	}()
 	for _, hologram := range npc.holograms {
 		if hologram.DisplayName == "" {
 			continue
 		}
-		packets = append(packets, hologram.GetCreationPacket()...)
+		for _, packet := range hologram.GetCreationPacket() {
+			p.WritePacket(packet)
+		}
 	}
-	return packets
 }
 
 func (npc NPCPlayer) GetDestructionID() []uint16 {

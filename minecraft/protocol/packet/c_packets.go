@@ -601,7 +601,6 @@ func (packet *PacketPlayPlayerListItem) Write(w *readerwriter.ConnReadWrite) (er
 						return
 					}
 					if property.Signature != "" {
-						log.Println("Signed")
 						err = w.WriteBool(true)
 						if err != nil {
 							log.Print(err)

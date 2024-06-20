@@ -118,6 +118,7 @@ func (instance *GameInstance) QuitPlayer(p *connplayer.ConnectedPlayer) error {
 		player.WritePacket(packetPlayerListItem)
 		player.WritePacket(packetDestroyEntities)
 	}
+	p.Team().RemovePlayer(p.Username())
 	return nil
 }
 

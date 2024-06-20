@@ -1,6 +1,7 @@
 package team
 
 import (
+	"slices"
 	"sync"
 
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
@@ -22,6 +23,14 @@ type Team struct {
 func (team *Team) AddPlayer(name string) {
 	team.mutex.Lock()
 	team.Players = append(team.Players, name)
+	defer team.mutex.Unlock()
+}
+
+func (team *Team) RemovePlayer(name string) {
+	team.mutex.Lock()
+	team.Players = slices.DeleteFunc(team.Players, func(username string) bool {
+		return username == name
+	})
 	defer team.mutex.Unlock()
 }
 

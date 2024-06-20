@@ -1,7 +1,7 @@
 package protocol
 
 import (
-	"github.com/git-fal7/sealantern/pkg/readerwriter"
+	"github.com/git-fal7/sealantern/minecraft/protocol/stream"
 )
 
 type Packet interface {
@@ -10,12 +10,12 @@ type Packet interface {
 // Server
 type PacketIn interface {
 	Packet
-	Read(*readerwriter.ConnReadWrite, int) error
+	Read(*stream.ProtocolReader, int) error
 }
 
 // Client
 type PacketOut interface {
 	Packet
 	Id() int32
-	Write(*readerwriter.ConnReadWrite) error
+	Write(*stream.ProtocolWriter) error
 }

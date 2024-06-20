@@ -174,12 +174,12 @@ func (c *Core) GetConfig(config interface{}) {
 }
 
 func (c *Core) handlePacket(conn *socket.Conn) (packet protocol.PacketIn, err error) {
-	length, err := conn.IO.ReadVarInt()
+	length, err := conn.Reader.ReadVarInt()
 	if err != nil {
 		return
 	}
 
-	id, err := conn.IO.ReadVarInt()
+	id, err := conn.Reader.ReadVarInt()
 	if err != nil {
 		return
 	}
@@ -230,12 +230,12 @@ func (c *Core) readPlayPacket(conn *socket.Conn) (packet protocol.Packet, err er
 }
 
 func (c *Core) readPlayPacketWithoutCompression(conn *socket.Conn) (packet protocol.Packet, err error) {
-	length, err := conn.IO.ReadVarInt()
+	length, err := conn.Reader.ReadVarInt()
 	if err != nil {
 		return
 	}
 
-	id, err := conn.IO.ReadVarInt()
+	id, err := conn.Reader.ReadVarInt()
 	if err != nil {
 		return
 	}

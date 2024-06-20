@@ -1,10 +1,8 @@
 package chunk
 
 import (
-	"bytes"
-
 	"github.com/git-fal7/sealantern/minecraft/blocks"
-	"github.com/git-fal7/sealantern/pkg/readerwriter"
+	"github.com/git-fal7/sealantern/minecraft/protocol/stream"
 )
 
 type BlockPalette interface {
@@ -68,11 +66,7 @@ func (chunk Chunk) ToData(skyLight bool) ([]byte, uint16) {
 }
 
 func (chunk Chunk) toData(skyLight bool, entireChunk bool) ([]byte, uint16) {
-	buff := bytes.NewBuffer(nil)
-
-	w := &readerwriter.ConnReadWrite{
-		Wtr: buff,
-	}
+	w := &stream.ProtocolWriter{}
 
 	var bitmask uint16 = 0
 	// Write blocks
@@ -115,7 +109,7 @@ func (chunk Chunk) toData(skyLight bool, entireChunk bool) ([]byte, uint16) {
 	if entireChunk {
 		w.WriteByteArray(chunk.Biomes[:])
 	}
-	return buff.Bytes()[:], bitmask // Last 3 bytes are useless and also breaks map chunk packet
+	return w.Bytes(), bitmask // Last 3 bytes are useless and also breaks map chunk packet
 }
 
 func (palette *ChunkBlockPalette) GetId(name string) int {

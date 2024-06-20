@@ -2,7 +2,6 @@ package socket
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"log"
 	"net"
@@ -12,17 +11,16 @@ import (
 	"github.com/git-fal7/sealantern/config"
 	"github.com/git-fal7/sealantern/minecraft/protocol"
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
+	"github.com/git-fal7/sealantern/minecraft/protocol/stream"
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/pkg/component"
-	"github.com/git-fal7/sealantern/pkg/readerwriter"
 
 	"github.com/google/uuid"
 )
 
 type Conn struct {
 	net.Conn
-	IO *readerwriter.ConnReadWrite
-
+	Reader       *stream.ProtocolReader
 	Username     string
 	UUID         uuid.UUID
 	Compression  bool
@@ -39,9 +37,8 @@ type Conn struct {
 func NewConn(conn net.Conn) *Conn {
 	return &Conn{
 		Conn: conn,
-		IO: &readerwriter.ConnReadWrite{
-			Rdr: bufio.NewReader(conn),
-			Wtr: bufio.NewWriter(conn),
+		Reader: &stream.ProtocolReader{
+			Reader: *bufio.NewReader(conn),
 		},
 		Compression:  false,
 		KeepAlive:    0,
@@ -60,28 +57,25 @@ func (c *Conn) PrivateWritePacket(packet protocol.PacketOut) (err error) {
 	return c.WritePacketWithoutCompression(packet)
 }
 
-// TODO: seperate writer and reader.
 func (c *Conn) WritePacketWithoutCompression(packet protocol.PacketOut) (err error) {
 	id := packet.Id()
 	if id == -1 {
 		return
 	}
-	buff := bytes.NewBuffer(nil)
-	writer := &readerwriter.ConnReadWrite{
-		Wtr: buff,
-	}
-	writer.WriteVarInt(int(id))
-	packet.Write(writer)
+	packetWriter := &stream.ProtocolWriter{}
+	packetWriter.WriteVarInt(int(id))
+	packet.Write(packetWriter)
 
-	ln := bytes.NewBuffer(nil)
-	writer.Wtr = ln
-	writer.WriteVarInt(buff.Len())
-	writer.WriteByteArray(buff.Bytes())
+	packetData := packetWriter.Bytes()
+
+	writer := &stream.ProtocolWriter{}
+	writer.WriteVarInt(len(packetData))
+	writer.WriteByteArray(packetData)
 
 	c.writerMutex.Lock()
 	defer c.writerMutex.Unlock()
 
-	c.Conn.Write(ln.Bytes())
+	c.Conn.Write(writer.Bytes())
 
 	if config.LanternConfig.Logs {
 		if packet.Id() != 0x26 {
@@ -109,10 +103,10 @@ func (c *Conn) HandlePacket(id int, length int) (handledPacket protocol.PacketIn
 
 		for nbr < length {
 			if length-nbr > 500 {
-				c.IO.Rdr.Read(buff)
+				c.Reader.Read(buff)
 				nbr += 500
 			} else {
-				c.IO.Rdr.Read(buff[:length-nbr])
+				c.Reader.Read(buff[:length-nbr])
 				nbr = length
 			}
 		}
@@ -121,7 +115,7 @@ func (c *Conn) HandlePacket(id int, length int) (handledPacket protocol.PacketIn
 
 	handledPacket, _ = reflect.New(typ).Interface().(protocol.PacketIn)
 
-	if err = handledPacket.Read(c.IO, length); err != nil {
+	if err = handledPacket.Read(c.Reader, length); err != nil {
 		return nil, err
 	}
 	return

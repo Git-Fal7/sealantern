@@ -9,7 +9,7 @@ type SlotItem struct {
 	NBT        nbt.Compound
 }
 
-func (item SlotItem) DisplayName() string {
+func (item SlotItem) DisplayName() nbt.String {
 	displayNBT, ok := item.NBT["display"].(nbt.Compound)
 	if !ok || displayNBT == nil {
 		return ""
@@ -18,7 +18,23 @@ func (item SlotItem) DisplayName() string {
 	if !ok {
 		return ""
 	}
-	return string(displayName)
+	return displayName
+}
+
+func (item SlotItem) Lore() []nbt.String {
+	displayNBT, ok := item.NBT["display"].(nbt.Compound)
+	if !ok || displayNBT == nil {
+		return []nbt.String{}
+	}
+	loreList, ok := displayNBT["Lore"].(nbt.List)
+	if !ok {
+		return []nbt.String{}
+	}
+	lore, ok := loreList.GetStringList()
+	if !ok {
+		return []nbt.String{}
+	}
+	return lore
 }
 
 func (item *SlotItem) SetDisplayName(displayName string) {
@@ -27,6 +43,20 @@ func (item *SlotItem) SetDisplayName(displayName string) {
 		displayNBT = nbt.Compound{}
 	}
 	displayNBT["Name"] = nbt.String(displayName)
+	item.NBT["display"] = displayNBT
+}
+
+func (item *SlotItem) SetLore(lore ...string) {
+	displayNBT, ok := item.NBT["display"].(nbt.Compound)
+	if !ok || displayNBT == nil {
+		displayNBT = nbt.Compound{}
+	}
+	lores := make([]nbt.String, len(lore))
+	for i, s := range lore {
+		lores[i] = nbt.String(s)
+	}
+	loreList := nbt.MakeStringList(lores)
+	displayNBT["Lore"] = loreList
 	item.NBT["display"] = displayNBT
 }
 

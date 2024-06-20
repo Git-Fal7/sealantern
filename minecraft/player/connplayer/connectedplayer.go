@@ -154,7 +154,7 @@ func (p *ConnectedPlayer) Team() *team.Team {
 }
 
 func (p *ConnectedPlayer) SetTeam(team *team.Team) {
-	team.Players = append(team.Players, p.Username())
+	team.AddPlayer(p.Username())
 	p.CurrentTeam = team
 }
 

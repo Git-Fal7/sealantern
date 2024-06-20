@@ -1,6 +1,8 @@
 package team
 
 import (
+	"sync"
+
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
 	"github.com/git-fal7/sealantern/minecraft/types"
 )
@@ -14,9 +16,16 @@ type Team struct {
 	NameTagVisibility types.TeamNameTagVisibility
 	Color             int8
 	Players           []string
+	mutex             sync.RWMutex
 }
 
-func (team Team) GetPacket(mode types.TeamMode) *packet.PacketPlayTeams {
+func (team *Team) AddPlayer(name string) {
+	team.mutex.Lock()
+	team.Players = append(team.Players, name)
+	defer team.mutex.Unlock()
+}
+
+func (team *Team) GetPacket(mode types.TeamMode) *packet.PacketPlayTeams {
 	return &packet.PacketPlayTeams{
 		TeamName:          team.Name,
 		Mode:              mode,

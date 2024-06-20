@@ -175,3 +175,38 @@ func (p *ConnectedPlayer) UpdateInventory() {
 	}
 	p.WritePacket(p.Inventory.Packets()[0])
 }
+
+func (p *ConnectedPlayer) SetTablistHeader(header component.IChatComponent) {
+	headerJson := ""
+	if header != nil {
+		headerJson, _ = header.JSON()
+	}
+	p.WritePacket(&packet.PacketPlayerListHeaderFooter{
+		Header: headerJson,
+	})
+}
+
+func (p *ConnectedPlayer) SetTablistFooter(footer component.IChatComponent) {
+	footerJson := ""
+	if footer != nil {
+		footerJson, _ = footer.JSON()
+	}
+	p.WritePacket(&packet.PacketPlayerListHeaderFooter{
+		Footer: footerJson,
+	})
+}
+
+func (p *ConnectedPlayer) SetTablistHeaderFooter(header component.IChatComponent, footer component.IChatComponent) {
+	headerJson := ""
+	if header != nil {
+		headerJson, _ = header.JSON()
+	}
+	footerJson := ""
+	if footer != nil {
+		footerJson, _ = footer.JSON()
+	}
+	p.WritePacket(&packet.PacketPlayerListHeaderFooter{
+		Header: headerJson,
+		Footer: footerJson,
+	})
+}

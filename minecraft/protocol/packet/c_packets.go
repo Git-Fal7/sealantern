@@ -468,27 +468,22 @@ func (packet *PacketPlaySpawnPosition) Id() int32 {
 }
 
 type PacketPlayerListHeaderFooter struct {
-	Header *string
-	Footer *string
+	Header string
+	Footer string
 }
 
 func (packet *PacketPlayerListHeaderFooter) Write(w *stream.ProtocolWriter) (err error) {
-	var str string
-	if packet.Header == nil {
-		str = `{"translate":""}`
-	} else {
-		str = *packet.Header
+	if packet.Header == "" {
+		packet.Header = `{"translate":""}`
 	}
-	err = w.WriteString(str)
+	if packet.Footer == "" {
+		packet.Footer = `{"translate":""}`
+	}
+	err = w.WriteString(packet.Header)
 	if err != nil {
 		return
 	}
-	if packet.Footer == nil {
-		str = `{"translate":""}`
-	} else {
-		str = *packet.Footer
-	}
-	err = w.WriteString(str)
+	err = w.WriteString(packet.Footer)
 	if err != nil {
 		return
 	}

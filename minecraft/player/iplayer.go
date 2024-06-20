@@ -32,4 +32,7 @@ type IPlayer interface {
 	OpenInventory(inventory inventory.Inventory)
 	PlayerInventory() *playerinventory.PlayerInventory
 	UpdateInventory()
+	SetTablistHeader(header component.IChatComponent)
+	SetTablistFooter(footer component.IChatComponent)
+	SetTablistHeaderFooter(header component.IChatComponent, footer component.IChatComponent)
 }

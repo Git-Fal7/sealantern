@@ -139,7 +139,6 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 
 	p.State = types.PLAY
 	p.WritePacket(&packet.PacketPlayJoinGame{
-		//EntityId:     0,
 		Gamemode:     loginEvent.Instance.Gamemode,
 		Dimension:    loginEvent.Instance.World.Dimension,
 		Difficulty:   loginEvent.Instance.Difficulty,

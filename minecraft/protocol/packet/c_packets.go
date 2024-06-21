@@ -1468,3 +1468,34 @@ func (packet *PacketPlayEntityEquipment) Write(w *stream.ProtocolWriter) (err er
 func (packet *PacketPlayEntityEquipment) Id() int32 {
 	return 0x04
 }
+
+type PacketPlayRespawn struct {
+	Dimension  world.Dimension
+	Difficulty world.Difficulty
+	Gamemode   types.Gamemode
+	LevelType  world.LevelType
+}
+
+func (packet *PacketPlayRespawn) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteInt32(int32(packet.Dimension))
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(uint8(packet.Gamemode))
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(uint8(packet.Difficulty))
+	if err != nil {
+		return
+	}
+	err = w.WriteString(string(packet.LevelType))
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (packet *PacketPlayRespawn) Id() int32 {
+	return 0x07
+}

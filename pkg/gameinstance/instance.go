@@ -28,8 +28,11 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 	if instance.HasPlayerFromUUID(p.UUID()) {
 		return fmt.Errorf("player already joined this instance")
 	}
-	p.WritePacket(&packet.PacketPlayServerDifficulty{
+	p.WritePacket(&packet.PacketPlayRespawn{
+		Dimension:  instance.World.Dimension,
 		Difficulty: instance.Difficulty,
+		Gamemode:   instance.Gamemode,
+		LevelType:  world.DEFAULT,
 	})
 	instance.Players.RegisterPlayer(p)
 	p.Teleport(instance.World.Spawn)
@@ -223,4 +226,15 @@ func (instance *GameInstance) Tick() {
 			})
 		}
 	}
+}
+
+func (instance *GameInstance) SwitchPlayer(p *connplayer.ConnectedPlayer, newInstance *GameInstance) {
+	if instance == newInstance {
+		return
+	}
+	if !instance.HasPlayerFromUUID(p.UUID()) {
+		return
+	}
+	instance.QuitPlayer(p)
+	newInstance.JoinPlayer(p)
 }

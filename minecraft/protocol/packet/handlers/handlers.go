@@ -149,7 +149,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 	p.WritePacket(&packet.PacketPlayPlayerAbilities{
 		Invulnerable: false,
 		Fly:          false,
-		CanFly:       true,
+		CanFly:       false,
 		Creative:     false,
 		FlyingSpeed:  0.1,
 		FieldOfView:  0.1,

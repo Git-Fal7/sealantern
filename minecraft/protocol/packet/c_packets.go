@@ -310,7 +310,7 @@ type PacketPlayJoinGame struct {
 }
 
 func (packet *PacketPlayJoinGame) Write(w *stream.ProtocolWriter) (err error) {
-	err = w.WriteUInt8(0) // entity ids are more than 255,
+	err = w.WriteInt32(0) // entity ids are more than 255,
 	if err != nil {
 		return
 	}
@@ -318,7 +318,7 @@ func (packet *PacketPlayJoinGame) Write(w *stream.ProtocolWriter) (err error) {
 	if err != nil {
 		return
 	}
-	err = w.WriteUInt32(uint32(packet.Dimension))
+	err = w.WriteUInt8(uint8(packet.Dimension))
 	if err != nil {
 		return
 	}

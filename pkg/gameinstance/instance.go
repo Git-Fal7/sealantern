@@ -248,6 +248,7 @@ func (instance *GameInstance) SwitchPlayer(p *connplayer.ConnectedPlayer, newIns
 		Reason: types.GameStateReasonChangeGamemode,
 		Value:  float32(newInstance.Gamemode),
 	})
+	p.KnownChunkKeys = make(map[chunk.ChunkKey]bool)
 	newInstance.JoinPlayer(p)
 	p.WritePacket(&packet.PacketPlayPlayerPositionAndLookClient{
 		Position: newInstance.World.Spawn,

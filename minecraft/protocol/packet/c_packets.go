@@ -1499,3 +1499,24 @@ func (packet *PacketPlayRespawn) Write(w *stream.ProtocolWriter) (err error) {
 func (packet *PacketPlayRespawn) Id() int32 {
 	return 0x07
 }
+
+type PacketPlayChangeGameState struct {
+	Reason types.GameStateReason
+	Value  float32
+}
+
+func (packet *PacketPlayChangeGameState) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteUInt8(uint8(packet.Reason))
+	if err != nil {
+		return
+	}
+	err = w.WriteFloat32(packet.Value)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (packet *PacketPlayChangeGameState) Id() int32 {
+	return 0x2B
+}

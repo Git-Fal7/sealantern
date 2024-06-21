@@ -28,12 +28,6 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 	if instance.HasPlayerFromUUID(p.UUID()) {
 		return fmt.Errorf("player already joined this instance")
 	}
-	p.WritePacket(&packet.PacketPlayRespawn{
-		Dimension:  instance.World.Dimension,
-		Difficulty: instance.Difficulty,
-		Gamemode:   instance.Gamemode,
-		LevelType:  world.DEFAULT,
-	})
 	instance.Players.RegisterPlayer(p)
 	p.Teleport(instance.World.Spawn)
 	instance.World.SendChunksAroundPlayer(p)
@@ -236,5 +230,27 @@ func (instance *GameInstance) SwitchPlayer(p *connplayer.ConnectedPlayer, newIns
 		return
 	}
 	instance.QuitPlayer(p)
+	if instance.World.Dimension == newInstance.World.Dimension {
+		p.WritePacket(&packet.PacketPlayRespawn{
+			Dimension:  (instance.World.Dimension + 1) % 2,
+			Difficulty: newInstance.Difficulty,
+			Gamemode:   types.SURVIVAL,
+			LevelType:  world.DEFAULT,
+		})
+	}
+	p.WritePacket(&packet.PacketPlayRespawn{
+		Dimension:  newInstance.World.Dimension,
+		Difficulty: newInstance.Difficulty,
+		Gamemode:   types.SURVIVAL,
+		LevelType:  world.DEFAULT,
+	})
+	p.WritePacket(&packet.PacketPlayChangeGameState{
+		Reason: types.GameStateReasonChangeGamemode,
+		Value:  float32(newInstance.Gamemode),
+	})
 	newInstance.JoinPlayer(p)
+	p.WritePacket(&packet.PacketPlayPlayerPositionAndLookClient{
+		Position: newInstance.World.Spawn,
+		Flags:    0x00,
+	})
 }

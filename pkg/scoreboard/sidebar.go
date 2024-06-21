@@ -66,6 +66,10 @@ func (sidebar *ScoreboardSidebar) UpdateLine(index int, line string) {
 		return
 	}
 	team := sidebar.Lines[index]
+	mergedText := fmt.Sprintf("%s%s%s", team.Prefix, team.Content, team.Suffix)
+	if mergedText == line { // Ignore line if it doesn't change
+		return
+	}
 	sidebar.sendToViewers(team.GetScorePacket(index, types.RemoveScoreItem, sidebar.Name))
 	sidebar.sendToViewers(team.GetPacket(types.TeamModeRemove))
 	splitLine := strings.Split(line, "")
@@ -133,7 +137,7 @@ type ScoreboardSidebarLine struct {
 	Content string
 }
 
-func (team ScoreboardSidebarLine) GetScorePacket(line int, action types.UpdateScoreAction, objective string) *packet.PacketPlayUpdateScore {
+func (team *ScoreboardSidebarLine) GetScorePacket(line int, action types.UpdateScoreAction, objective string) *packet.PacketPlayUpdateScore {
 	return &packet.PacketPlayUpdateScore{
 		ScoreName:     team.Content,
 		Action:        action,
@@ -141,19 +145,3 @@ func (team ScoreboardSidebarLine) GetScorePacket(line int, action types.UpdateSc
 		Value:         15 - line,
 	}
 }
-
-/*
-func (team ScoreboardSidebarLine) GetPacket(line int, mode types.TeamMode) *packet.PacketPlayTeams {
-	return &packet.PacketPlayTeams{
-		TeamName:          fmt.Sprintf("__fakeScore%d", line),
-		Mode:              mode,
-		TeamDisplayName:   "", // unwanted.
-		TeamPrefix:        team.Prefix,
-		TeamSuffix:        team.Suffix,
-		FriendlyFire:      types.TeamFriendlyFireOff,
-		NameTagVisibility: types.TeamNameTagVisibilityAlways,
-		Color:             0,
-		Players:           []string{team.Content},
-	}
-}
-*/

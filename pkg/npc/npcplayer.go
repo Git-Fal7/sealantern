@@ -49,7 +49,7 @@ func (npc *NPCPlayer) SetText(offset float64, text ...string) {
 		npc.holograms = npc.holograms[0:len(text)]
 	} else if len(npc.holograms) < len(text) {
 		for i := len(npc.holograms); i < len(text); i++ {
-			npc.holograms = append(npc.holograms, hologram.NewHologram(npc.entityID+5000+uint16(mathrand.Intn(700)+mathrand.Intn(700))+uint16(i), "", world.Position{
+			npc.holograms = append(npc.holograms, hologram.NewHologram(npc.entityID+5000+(uint16(mathrand.Intn(250)+mathrand.Intn(250))*uint16(i)), "", world.Position{
 				X: npc.position.X,
 				Y: npc.position.Y + 1.5 + (offset * float64(len(text)-i)),
 				Z: npc.position.Z,

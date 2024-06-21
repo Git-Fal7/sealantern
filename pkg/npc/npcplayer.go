@@ -43,14 +43,14 @@ func NewNPCPlayer(entityID uint16, position world.Position, properties []profile
 	}
 }
 
-func (npc *NPCPlayer) SetText(text ...string) {
+func (npc *NPCPlayer) SetText(offset float64, text ...string) {
 	if len(npc.holograms) > len(text) {
 		npc.holograms = npc.holograms[0:len(text)]
 	} else if len(npc.holograms) < len(text) {
 		for i := len(npc.holograms); i < len(text); i++ {
 			npc.holograms = append(npc.holograms, hologram.NewHologram(npc.entityID+1000+uint16(i), "", world.Position{
 				X: npc.position.X,
-				Y: npc.position.Y + 1.5 + (0.3 * float64(len(text)-i)),
+				Y: npc.position.Y + 1.5 + (offset * float64(len(text)-i)),
 				Z: npc.position.Z,
 			}))
 		}

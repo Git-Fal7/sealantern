@@ -318,7 +318,7 @@ func (packet *PacketPlayJoinGame) Write(w *stream.ProtocolWriter) (err error) {
 	if err != nil {
 		return
 	}
-	err = w.WriteUInt8(uint8(packet.Dimension))
+	err = w.WriteInt8(int8(packet.Dimension))
 	if err != nil {
 		return
 	}

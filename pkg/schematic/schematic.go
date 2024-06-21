@@ -42,7 +42,7 @@ func LoadSchematic(file string) (*map_world.Map, error) {
 
 	m := &map_world.Map{
 		Spawn:     world.Position{X: 0, Y: 0, Z: 0},
-		Dimension: world.END,
+		Dimension: world.OVERWORLD,
 		ChunkMap:  make(map[chunk.ChunkKey]*chunk.Chunk),
 	}
 

@@ -161,3 +161,9 @@ type PlayerHeldItemChangeEvent struct {
 func (e *PlayerHeldItemChangeEvent) SetAllowed(allowed bool) {
 	e.Allowed = allowed
 }
+
+type PlayerSwitchInstanceEvent struct {
+	Player           player.IPlayer
+	PreviousInstance *gameinstance.GameInstance
+	CurrentInstance  *gameinstance.GameInstance
+}

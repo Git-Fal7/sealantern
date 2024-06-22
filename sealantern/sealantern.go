@@ -12,11 +12,14 @@ import (
 
 	"github.com/git-fal7/sealantern/config"
 	"github.com/git-fal7/sealantern/minecraft/player"
+	"github.com/git-fal7/sealantern/minecraft/player/connplayer"
 	"github.com/git-fal7/sealantern/minecraft/player/socket"
 	"github.com/git-fal7/sealantern/minecraft/protocol"
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
 	"github.com/git-fal7/sealantern/minecraft/protocol/packethandler"
 	"github.com/git-fal7/sealantern/minecraft/types"
+	"github.com/git-fal7/sealantern/minecraft/world"
+	"github.com/git-fal7/sealantern/minecraft/world/chunk"
 	"github.com/git-fal7/sealantern/pkg/command"
 	"github.com/git-fal7/sealantern/pkg/events"
 	"github.com/git-fal7/sealantern/pkg/gameinstance"
@@ -250,4 +253,49 @@ func (c *Core) readPlayPacketWithoutCompression(conn *socket.Conn) (packet proto
 		packethandler.ExecutePacketHandler(conn, packet, id, c.playerRegistry)
 	}
 	return
+}
+
+func (c *Core) SwitchToInstance(p *connplayer.ConnectedPlayer, newInstance *gameinstance.GameInstance) {
+	instance := c.GetInstanceFromUUID(p.UUID())
+	if instance == newInstance {
+		return
+	}
+	if !instance.HasPlayerFromUUID(p.UUID()) {
+		return
+	}
+	instance.QuitPlayer(p)
+	entries := make([]types.PlayerListEntry, 0)
+	for _, oldInstancePlayers := range instance.Players.GetPlayers() {
+		entries = append(entries, types.PlayerListEntry{
+			Profile: *oldInstancePlayers.Profile(),
+		})
+	}
+	p.WritePacket(&packet.PacketPlayPlayerListItem{
+		Action:  types.PlayerListActionRemovePlayer,
+		Entries: entries,
+	})
+	if instance.World.Dimension == newInstance.World.Dimension {
+		p.WritePacket(&packet.PacketPlayRespawn{
+			Dimension:  (instance.World.Dimension + 1) % 2,
+			Difficulty: newInstance.Difficulty,
+			Gamemode:   types.SURVIVAL,
+			LevelType:  world.DEFAULT,
+		})
+	}
+	p.WritePacket(&packet.PacketPlayRespawn{
+		Dimension:  newInstance.World.Dimension,
+		Difficulty: newInstance.Difficulty,
+		Gamemode:   types.SURVIVAL,
+		LevelType:  world.DEFAULT,
+	})
+	p.WritePacket(&packet.PacketPlayChangeGameState{
+		Reason: types.GameStateReasonChangeGamemode,
+		Value:  float32(newInstance.Gamemode),
+	})
+	p.KnownChunkKeys = make(map[chunk.ChunkKey]bool)
+	newInstance.JoinPlayer(p)
+	c.Event().Fire(&events.PlayerSwitchInstanceEvent{
+		Player:          p,
+		CurrentInstance: newInstance,
+	})
 }

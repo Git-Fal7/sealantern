@@ -230,6 +230,13 @@ func (instance *GameInstance) SwitchPlayer(p *connplayer.ConnectedPlayer, newIns
 		return
 	}
 	instance.QuitPlayer(p)
+	entitiesIDs := make([]uint16, 0)
+	for _, oldInstancePlayers := range instance.Players.GetPlayers() {
+		entitiesIDs = append(entitiesIDs, oldInstancePlayers.ID())
+	}
+	p.WritePacket(&packet.PacketPlayDestroyEntities{
+		EntityIDs: entitiesIDs,
+	})
 	if instance.World.Dimension == newInstance.World.Dimension {
 		p.WritePacket(&packet.PacketPlayRespawn{
 			Dimension:  (instance.World.Dimension + 1) % 2,

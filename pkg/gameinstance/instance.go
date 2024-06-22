@@ -80,6 +80,7 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 				HeadYaw:  player.Position().IntYaw(),
 			})
 			if player.CurrentTeam != nil {
+				p.WritePacket(player.CurrentTeam.GetPacket(types.TeamModeRemove))
 				p.WritePacket(player.CurrentTeam.GetPacket(types.TeamModeCreate))
 			}
 			if p.CurrentTeam != nil {

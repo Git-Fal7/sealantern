@@ -230,12 +230,15 @@ func (instance *GameInstance) SwitchPlayer(p *connplayer.ConnectedPlayer, newIns
 		return
 	}
 	instance.QuitPlayer(p)
-	entitiesIDs := make([]uint16, 0)
+	entries := make([]types.PlayerListEntry, 0)
 	for _, oldInstancePlayers := range instance.Players.GetPlayers() {
-		entitiesIDs = append(entitiesIDs, oldInstancePlayers.ID())
+		entries = append(entries, types.PlayerListEntry{
+			Profile: *oldInstancePlayers.Profile(),
+		})
 	}
-	p.WritePacket(&packet.PacketPlayDestroyEntities{
-		EntityIDs: entitiesIDs,
+	p.WritePacket(&packet.PacketPlayPlayerListItem{
+		Action:  types.PlayerListActionRemovePlayer,
+		Entries: entries,
 	})
 	if instance.World.Dimension == newInstance.World.Dimension {
 		p.WritePacket(&packet.PacketPlayRespawn{

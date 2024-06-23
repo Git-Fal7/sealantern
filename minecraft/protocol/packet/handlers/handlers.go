@@ -556,6 +556,13 @@ func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 		}
 	}
 	p.LastPlacementPacket = blockPlacementPacket
+	timer := time.NewTimer(time.Millisecond * 100) // 2 ticks
+	go func() {
+		<-timer.C
+		if p.LastPlacementPacket == blockPlacementPacket {
+			p.LastPlacementPacket = nil
+		}
+	}()
 	// TODO: Placaement
 	h.Server.Event().Fire(&events.PlayerInteractItemEvent{
 		Player: p,

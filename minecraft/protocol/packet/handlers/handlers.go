@@ -547,6 +547,15 @@ type PlayBlockPlacementHandler struct {
 }
 
 func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
+	blockPlacementPacket, _ := protoPacket.(*packet.PacketPlayBlockPlacement)
+	if blockPlacementPacket.Face == 0xff {
+		previous := p.LastPlacementPacket
+		if previous != nil && previous.HeldItem.ID == blockPlacementPacket.HeldItem.ID {
+			p.LastPlacementPacket = nil
+			return
+		}
+	}
+	p.LastPlacementPacket = blockPlacementPacket
 	// TODO: Placaement
 	h.Server.Event().Fire(&events.PlayerInteractItemEvent{
 		Player: p,

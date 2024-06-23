@@ -21,19 +21,20 @@ import (
 )
 
 type ConnectedPlayer struct {
-	Conn            *socket.Conn
-	profile         *profile.PlayerProfile
-	Pos             world.Position
-	PermFunc        permission.Func
-	eid             uint16
-	Sneaking        bool
-	Health          float32
-	Invincibile     bool
-	Settings        clientsettings.ClientSettings
-	CurrentTeam     *team.Team
-	KnownChunkKeys  map[chunk.ChunkKey]bool
-	OpenedInventory inventory.Inventory
-	Inventory       *playerinventory.PlayerInventory
+	Conn                *socket.Conn
+	profile             *profile.PlayerProfile
+	Pos                 world.Position
+	PermFunc            permission.Func
+	eid                 uint16
+	Sneaking            bool
+	Health              float32
+	Invincibile         bool
+	Settings            clientsettings.ClientSettings
+	CurrentTeam         *team.Team
+	KnownChunkKeys      map[chunk.ChunkKey]bool
+	OpenedInventory     inventory.Inventory
+	Inventory           *playerinventory.PlayerInventory
+	LastPlacementPacket *packet.PacketPlayBlockPlacement
 }
 
 func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16) *ConnectedPlayer {

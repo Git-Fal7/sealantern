@@ -2,5 +2,6 @@
   "listen_address": ":25565",
   "logs": true,
   "enable_compression": false,
-  "compression_threshold": 256
+  "compression_threshold": 256,
+  "info_fowarding": "offline"
 }

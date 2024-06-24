@@ -6,11 +6,19 @@ import (
 )
 
 type Config struct {
-	ListenAddress string `json:"listen_address"`
-	Logs          bool   `json:"logs"`
-	Compression   bool   `json:"enable_compression"`
-	Threshold     int    `json:"compression_threshold"`
+	ListenAddress string            `json:"listen_address"`
+	Logs          bool              `json:"logs"`
+	Compression   bool              `json:"enable_compression"`
+	Threshold     int               `json:"compression_threshold"`
+	InfoFowarding InfoFowardingType `json:"info_fowarding"`
 }
+
+type InfoFowardingType string
+
+const (
+	InfoFowardingOfflineMode InfoFowardingType = "offline"
+	InfoFowardingBungeeMode  InfoFowardingType = "bungee"
+)
 
 var (
 	LanternConfig Config

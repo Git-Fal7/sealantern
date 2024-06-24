@@ -1,7 +1,7 @@
 package profile
 
 type Property struct {
-	Name      string
-	Value     string
-	Signature string
+	Name      string `json:"name"`
+	Value     string `json:"value"`
+	Signature string `json:"signature"`
 }

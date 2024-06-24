@@ -27,6 +27,8 @@ type Conn struct {
 	KeepAlive    int
 	PacketsQueue chan protocol.PacketOut
 
+	ProxyData []string
+
 	writerMutex sync.Mutex
 
 	State        types.State

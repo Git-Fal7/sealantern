@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"crypto/md5"
 	"encoding/binary"
 	"encoding/json"
 	"strings"
 	"time"
 
+	"github.com/git-fal7/sealantern/config"
 	"github.com/git-fal7/sealantern/minecraft/player/connplayer"
 	"github.com/git-fal7/sealantern/minecraft/player/profile"
 	"github.com/git-fal7/sealantern/minecraft/player/socket"
@@ -21,7 +21,9 @@ import (
 	"github.com/git-fal7/sealantern/pkg/inventory"
 	"github.com/git-fal7/sealantern/pkg/rayutil"
 	"github.com/git-fal7/sealantern/pkg/slot"
+	"github.com/git-fal7/sealantern/pkg/uuidutil"
 	"github.com/git-fal7/sealantern/sealantern/server"
+	"github.com/google/uuid"
 )
 
 type HandshakeHandler struct{}
@@ -29,6 +31,16 @@ type HandshakeHandler struct{}
 func (h *HandshakeHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) {
 	// set player state, address
 	packet, _ := protoPacket.(*packet.PacketHandshake)
+	if config.LanternConfig.InfoFowarding == config.InfoFowardingBungeeMode {
+		println(packet.Address)
+		split := strings.Split(packet.Address, "\x00")
+		if (len(split) == 3 && split[2] != "") || len(split) == 4 {
+			p.ProxyData = split
+		} else {
+			p.Disconnect(component.ChatMessage("If you wish to use IP forwarding, please enable it in your BungeeCord config as well!"))
+			return
+		}
+	}
 	p.State = packet.State
 	p.Protocol = int32(packet.Protocol)
 }
@@ -84,21 +96,46 @@ type LoginStartHandler struct {
 }
 
 func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) {
-	lPacket, _ := protoPacket.(*packet.PacketLoginStart)
+	loginStartPacket, _ := protoPacket.(*packet.PacketLoginStart)
 	if p.Protocol != 47 {
 		p.Disconnect(&component.StringDisconnectComponent{
 			Text: "Bad version no",
 		})
 		return
 	}
-	// kick if "full"
 
-	p.Username = lPacket.Username
-	// Offline mode
-	md5uuid := md5.Sum([]byte("OfflinePlayer:" + p.Username))
-	md5uuid[6] = (md5uuid[6] & 0x0f) | uint8((3&0xf)<<4)
-	md5uuid[8] = (md5uuid[8] & 0x3f) | 0x80
-	p.UUID = md5uuid
+	p.Username = loginStartPacket.Username
+	var playerProfile *profile.PlayerProfile
+	if config.LanternConfig.InfoFowarding == config.InfoFowardingBungeeMode {
+		if p.ProxyData == nil {
+			p.Disconnect(component.ChatMessage("If you wish to use IP forwarding, please enable it in your BungeeCord config as well! (ProxyData not retrived)"))
+			return
+		}
+		proxyData := p.ProxyData
+		// 0: hostname
+		// 1: spoofed addres
+		p.UUID, _ = uuid.Parse(proxyData[2])
+		playerProfile = &profile.PlayerProfile{
+			UUID: p.UUID,
+			Name: p.Username,
+		}
+		if len(proxyData) == 4 {
+			// Spoofing properties
+			var properties []profile.Property
+			if err := json.Unmarshal([]byte(proxyData[3]), &properties); err != nil {
+				p.Disconnect(component.ChatMessage("Unable to retrive properties"))
+				return
+			}
+			playerProfile.Properties = properties
+		}
+	} else {
+		p.UUID = uuidutil.GenerateOfflineUUID(p.Username)
+		playerProfile = &profile.PlayerProfile{
+			UUID: p.UUID,
+			Name: p.Username,
+		}
+	}
+
 	// check if compression is on
 	p.WritePacket(&packet.PacketLoginSuccess{
 		UUID:     p.UUID,
@@ -113,11 +150,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 		p.Disconnect(&preLoginEvent.Reason)
 	}
 
-	profile := &profile.PlayerProfile{
-		UUID: p.UUID,
-		Name: p.Username,
-	}
-	player := connplayer.NewconnPlayer(profile, p, h.Server.NextEID())
+	player := connplayer.NewconnPlayer(playerProfile, p, h.Server.NextEID())
 	h.Server.GetPlayerRegistry().RegisterPlayer(player)
 	loginEvent := &events.PlayerPreJoinEvent{
 		Player: player,

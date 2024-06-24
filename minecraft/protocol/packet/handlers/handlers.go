@@ -32,7 +32,6 @@ func (h *HandshakeHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) {
 	// set player state, address
 	packet, _ := protoPacket.(*packet.PacketHandshake)
 	if config.LanternConfig.InfoFowarding == config.InfoFowardingBungeeMode {
-		println(packet.Address)
 		split := strings.Split(packet.Address, "\x00")
 		if (len(split) == 3 && split[2] != "") || len(split) == 4 {
 			p.ProxyData = split

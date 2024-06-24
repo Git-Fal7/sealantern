@@ -105,7 +105,7 @@ func (npc NPCPlayer) SendPackets(p player.IPlayer) {
 		},
 	})
 	go func() {
-		time.Sleep(time.Millisecond * 50)
+		time.Sleep(time.Millisecond * 200)
 		p.WritePacket(&packet.PacketPlayPlayerListItem{
 			Action: types.PlayerListActionRemovePlayer,
 			Entries: []types.PlayerListEntry{

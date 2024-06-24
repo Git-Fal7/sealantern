@@ -63,6 +63,12 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 		if player.UUID() != p.UUID() {
 			player.WritePacket(packetPlayerListItem)
 			player.WritePacket(packetSpawnJoinedPlayer)
+			player.WritePacket(&packet.PacketPlayEntityMetadata{
+				EntityID: p.ID(),
+				Metadata: metadata.MetadataMap{
+					metadata.MetadataPlayerSkinFlags: uint8(p.ClientSettings().DisplayedSkinParts),
+				},
+			})
 			for _, eqiupmentPacket := range p.PlayerInventory().GetArmorPackets(p.ID()) {
 				player.WritePacket(eqiupmentPacket)
 			}

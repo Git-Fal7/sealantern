@@ -482,11 +482,35 @@ func (h *PlayEntityUseHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket
 }
 
 type PlayClientSettingsHandler struct {
+	Server server.Server
 }
 
 func (h *PlayClientSettingsHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
-	packet, _ := protoPacket.(*packet.PacketPlayClientSettings)
-	p.Settings = packet.ClientSettings
+	clientSettingsPacket, _ := protoPacket.(*packet.PacketPlayClientSettings)
+	if p.Settings.DisplayedSkinParts != clientSettingsPacket.ClientSettings.DisplayedSkinParts {
+		instance := h.Server.GetInstanceFromUUID(p.UUID())
+		if instance != nil {
+			p.WritePacket(&packet.PacketPlayEntityMetadata{
+				EntityID: 0,
+				Metadata: metadata.MetadataMap{
+					metadata.MetadataPlayerSkinFlags: uint8(clientSettingsPacket.ClientSettings.DisplayedSkinParts),
+				},
+			})
+			metadataPacket := &packet.PacketPlayEntityMetadata{
+				EntityID: p.ID(),
+				Metadata: metadata.MetadataMap{
+					metadata.MetadataPlayerSkinFlags: uint8(clientSettingsPacket.ClientSettings.DisplayedSkinParts),
+				},
+			}
+			for _, player := range instance.Players.GetPlayers() {
+				if p.UUID() == player.UUID() {
+					continue
+				}
+				player.WritePacket(metadataPacket)
+			}
+		}
+	}
+	p.Settings = clientSettingsPacket.ClientSettings
 }
 
 type PlayClickWindowHandler struct {

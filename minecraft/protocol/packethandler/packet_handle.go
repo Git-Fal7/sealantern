@@ -66,7 +66,9 @@ func InitRegistry(server server.Server) {
 	playPackets[0x0E] = &handlers.PlayClickWindowHandler{
 		Server: server,
 	}
-	playPackets[0x15] = &handlers.PlayClientSettingsHandler{}
+	playPackets[0x15] = &handlers.PlayClientSettingsHandler{
+		Server: server,
+	}
 	playPackets[0x17] = &handlers.PlayPluginMessageHandler{
 		Server: server,
 	}

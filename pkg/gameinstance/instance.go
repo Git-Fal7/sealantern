@@ -11,6 +11,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/chunk"
 	"github.com/git-fal7/sealantern/minecraft/world/map_world"
+	"github.com/git-fal7/sealantern/minecraft/world/metadata"
 	"github.com/git-fal7/sealantern/pkg/npc"
 
 	"github.com/google/uuid"
@@ -71,6 +72,12 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 				PlayerUUID:     player.UUID(),
 				PlayerPosition: player.Position(),
 				CurrentItem:    player.PlayerInventory().GetHeldItem().ID,
+			})
+			p.WritePacket(&packet.PacketPlayEntityMetadata{
+				EntityID: player.ID(),
+				Metadata: metadata.MetadataMap{
+					metadata.MetadataPlayerSkinFlags: uint8(player.ClientSettings().DisplayedSkinParts),
+				},
 			})
 			for _, eqiupmentPacket := range player.PlayerInventory().GetArmorPackets(player.ID()) {
 				p.WritePacket(eqiupmentPacket)

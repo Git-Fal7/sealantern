@@ -166,11 +166,7 @@ func (packet *PacketPlayPluginMessage) Read(r *stream.ProtocolReader, length int
 	if err != nil {
 		return
 	}
-
-	// This should fix the invalid packet issues.
-	dataLength := length - 10
-
-	packet.Data, err = r.ReadByteArray(dataLength)
+	packet.Data, err = r.ReadByteArray(length - len(packet.Channel) - 2)
 	if err != nil {
 		return
 	}

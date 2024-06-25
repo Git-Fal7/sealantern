@@ -116,7 +116,7 @@ func (c *Core) keepAlive() {
 		for _, player := range c.playerRegistry.GetPlayers() {
 			if player.Conn.State == types.PLAY {
 				player.Conn.KeepAlive = id
-				player.WritePacket(keepalive)
+				player.SendPacket(keepalive)
 			}
 		}
 		time.Sleep(5 * time.Second)
@@ -126,15 +126,17 @@ func (c *Core) keepAlive() {
 func (c *Core) handleConnection(conn *socket.Conn, id int) {
 	log.Printf("%s(#%d) connected.", conn.RemoteAddr().String(), id)
 
-	go func() {
-		for {
-			packet := <-conn.PacketsQueue
-			err := conn.PrivateWritePacket(packet)
-			if err != nil {
-				break
+	/*
+		go func() {
+			for {
+				packet := <-conn.PacketsQueue
+				err := conn.PrivateWritePacket(packet)
+				if err != nil {
+					break
+				}
 			}
-		}
-	}()
+		}()
+	*/
 
 	for {
 		var err error

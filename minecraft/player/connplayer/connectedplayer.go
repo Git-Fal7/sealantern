@@ -93,6 +93,10 @@ func (p *ConnectedPlayer) WritePacket(packet protocol.PacketOut) error {
 	return p.Conn.WritePacket(packet)
 }
 
+func (p *ConnectedPlayer) SendPacket(packet protocol.PacketOut) error {
+	return p.Conn.SendPacket(packet)
+}
+
 func (p *ConnectedPlayer) Teleport(position world.Position) {
 	p.WritePacket(&packet.PacketPlayPlayerPositionAndLookClient{
 		Position: position,

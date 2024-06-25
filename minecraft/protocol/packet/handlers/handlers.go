@@ -77,7 +77,7 @@ func (h *StatusRequestHandler) Handle(p *socket.Conn, protoPacket protocol.Packe
 		return
 	}
 	b, _ := json.Marshal(serverListPing)
-	p.WritePacket(&packet.PacketStatusResponse{
+	p.SendPacket(&packet.PacketStatusResponse{
 		Response: string(b),
 	})
 }
@@ -87,7 +87,7 @@ type StatusPingHandler struct {
 
 func (h *StatusPingHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) {
 	packet, _ := protoPacket.(*packet.PacketStatusPing)
-	p.WritePacket(packet)
+	p.SendPacket(packet)
 }
 
 type LoginStartHandler struct {
@@ -136,7 +136,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 	}
 
 	// check if compression is on
-	p.WritePacket(&packet.PacketLoginSuccess{
+	p.SendPacket(&packet.PacketLoginSuccess{
 		UUID:     p.UUID,
 		Username: p.Username,
 	})
@@ -170,7 +170,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 	player.PermFunc = permissionSetupEvent.Func()
 
 	p.State = types.PLAY
-	p.WritePacket(&packet.PacketPlayJoinGame{
+	p.SendPacket(&packet.PacketPlayJoinGame{
 		Gamemode:     loginEvent.Instance.Gamemode,
 		Dimension:    loginEvent.Instance.World.Dimension,
 		Difficulty:   loginEvent.Instance.Difficulty,
@@ -178,7 +178,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 		MaxPlayers:   0xFF,
 		ReducedDebug: false,
 	})
-	p.WritePacket(&packet.PacketPlayPlayerAbilities{
+	p.SendPacket(&packet.PacketPlayPlayerAbilities{
 		Invulnerable: false,
 		Fly:          false,
 		CanFly:       false,

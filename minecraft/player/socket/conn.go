@@ -29,7 +29,7 @@ type Conn struct {
 
 	ProxyData []string
 
-	writerMutex sync.Mutex
+	packetMutex sync.Mutex
 
 	State        types.State
 	Protocol     int32
@@ -50,16 +50,23 @@ func NewConn(conn net.Conn) *Conn {
 	}
 }
 
+// Immediate sending of packet
+func (c *Conn) SendPacket(packet protocol.PacketOut) (err error) {
+	return c.writePacket(packet)
+}
+
+// Do not send immediately
 func (c *Conn) WritePacket(packet protocol.PacketOut) (err error) {
-	c.PacketsQueue <- packet
-	return nil
+	c.packetMutex.Lock()
+	defer c.packetMutex.Unlock()
+	return c.writePacket(packet)
 }
 
-func (c *Conn) PrivateWritePacket(packet protocol.PacketOut) (err error) {
-	return c.WritePacketWithoutCompression(packet)
+func (c *Conn) writePacket(packet protocol.PacketOut) (err error) {
+	return c.writePacketWithoutCompression(packet)
 }
 
-func (c *Conn) WritePacketWithoutCompression(packet protocol.PacketOut) (err error) {
+func (c *Conn) writePacketWithoutCompression(packet protocol.PacketOut) (err error) {
 	id := packet.Id()
 	if id == -1 {
 		return
@@ -73,9 +80,6 @@ func (c *Conn) WritePacketWithoutCompression(packet protocol.PacketOut) (err err
 	writer := &stream.ProtocolWriter{}
 	writer.WriteVarInt(len(packetData))
 	writer.WriteByteArray(packetData)
-
-	c.writerMutex.Lock()
-	defer c.writerMutex.Unlock()
 
 	c.Conn.Write(writer.Bytes())
 
@@ -130,11 +134,11 @@ func (c *Conn) Disconnect(message component.IChatComponent) {
 		return
 	}
 	if c.State == types.LOGIN {
-		c.WritePacket(&packet.PacketLoginDisconnect{
+		c.SendPacket(&packet.PacketLoginDisconnect{
 			Component: msg,
 		})
 	} else {
-		c.WritePacket(&packet.PacketPlayDisconnect{
+		c.SendPacket(&packet.PacketPlayDisconnect{
 			Component: msg,
 		})
 	}

@@ -138,7 +138,7 @@ func (c *Core) handleConnection(conn *socket.Conn, id int) {
 
 	for {
 		var err error
-		c.readPacket(conn)
+		_, err = c.readPacket(conn)
 		if err != nil {
 			break
 		}
@@ -203,11 +203,11 @@ func (c *Core) GetInstanceFromUUID(uuid uuid.UUID) *gameinstance.GameInstance {
 	return nil
 }
 
-func (c *Core) readPacket(conn *socket.Conn) (packet protocol.Packet, err error) {
+func (c *Core) readPacket(conn *socket.Conn) (packet protocol.PacketIn, err error) {
 	return c.readPacketWithoutCompression(conn)
 }
 
-func (c *Core) readPacketWithoutCompression(conn *socket.Conn) (packet protocol.Packet, err error) {
+func (c *Core) readPacketWithoutCompression(conn *socket.Conn) (packet protocol.PacketIn, err error) {
 	length, err := conn.Reader.ReadVarInt()
 	if err != nil {
 		return

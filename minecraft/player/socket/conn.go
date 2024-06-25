@@ -2,6 +2,8 @@ package socket
 
 import (
 	"bufio"
+	"bytes"
+	"compress/zlib"
 	"fmt"
 	"log"
 	"net"
@@ -56,6 +58,12 @@ func (c *Conn) WritePacket(packet protocol.PacketOut) (err error) {
 }
 
 func (c *Conn) PrivateWritePacket(packet protocol.PacketOut) (err error) {
+	if c.Disconnected {
+		return
+	}
+	if c.Compression {
+		return c.WritePacketWithCompression(packet)
+	}
 	return c.WritePacketWithoutCompression(packet)
 }
 
@@ -82,6 +90,55 @@ func (c *Conn) WritePacketWithoutCompression(packet protocol.PacketOut) (err err
 	if config.LanternConfig.Logs {
 		if packet.Id() != 0x26 {
 			log.Printf("# <- %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
+		}
+	}
+	return nil
+}
+
+func (c *Conn) WritePacketWithCompression(packet protocol.PacketOut) (err error) {
+	println("Write")
+	id := packet.Id()
+	if id == -1 {
+		return
+	}
+	packetWriter := &stream.ProtocolWriter{}
+	packetWriter.WriteVarInt(int(id))
+	packet.Write(packetWriter)
+
+	var rBuff []byte
+	var dataLength = 0
+	if packetWriter.Len() < config.LanternConfig.Threshold {
+		rBuff = packetWriter.Bytes()
+	} else {
+		var b bytes.Buffer
+		w := zlib.NewWriter(&b)
+		w.Write(packetWriter.Bytes())
+		w.Close()
+		rBuff = b.Bytes()
+		dataLength = len(packetWriter.Bytes())
+	}
+
+	dataLengthWriter := &stream.ProtocolWriter{}
+	dataLengthWriter.WriteVarInt(dataLength)
+
+	packetLength := len(dataLengthWriter.Bytes())
+	if packetWriter.Len() >= config.LanternConfig.Threshold {
+		packetLength += len(rBuff)
+	}
+	packetLengthWriter := &stream.ProtocolWriter{}
+	packetLengthWriter.WriteVarInt(packetLength)
+
+	compressionEncoder := &stream.ProtocolWriter{}
+	compressionEncoder.Write(packetLengthWriter.Bytes())
+	compressionEncoder.Write(dataLengthWriter.Bytes())
+	compressionEncoder.Write(rBuff)
+	c.Conn.Write(compressionEncoder.Bytes())
+
+	if config.LanternConfig.Logs {
+		if packetWriter.Len() < config.LanternConfig.Threshold {
+			log.Println("<-u", id, reflect.TypeOf(packet), packet)
+		} else {
+			log.Println("<-c", id, reflect.TypeOf(packet), packet)
 		}
 	}
 	return nil

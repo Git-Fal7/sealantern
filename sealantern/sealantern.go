@@ -138,11 +138,7 @@ func (c *Core) handleConnection(conn *socket.Conn, id int) {
 
 	for {
 		var err error
-		if conn.State == types.PLAY {
-			_, err = c.readPlayPacket(conn)
-		} else {
-			_, err = c.handlePacket(conn)
-		}
+		c.readPacket(conn)
 		if err != nil {
 			break
 		}
@@ -177,28 +173,6 @@ func (c *Core) GetConfig(config interface{}) {
 	}
 }
 
-func (c *Core) handlePacket(conn *socket.Conn) (packet protocol.PacketIn, err error) {
-	length, err := conn.Reader.ReadVarInt()
-	if err != nil {
-		return
-	}
-
-	id, err := conn.Reader.ReadVarInt()
-	if err != nil {
-		return
-	}
-	packet, err = conn.HandlePacket(id, length)
-	if err != nil {
-		return
-	} else if packet != nil {
-		if config.LanternConfig.Logs {
-			log.Printf("# -> %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
-		}
-		packethandler.ExecutePacketHandler(conn, packet, id, nil)
-	}
-	return
-}
-
 func (c *Core) AddGameInstance(name string, gameinstance *gameinstance.GameInstance) error {
 	if _, ok := c.instances[name]; ok {
 		return fmt.Errorf("already has an instance named %s", name)
@@ -229,11 +203,11 @@ func (c *Core) GetInstanceFromUUID(uuid uuid.UUID) *gameinstance.GameInstance {
 	return nil
 }
 
-func (c *Core) readPlayPacket(conn *socket.Conn) (packet protocol.Packet, err error) {
-	return c.readPlayPacketWithoutCompression(conn)
+func (c *Core) readPacket(conn *socket.Conn) (packet protocol.Packet, err error) {
+	return c.readPacketWithoutCompression(conn)
 }
 
-func (c *Core) readPlayPacketWithoutCompression(conn *socket.Conn) (packet protocol.Packet, err error) {
+func (c *Core) readPacketWithoutCompression(conn *socket.Conn) (packet protocol.Packet, err error) {
 	length, err := conn.Reader.ReadVarInt()
 	if err != nil {
 		return

@@ -23,7 +23,6 @@ type IPlayer interface {
 	SendMessage(msg component.IChatComponent)
 	SendActionbar(msg component.IChatComponent)
 	Disconnect(msg component.IChatComponent)
-	SendPacket(packet protocol.PacketOut) error
 	WritePacket(packet protocol.PacketOut) error
 	Active() bool
 	ID() uint16

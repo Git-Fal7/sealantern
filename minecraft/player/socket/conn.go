@@ -6,7 +6,6 @@ import (
 	"log"
 	"net"
 	"reflect"
-	"sync"
 
 	"github.com/git-fal7/sealantern/config"
 	"github.com/git-fal7/sealantern/minecraft/protocol"
@@ -29,8 +28,6 @@ type Conn struct {
 
 	ProxyData []string
 
-	packetMutex sync.Mutex
-
 	State        types.State
 	Protocol     int32
 	Disconnected bool
@@ -45,20 +42,11 @@ func NewConn(conn net.Conn) *Conn {
 		Compression:  false,
 		KeepAlive:    0,
 		State:        types.HANDSHAKING,
-		PacketsQueue: make(chan protocol.PacketOut),
 		Disconnected: false,
 	}
 }
 
-// Immediate sending of packet
-func (c *Conn) SendPacket(packet protocol.PacketOut) (err error) {
-	return c.writePacket(packet)
-}
-
-// Do not send immediately
 func (c *Conn) WritePacket(packet protocol.PacketOut) (err error) {
-	c.packetMutex.Lock()
-	defer c.packetMutex.Unlock()
 	return c.writePacket(packet)
 }
 
@@ -134,11 +122,11 @@ func (c *Conn) Disconnect(message component.IChatComponent) {
 		return
 	}
 	if c.State == types.LOGIN {
-		c.SendPacket(&packet.PacketLoginDisconnect{
+		c.WritePacket(&packet.PacketLoginDisconnect{
 			Component: msg,
 		})
 	} else {
-		c.SendPacket(&packet.PacketPlayDisconnect{
+		c.WritePacket(&packet.PacketPlayDisconnect{
 			Component: msg,
 		})
 	}

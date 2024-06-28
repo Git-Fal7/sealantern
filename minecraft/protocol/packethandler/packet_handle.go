@@ -1,8 +1,6 @@
 package packethandler
 
 import (
-	"fmt"
-
 	"github.com/git-fal7/sealantern/minecraft/player"
 	"github.com/git-fal7/sealantern/minecraft/player/socket"
 	"github.com/git-fal7/sealantern/minecraft/protocol"
@@ -84,7 +82,6 @@ func ExecutePacketHandler(conn *socket.Conn, packet protocol.Packet, id int, pla
 			return
 		}
 		if playerRegistry.GetPlayerFromUUID(conn.UUID) == nil {
-			fmt.Println("Invalid player", conn.UUID)
 			return
 		}
 		handler.Handle(playerRegistry.GetPlayerFromUUID(conn.UUID), packet)

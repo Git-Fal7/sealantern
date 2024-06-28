@@ -12,7 +12,7 @@ import (
 )
 
 type ProtocolReader struct {
-	bufio.Reader
+	*bufio.Reader
 	Buffer [16]byte
 }
 

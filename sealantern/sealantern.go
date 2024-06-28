@@ -124,6 +124,8 @@ func (c *Core) keepAlive() {
 }
 
 func (c *Core) handleConnection(conn *socket.Conn, id int) {
+	defer conn.Close()
+
 	log.Printf("%s(#%d) connected.", conn.RemoteAddr().String(), id)
 
 	for {
@@ -135,21 +137,19 @@ func (c *Core) handleConnection(conn *socket.Conn, id int) {
 	}
 
 	if conn.State == types.PLAY {
-		// call quit event
 		registeredPlayer := c.playerRegistry.GetPlayerFromUUID(conn.UUID)
 		if registeredPlayer != nil {
 			c.playerRegistry.UnregisterPlayer(registeredPlayer)
 			c.Event().Fire(&events.PlayerQuitEvent{
 				Player: registeredPlayer,
 			})
+			for _, instance := range c.instances {
+				instance.QuitPlayer(registeredPlayer)
+			}
+			registeredPlayer.Team().RemovePlayer(registeredPlayer.Username())
 		}
-		for _, instance := range c.instances {
-			instance.QuitPlayer(registeredPlayer)
-		}
-		registeredPlayer.Team().RemovePlayer(registeredPlayer.Username())
 	}
 	conn.Disconnected = true
-	conn.Close()
 	log.Printf("%s(#%d) disconnected.", conn.RemoteAddr().String(), id)
 }
 

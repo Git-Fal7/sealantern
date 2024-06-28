@@ -9,29 +9,24 @@ import (
 )
 
 type PlayerRegistry struct {
-	playersCount int
-	playersMutex *sync.RWMutex
+	playersMutex sync.RWMutex
 	playerIDs    map[uuid.UUID]*connplayer.ConnectedPlayer // uuids map
 }
 
 func NewPlayerRegistry() *PlayerRegistry {
 	return &PlayerRegistry{
-		playersCount: 0,
-		playerIDs:    map[uuid.UUID]*connplayer.ConnectedPlayer{},
-		playersMutex: &sync.RWMutex{},
+		playerIDs: map[uuid.UUID]*connplayer.ConnectedPlayer{},
 	}
 }
 
-// TODO: Make the Core kick already existing players with same username
 func (r *PlayerRegistry) RegisterPlayer(p *connplayer.ConnectedPlayer) bool {
 	r.playersMutex.Lock()
+	defer r.playersMutex.Unlock()
 
 	if _, ok := r.playerIDs[p.UUID()]; ok {
 		return false
 	}
-
 	r.playerIDs[p.UUID()] = p
-	r.playersMutex.Unlock()
 	return true
 }
 
@@ -48,8 +43,8 @@ func (r *PlayerRegistry) UnregisterPlayer(p *connplayer.ConnectedPlayer) bool {
 
 func (r *PlayerRegistry) GetPlayerFromUUID(uuid uuid.UUID) *connplayer.ConnectedPlayer {
 	r.playersMutex.RLock()
+	defer r.playersMutex.RUnlock()
 	player, ok := r.playerIDs[uuid]
-	r.playersMutex.RUnlock()
 	if ok {
 		return player
 	}
@@ -67,10 +62,13 @@ func (r *PlayerRegistry) GetPlayerFromEID(eid uint16) *connplayer.ConnectedPlaye
 
 func (r *PlayerRegistry) GetPlayers() []*connplayer.ConnectedPlayer {
 	r.playersMutex.RLock()
+	defer r.playersMutex.RUnlock()
 	players := make([]*connplayer.ConnectedPlayer, 0, len(r.playerIDs))
 	for _, player := range r.playerIDs {
+		if player == nil {
+			continue
+		}
 		players = append(players, player)
 	}
-	r.playersMutex.RUnlock()
 	return players
 }

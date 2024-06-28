@@ -37,7 +37,7 @@ func NewConn(conn net.Conn) *Conn {
 	return &Conn{
 		Conn: conn,
 		Reader: &stream.ProtocolReader{
-			Reader: *bufio.NewReader(conn),
+			Reader: bufio.NewReader(conn),
 		},
 		Compression:  false,
 		KeepAlive:    0,
@@ -132,4 +132,8 @@ func (c *Conn) Disconnect(message component.IChatComponent) {
 	}
 	c.Disconnected = true
 	c.Conn.Close()
+}
+
+func (c *Conn) Active() bool {
+	return !c.Disconnected
 }

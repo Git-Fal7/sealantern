@@ -24,7 +24,6 @@ type IPlayer interface {
 	SendActionbar(msg component.IChatComponent)
 	Disconnect(msg component.IChatComponent)
 	WritePacket(packet protocol.PacketOut) error
-	Active() bool
 	ID() uint16
 	KnownChunks() map[chunk.ChunkKey]bool
 	Team() *team.Team

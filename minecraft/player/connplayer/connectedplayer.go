@@ -104,10 +104,6 @@ func (p *ConnectedPlayer) Position() world.Position {
 	return p.Pos
 }
 
-func (p *ConnectedPlayer) Active() bool {
-	return !p.Conn.Disconnected
-}
-
 func (p *ConnectedPlayer) ID() uint16 {
 	return p.eid
 }

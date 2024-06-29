@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"reflect"
+	"sync"
 
 	"github.com/git-fal7/sealantern/config"
 	"github.com/git-fal7/sealantern/minecraft/protocol"
@@ -26,7 +27,8 @@ type Conn struct {
 	KeepAlive    int
 	PacketsQueue chan protocol.PacketOut
 
-	ProxyData []string
+	ProxyData   []string
+	packetMutex sync.Mutex
 
 	State        types.State
 	Protocol     int32
@@ -47,6 +49,11 @@ func NewConn(conn net.Conn) *Conn {
 }
 
 func (c *Conn) WritePacket(packet protocol.PacketOut) (err error) {
+	if packet.Id() == -1 {
+		return
+	}
+	c.packetMutex.Lock()
+	defer c.packetMutex.Unlock()
 	return c.writePacket(packet)
 }
 
@@ -56,9 +63,7 @@ func (c *Conn) writePacket(packet protocol.PacketOut) (err error) {
 
 func (c *Conn) writePacketWithoutCompression(packet protocol.PacketOut) (err error) {
 	id := packet.Id()
-	if id == -1 {
-		return
-	}
+
 	packetWriter := &stream.ProtocolWriter{}
 	packetWriter.WriteVarInt(int(id))
 	packet.Write(packetWriter)

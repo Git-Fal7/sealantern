@@ -16,6 +16,5 @@ type PacketIn interface {
 // Client
 type PacketOut interface {
 	Packet
-	Id() int32
 	Write(*stream.ProtocolWriter) error
 }

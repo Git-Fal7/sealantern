@@ -48,22 +48,21 @@ func NewConn(conn net.Conn) *Conn {
 	}
 }
 
-func (c *Conn) WritePacket(packet protocol.PacketOut) (err error) {
-	if packet.Id() == -1 {
+func (c *Conn) WritePacket(packetOut protocol.PacketOut) (err error) {
+	id := packet.GetPacketIDFromClientPacket(reflect.TypeOf(packetOut).Elem())
+	if id == -1 {
 		return
 	}
 	c.packetMutex.Lock()
 	defer c.packetMutex.Unlock()
-	return c.writePacket(packet)
+	return c.writePacket(packetOut, id)
 }
 
-func (c *Conn) writePacket(packet protocol.PacketOut) (err error) {
-	return c.writePacketWithoutCompression(packet)
+func (c *Conn) writePacket(packet protocol.PacketOut, id int32) (err error) {
+	return c.writePacketWithoutCompression(packet, id)
 }
 
-func (c *Conn) writePacketWithoutCompression(packet protocol.PacketOut) (err error) {
-	id := packet.Id()
-
+func (c *Conn) writePacketWithoutCompression(packet protocol.PacketOut, id int32) (err error) {
 	packetWriter := &stream.ProtocolWriter{}
 	packetWriter.WriteVarInt(int(id))
 	packet.Write(packetWriter)
@@ -77,7 +76,7 @@ func (c *Conn) writePacketWithoutCompression(packet protocol.PacketOut) (err err
 	c.Conn.Write(writer.Bytes())
 
 	if config.LanternConfig.Logs {
-		if packet.Id() != 0x26 {
+		if id != 0x26 {
 			log.Printf("# <- %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
 		}
 	}

@@ -21,10 +21,6 @@ func (packet *PacketStatusResponse) Write(w *stream.ProtocolWriter) (err error) 
 	return
 }
 
-func (packet *PacketStatusResponse) Id() int32 {
-	return 0x00
-}
-
 type PacketStatusPing struct {
 	Time uint64
 }
@@ -44,20 +40,12 @@ func (packet *PacketStatusPing) Write(w *stream.ProtocolWriter) (err error) {
 	return
 }
 
-func (packet *PacketStatusPing) Id() int32 {
-	return 0x01
-}
-
 func (packet *PacketLoginDisconnect) Write(w *stream.ProtocolWriter) (err error) {
 	err = w.WriteString(packet.Component)
 	if err != nil {
 		return
 	}
 	return
-}
-
-func (packet *PacketLoginDisconnect) Id() int32 {
-	return 0x00
 }
 
 type PacketLoginSuccess struct {
@@ -77,10 +65,6 @@ func (packet *PacketLoginSuccess) Write(w *stream.ProtocolWriter) (err error) {
 	return
 }
 
-func (packet *PacketLoginSuccess) Id() int32 {
-	return 0x02
-}
-
 type PacketLoginSetCompression struct {
 	Threshold int
 }
@@ -91,10 +75,6 @@ func (packet *PacketLoginSetCompression) Write(w *stream.ProtocolWriter) (err er
 		return
 	}
 	return
-}
-
-func (packet *PacketLoginSetCompression) Id() int32 {
-	return 0x03
 }
 
 type PacketPlayTabComplete struct {
@@ -115,10 +95,6 @@ func (packet *PacketPlayTabComplete) Write(w *stream.ProtocolWriter) (err error)
 	return
 }
 
-func (packet *PacketPlayTabComplete) Id() int32 {
-	return 0x3A
-}
-
 type PacketPlayMessage struct {
 	Component string
 	Position  types.ChatPosition
@@ -136,10 +112,6 @@ func (packet *PacketPlayMessage) Write(w *stream.ProtocolWriter) (err error) {
 	return
 }
 
-func (packet *PacketPlayMessage) Id() int32 {
-	return 0x02
-}
-
 type PacketPlayServerDifficulty struct {
 	Difficulty world.Difficulty
 }
@@ -150,10 +122,6 @@ func (packet *PacketPlayServerDifficulty) Write(w *stream.ProtocolWriter) (err e
 		return
 	}
 	return
-}
-
-func (packet *PacketPlayServerDifficulty) Id() int32 {
-	return 0x41
 }
 
 type PacketPlayPluginMessage struct {
@@ -184,10 +152,6 @@ func (packet *PacketPlayPluginMessage) Write(w *stream.ProtocolWriter) (err erro
 	return
 }
 
-func (packet *PacketPlayPluginMessage) Id() int32 {
-	return 0x3F
-}
-
 type PacketPlayDisconnect struct {
 	Component string
 }
@@ -207,10 +171,6 @@ func (packet *PacketPlayDisconnect) Write(w *stream.ProtocolWriter) (err error) 
 	return
 }
 
-func (packet *PacketPlayDisconnect) Id() int32 {
-	return 0x40
-}
-
 type PacketPlayKeepAlive struct {
 	Identifier int
 }
@@ -228,10 +188,6 @@ func (packet *PacketPlayKeepAlive) Write(w *stream.ProtocolWriter) (err error) {
 		return
 	}
 	return
-}
-
-func (packet *PacketPlayKeepAlive) Id() int32 {
-	return 0x00
 }
 
 type PacketPlayParticle struct {
@@ -292,10 +248,6 @@ func (packet *PacketPlayParticle) Write(w *stream.ProtocolWriter) (err error) {
 	return
 }
 
-func (packet *PacketPlayParticle) Id() int32 {
-	return 0x2A
-}
-
 type PacketPlayJoinGame struct {
 	Gamemode     types.Gamemode
 	Dimension    world.Dimension
@@ -337,10 +289,6 @@ func (packet *PacketPlayJoinGame) Write(w *stream.ProtocolWriter) (err error) {
 	return
 }
 
-func (packet *PacketPlayJoinGame) Id() int32 {
-	return 0x01
-}
-
 type PacketPlayPlayerAbilities struct {
 	Invulnerable bool
 	Fly          bool
@@ -380,10 +328,6 @@ func (packet *PacketPlayPlayerAbilities) Write(w *stream.ProtocolWriter) (err er
 	return
 }
 
-func (packet *PacketPlayPlayerAbilities) Id() int32 {
-	return 0x39
-}
-
 type PacketPlayPlayerPositionAndLookClient struct {
 	Position world.Position
 	Flags    uint8
@@ -417,10 +361,6 @@ func (packet *PacketPlayPlayerPositionAndLookClient) Write(w *stream.ProtocolWri
 	return
 }
 
-func (packet *PacketPlayPlayerPositionAndLookClient) Id() int32 {
-	return 0x08
-}
-
 type PacketPlayUpdateHealth struct {
 	Health         float32
 	Food           int
@@ -443,10 +383,6 @@ func (packet *PacketPlayUpdateHealth) Write(w *stream.ProtocolWriter) (err error
 	return
 }
 
-func (packet *PacketPlayUpdateHealth) Id() int32 {
-	return 0x06
-}
-
 type PacketPlaySpawnPosition struct {
 	Position world.Position
 }
@@ -457,10 +393,6 @@ func (packet *PacketPlaySpawnPosition) Write(w *stream.ProtocolWriter) (err erro
 		return
 	}
 	return
-}
-
-func (packet *PacketPlaySpawnPosition) Id() int32 {
-	return 0x05
 }
 
 type PacketPlayerListHeaderFooter struct {
@@ -484,10 +416,6 @@ func (packet *PacketPlayerListHeaderFooter) Write(w *stream.ProtocolWriter) (err
 		return
 	}
 	return
-}
-
-func (packet *PacketPlayerListHeaderFooter) Id() int32 {
-	return 0x47
 }
 
 type PacketPlayPlayerListItem struct {
@@ -620,10 +548,6 @@ func (packet *PacketPlayPlayerListItem) Write(w *stream.ProtocolWriter) (err err
 	return
 }
 
-func (packet *PacketPlayPlayerListItem) Id() int32 {
-	return 0x38
-}
-
 type PacketPlaySpawnPlayer struct {
 	EntityID       uint16
 	PlayerUUID     uuid.UUID
@@ -672,10 +596,6 @@ func (packet *PacketPlaySpawnPlayer) Write(w *stream.ProtocolWriter) (err error)
 	return
 }
 
-func (packet *PacketPlaySpawnPlayer) Id() int32 {
-	return 0x0C
-}
-
 type PacketPlayDestroyEntities struct {
 	EntityIDs []uint16
 }
@@ -692,10 +612,6 @@ func (packet *PacketPlayDestroyEntities) Write(w *stream.ProtocolWriter) (err er
 		}
 	}
 	return
-}
-
-func (packet *PacketPlayDestroyEntities) Id() int32 {
-	return 0x13
 }
 
 type PacketPlayEntityRelativeMove struct {
@@ -730,10 +646,6 @@ func (packet *PacketPlayEntityRelativeMove) Write(w *stream.ProtocolWriter) (err
 	return
 }
 
-func (packet *PacketPlayEntityRelativeMove) Id() int32 {
-	return 0x15
-}
-
 type PacketPlayEntityLook struct {
 	EntityID uint16
 	Yaw      uint8
@@ -759,10 +671,6 @@ func (packet *PacketPlayEntityLook) Write(w *stream.ProtocolWriter) (err error) 
 		return
 	}
 	return
-}
-
-func (packet *PacketPlayEntityLook) Id() int32 {
-	return 0x16
 }
 
 type PacketPlayEntityLookAndRelativeMove struct {
@@ -807,10 +715,6 @@ func (packet *PacketPlayEntityLookAndRelativeMove) Write(w *stream.ProtocolWrite
 	return
 }
 
-func (packet *PacketPlayEntityLookAndRelativeMove) Id() int32 {
-	return 0x17
-}
-
 type PacketPlayEntityHeadLook struct {
 	EntityID uint16
 	HeadYaw  uint8
@@ -826,10 +730,6 @@ func (packet *PacketPlayEntityHeadLook) Write(w *stream.ProtocolWriter) (err err
 		return
 	}
 	return
-}
-
-func (packet *PacketPlayEntityHeadLook) Id() int32 {
-	return 0x19
 }
 
 type PacketPlayEntityMetadata struct {
@@ -849,10 +749,6 @@ func (packet *PacketPlayEntityMetadata) Write(w *stream.ProtocolWriter) (err err
 	return
 }
 
-func (packet *PacketPlayEntityMetadata) Id() int32 {
-	return 0x1C
-}
-
 type PacketPlayAnimationClient struct {
 	EntityID  uint16
 	Animation types.Animation
@@ -868,10 +764,6 @@ func (packet *PacketPlayAnimationClient) Write(w *stream.ProtocolWriter) (err er
 		return
 	}
 	return
-}
-
-func (packet *PacketPlayAnimationClient) Id() int32 {
-	return 0x0B
 }
 
 type PacketPlayEntityVelocity struct {
@@ -899,10 +791,6 @@ func (packet *PacketPlayEntityVelocity) Write(w *stream.ProtocolWriter) (err err
 	return
 }
 
-func (packet *PacketPlayEntityVelocity) Id() int32 {
-	return 0x12
-}
-
 type PacketPlayMapChunkBulk struct {
 	Packets  []PacketPlayChunkData
 	Skylight bool
@@ -922,10 +810,6 @@ func (packet *PacketPlayMapChunkBulk) Write(w *stream.ProtocolWriter) (err error
 	return
 }
 
-func (packet *PacketPlayMapChunkBulk) Id() int32 {
-	return 0x26
-}
-
 type PacketPlayChunkData struct {
 	X              int32
 	Z              int32
@@ -942,10 +826,6 @@ func (packet *PacketPlayChunkData) Write(w *stream.ProtocolWriter) (err error) {
 	w.WriteVarInt(len(packet.Data))
 	w.WriteByteArray(packet.Data)
 	return
-}
-
-func (packet *PacketPlayChunkData) Id() int32 {
-	return 0x21
 }
 
 type PacketPlayScoreboardObjective struct {
@@ -975,10 +855,6 @@ func (packet *PacketPlayScoreboardObjective) Write(w *stream.ProtocolWriter) (er
 		}
 	}
 	return
-}
-
-func (packet *PacketPlayScoreboardObjective) Id() int32 {
-	return 0x3B
 }
 
 type PacketPlayUpdateScore struct {
@@ -1011,10 +887,6 @@ func (packet *PacketPlayUpdateScore) Write(w *stream.ProtocolWriter) (err error)
 	return
 }
 
-func (packet *PacketPlayUpdateScore) Id() int32 {
-	return 0x3C
-}
-
 type PacketPlayDisplayScoreboard struct {
 	Position  types.ObjectiveDisplaySlot
 	ScoreName string
@@ -1030,10 +902,6 @@ func (packet *PacketPlayDisplayScoreboard) Write(w *stream.ProtocolWriter) (err 
 		return
 	}
 	return
-}
-
-func (packet *PacketPlayDisplayScoreboard) Id() int32 {
-	return 0x3D
 }
 
 type PacketPlayTeams struct {
@@ -1101,10 +969,6 @@ func (packet *PacketPlayTeams) Write(w *stream.ProtocolWriter) (err error) {
 	return
 }
 
-func (packet *PacketPlayTeams) Id() int32 {
-	return 0x3E
-}
-
 type PacketPlaySpawnMob struct {
 	EntityID  uint16
 	MobType   types.MobType
@@ -1168,10 +1032,6 @@ func (packet *PacketPlaySpawnMob) Write(w *stream.ProtocolWriter) (err error) {
 	return
 }
 
-func (packet *PacketPlaySpawnMob) Id() int32 {
-	return 0x0F
-}
-
 type PacketPlaySpawnObject struct {
 	EntityID   uint16
 	ObjectType types.ObjectType
@@ -1232,10 +1092,6 @@ func (packet *PacketPlaySpawnObject) Write(w *stream.ProtocolWriter) (err error)
 	return
 }
 
-func (packet *PacketPlaySpawnObject) Id() int32 {
-	return 0x0E
-}
-
 type PacketPlayOpenWindow struct {
 	WindowID      uint8
 	WindowType    types.WindowType
@@ -1270,10 +1126,6 @@ func (packet *PacketPlayOpenWindow) Write(w *stream.ProtocolWriter) (err error) 
 	return
 }
 
-func (packet *PacketPlayOpenWindow) Id() int32 {
-	return 0x2D
-}
-
 type PacketPlayWindowItems struct {
 	WindowID uint8
 	SlotData []slot.SlotItem
@@ -1295,10 +1147,6 @@ func (packet *PacketPlayWindowItems) Write(w *stream.ProtocolWriter) (err error)
 		}
 	}
 	return
-}
-
-func (packet *PacketPlayWindowItems) Id() int32 {
-	return 0x30
 }
 
 type PacketPlayConfirmTransaction struct {
@@ -1339,10 +1187,6 @@ func (packet *PacketPlayConfirmTransaction) Write(w *stream.ProtocolWriter) (err
 	return
 }
 
-func (packet *PacketPlayConfirmTransaction) Id() int32 {
-	return 0x32
-}
-
 type PacketPlaySetSlot struct {
 	WindowID uint8
 	Slot     int16
@@ -1365,10 +1209,6 @@ func (packet *PacketPlaySetSlot) Write(w *stream.ProtocolWriter) (err error) {
 	return
 }
 
-func (packet *PacketPlaySetSlot) Id() int32 {
-	return 0x2F
-}
-
 type PacketPlayCloseWindow struct {
 	WindowID uint8
 }
@@ -1389,10 +1229,6 @@ func (packet *PacketPlayCloseWindow) Write(w *stream.ProtocolWriter) (err error)
 	return
 }
 
-func (packet *PacketPlayCloseWindow) Id() int32 {
-	return 0x2E
-}
-
 type PacketPlayBlockChange struct {
 	Location world.BlockPosition
 	Type     int
@@ -1408,10 +1244,6 @@ func (packet *PacketPlayBlockChange) Write(w *stream.ProtocolWriter) (err error)
 		return
 	}
 	return
-}
-
-func (packet *PacketPlayBlockChange) Id() int32 {
-	return 0x23
 }
 
 type PacketPlayHeldItemChange struct {
@@ -1435,10 +1267,6 @@ func (packet *PacketPlayHeldItemChange) Write(w *stream.ProtocolWriter) (err err
 	return
 }
 
-func (packet *PacketPlayHeldItemChange) Id() int32 {
-	return 0x09
-}
-
 type PacketPlayEntityEquipment struct {
 	EntityID uint16
 	Slot     types.EquipmentSlot
@@ -1459,10 +1287,6 @@ func (packet *PacketPlayEntityEquipment) Write(w *stream.ProtocolWriter) (err er
 		return
 	}
 	return
-}
-
-func (packet *PacketPlayEntityEquipment) Id() int32 {
-	return 0x04
 }
 
 type PacketPlayRespawn struct {
@@ -1492,10 +1316,6 @@ func (packet *PacketPlayRespawn) Write(w *stream.ProtocolWriter) (err error) {
 	return
 }
 
-func (packet *PacketPlayRespawn) Id() int32 {
-	return 0x07
-}
-
 type PacketPlayChangeGameState struct {
 	Reason types.GameStateReason
 	Value  float32
@@ -1511,8 +1331,4 @@ func (packet *PacketPlayChangeGameState) Write(w *stream.ProtocolWriter) (err er
 		return
 	}
 	return
-}
-
-func (packet *PacketPlayChangeGameState) Id() int32 {
-	return 0x2B
 }

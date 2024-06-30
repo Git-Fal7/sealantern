@@ -5,8 +5,10 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/metadata"
+	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/slot"
 	"github.com/google/uuid"
+	"github.com/seebs/nbt"
 )
 
 type PacketStatusResponse struct {
@@ -1327,6 +1329,656 @@ func (packet *PacketPlayChangeGameState) Write(w *stream.ProtocolWriter) (err er
 		return
 	}
 	err = w.WriteFloat32(packet.Value)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayTimeUpdate struct {
+	WorldAge  float32
+	TimeOfDay float32
+}
+
+func (packet *PacketPlayTimeUpdate) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteFloat32(packet.WorldAge)
+	if err != nil {
+		return
+	}
+	err = w.WriteFloat32(packet.TimeOfDay)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayUseBed struct {
+	EntityID uint16
+	Location world.BlockPosition
+}
+
+func (packet *PacketPlayUseBed) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(int(packet.EntityID))
+	if err != nil {
+		return
+	}
+	err = w.WriteBlockPosition(packet.Location)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayCollectItem struct {
+	CollectedItemEntityID int
+	CollectorEntityID     uint16
+}
+
+func (packet *PacketPlayCollectItem) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(packet.CollectedItemEntityID)
+	if err != nil {
+		return
+	}
+	err = w.WriteVarInt(int(packet.CollectorEntityID))
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlaySpawnPainting struct {
+	EntityID  int
+	Title     string
+	Location  world.BlockPosition
+	Direction uint8 // 0: north (-z), 1: west (-x), 2: south (+z), 3: east (+x)
+}
+
+func (packet *PacketPlaySpawnPainting) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(packet.EntityID)
+	if err != nil {
+		return
+	}
+	err = w.WriteString(packet.Title)
+	if err != nil {
+		return
+	}
+	err = w.WriteBlockPosition(packet.Location)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.Direction)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlaySpawnEXPOrb struct {
+	EntityID int
+	Position world.Position
+	Count    uint16
+}
+
+func (packet *PacketPlaySpawnEXPOrb) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(packet.EntityID)
+	if err != nil {
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntX())
+	if err != nil {
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntY())
+	if err != nil {
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntZ())
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt16(packet.Count)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayEntity struct {
+	EntityID int
+}
+
+func (packet *PacketPlayEntity) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(packet.EntityID)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayEntityTeleport struct {
+	EntityID uint16
+	Position world.Position
+	OnGround bool
+}
+
+func (packet *PacketPlayEntityTeleport) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(int(packet.EntityID))
+	if err != nil {
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntX())
+	if err != nil {
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntY())
+	if err != nil {
+		return
+	}
+	err = w.WriteInt32(packet.Position.IntZ())
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.Position.IntYaw())
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.Position.IntPitch())
+	if err != nil {
+		return
+	}
+	err = w.WriteBool(packet.OnGround)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayEntityStatus struct {
+	EntityID     uint16
+	EntityStatus uint8
+}
+
+func (packet *PacketPlayEntityStatus) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(int(packet.EntityID))
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.EntityStatus)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayAttachEntity struct {
+	EntityID  uint16
+	VehicleID int // -1 to detach
+	Leash     bool
+}
+
+func (packet *PacketPlayAttachEntity) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(int(packet.EntityID))
+	if err != nil {
+		return
+	}
+	err = w.WriteVarInt(packet.VehicleID)
+	if err != nil {
+		return
+	}
+	err = w.WriteBool(packet.Leash)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayEntityEffect struct {
+	EntityID      int
+	EffectID      uint8 // See https://minecraft.wiki/w/Status_effect%23List_of_effects
+	Amplifier     uint8 // Notchian client displays effect level as Amplifier + 1
+	Duration      int   // Seconds
+	HideParticles bool
+}
+
+func (packet *PacketPlayEntityEffect) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(packet.EntityID)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.EffectID)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.Amplifier)
+	if err != nil {
+		return
+	}
+	err = w.WriteVarInt(packet.Duration)
+	if err != nil {
+		return
+	}
+	err = w.WriteBool(packet.HideParticles)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayRemoveEntityEffect struct {
+	EntityID int
+	EffectID uint8 // See https://minecraft.wiki/w/Status_effect%23List_of_effects
+}
+
+func (packet *PacketPlayRemoveEntityEffect) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(packet.EntityID)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.EffectID)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlaySetExperience struct {
+	ExperienceBar   float32 // Between 0 and 1
+	Level           int
+	TotalExperience int // See https://minecraft.wiki/w/Experience%23Leveling_up
+}
+
+func (packet *PacketPlaySetExperience) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteFloat32(packet.ExperienceBar)
+	if err != nil {
+		return
+	}
+	err = w.WriteVarInt(packet.Level)
+	if err != nil {
+		return
+	}
+	err = w.WriteVarInt(packet.TotalExperience)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// TODO: Attributes
+type PacketPlayEntityProperties struct {
+	EntityID uint16
+}
+
+func (packet *PacketPlayEntityProperties) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(int(packet.EntityID))
+	if err != nil {
+		return
+	}
+	err = w.WriteVarInt(0) // TODO: Properties
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayMultiBlockChange struct {
+	ChunkX int32
+	ChunkZ int32
+	// TODO: Records
+}
+
+func (packet *PacketPlayMultiBlockChange) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteInt32(packet.ChunkX)
+	if err != nil {
+		return
+	}
+	err = w.WriteInt32(packet.ChunkZ)
+	if err != nil {
+		return
+	}
+	err = w.WriteVarInt(0)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayBlockAction struct {
+	Location  world.BlockPosition
+	Data1     uint8 // See https://wiki.vg/Block_Actions
+	Data2     uint8 // See https://wiki.vg/Block_Actions
+	BlockType int
+}
+
+func (packet *PacketPlayBlockAction) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteBlockPosition(packet.Location)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.Data1)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.Data2)
+	if err != nil {
+		return
+	}
+	err = w.WriteVarInt(packet.BlockType)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayBlockBreakAnimation struct {
+	EntityID     int
+	Location     world.BlockPosition
+	DestroyStage uint8 // 0–9 to set it, any other value to remove it
+}
+
+func (packet *PacketPlayBlockBreakAnimation) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(packet.EntityID)
+	if err != nil {
+		return
+	}
+	err = w.WriteBlockPosition(packet.Location)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.DestroyStage)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayExplosion struct {
+	X      float32
+	Y      float32
+	Z      float32
+	Radius float32
+	// TODO Record
+	PlayerMotionX float32
+	PlayerMotionY float32
+	PlayerMotionZ float32
+}
+
+func (packet *PacketPlayExplosion) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteFloat32(packet.X)
+	if err != nil {
+		return
+	}
+	err = w.WriteFloat32(packet.Y)
+	if err != nil {
+		return
+	}
+	err = w.WriteFloat32(packet.Z)
+	if err != nil {
+		return
+	}
+	err = w.WriteFloat32(packet.Radius)
+	if err != nil {
+		return
+	}
+	err = w.WriteVarInt(0)
+	if err != nil {
+		return
+	}
+	err = w.WriteFloat32(packet.PlayerMotionX)
+	if err != nil {
+		return
+	}
+	err = w.WriteFloat32(packet.PlayerMotionY)
+	if err != nil {
+		return
+	}
+	err = w.WriteFloat32(packet.PlayerMotionZ)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayEffect struct {
+	EffectID              int32
+	Location              world.BlockPosition
+	Data                  int32
+	DisableRelativeVolume bool
+}
+
+func (packet *PacketPlayEffect) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteInt32(packet.EffectID)
+	if err != nil {
+		return
+	}
+	err = w.WriteBlockPosition(packet.Location)
+	if err != nil {
+		return
+	}
+	err = w.WriteInt32(packet.Data)
+	if err != nil {
+		return
+	}
+	err = w.WriteBool(packet.DisableRelativeVolume)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlaySoundEffect struct {
+	SoundName       string  // https://github.com/SirCmpwn/Craft.Net/blob/master/source/Craft.Net.Common/SoundEffect.cs
+	EffectPositionX int32   // Effect X multiplied by 8
+	EffectPositionY int32   // Effect Y multiplied by 8
+	EffectPositionZ int32   // Effect Z multiplied by 8
+	Volume          float32 // 1 is 100%, can be more
+	Pitch           uint8   // 63 is 100%, can be more
+}
+
+func (packet *PacketPlaySoundEffect) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteString(packet.SoundName)
+	if err != nil {
+		return
+	}
+	err = w.WriteInt32(packet.EffectPositionX)
+	if err != nil {
+		return
+	}
+	err = w.WriteInt32(packet.EffectPositionY)
+	if err != nil {
+		return
+	}
+	err = w.WriteInt32(packet.EffectPositionZ)
+	if err != nil {
+		return
+	}
+	err = w.WriteFloat32(packet.Volume)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.Pitch)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayWindowProperty struct {
+	WindowID uint8
+	Property uint16
+	Value    uint16
+}
+
+func (packet *PacketPlayWindowProperty) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteUInt8(packet.WindowID)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt16(packet.Property)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt16(packet.Value)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayUpdateSign struct {
+	Location   world.BlockPosition
+	Components [4]component.ChatComponent
+}
+
+func (packet *PacketPlayUpdateSign) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteBlockPosition(packet.Location)
+	if err != nil {
+		return
+	}
+	for _, component := range packet.Components {
+		componentJson, jsonErr := component.JSON()
+		if jsonErr != nil {
+			w.WriteString("{}")
+		}
+		err = w.WriteString(componentJson)
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
+type PacketPlayMap struct {
+	// TODO:
+}
+
+func (packet *PacketPlayMap) Write(w *stream.ProtocolWriter) (err error) {
+	return
+}
+
+type PacketPlayUpdateBlockEntity struct {
+	Location world.BlockPosition
+	Action   uint8
+	NBTData  nbt.Compound
+}
+
+func (packet *PacketPlayUpdateBlockEntity) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteBlockPosition(packet.Location)
+	if err != nil {
+		return
+	}
+	err = w.WriteUInt8(packet.Action)
+	if err != nil {
+		return
+	}
+	err = w.WriteNBTCompound(packet.NBTData)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayOpenSignEditor struct {
+	Location world.BlockPosition
+}
+
+func (packet *PacketPlayOpenSignEditor) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteBlockPosition(packet.Location)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayStatistics struct {
+	// TODO
+}
+
+func (packet *PacketPlayStatistics) Write(w *stream.ProtocolWriter) (err error) {
+	return
+}
+
+type PacketPlayCombatEvent struct {
+	Event    int    // 0: enter combat, 1: end combat, 2: entity dead
+	Duration int    // Only for end combat
+	PlayerID int    // Only for entity dead
+	EntityID int32  // Only for end combat and entity dead
+	Message  string // Only for entity dead
+}
+
+func (packet *PacketPlayCombatEvent) Write(w *stream.ProtocolWriter) (err error) {
+	// TODO
+	err = w.WriteVarInt(packet.Event)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayCamera struct {
+	ClientID int
+}
+
+func (packet *PacketPlayCamera) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(packet.ClientID)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayWorldBorder struct {
+	Action int
+}
+
+func (packet *PacketPlayWorldBorder) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(packet.Action)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayTitle struct {
+	Action int
+}
+
+func (packet *PacketPlayTitle) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(packet.Action)
+	if err != nil {
+		return
+	}
+	// TODO
+	return
+}
+
+type PacketPlayResourcePackSend struct {
+	URL  string
+	Hash string
+}
+
+func (packet *PacketPlayResourcePackSend) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteString(packet.URL)
+	if err != nil {
+		return
+	}
+	err = w.WriteString(packet.Hash)
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayUpdateEntityNBT struct {
+	EntityID uint16
+	Tag      nbt.Compound
+}
+
+func (packet *PacketPlayUpdateEntityNBT) Write(w *stream.ProtocolWriter) (err error) {
+	err = w.WriteVarInt(int(packet.EntityID))
+	if err != nil {
+		return
+	}
+	err = w.WriteNBTCompound(packet.Tag)
 	if err != nil {
 		return
 	}

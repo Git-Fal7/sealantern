@@ -8,6 +8,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/pkg/slot"
+	"github.com/google/uuid"
 )
 
 type PacketHandshake struct {
@@ -394,5 +395,115 @@ func (packet *PacketPlayPlayerAbilitiesServer) Read(r *stream.ProtocolReader, le
 	if err != nil {
 		return
 	}
+	return
+}
+
+type PacketPlaySteerVehicle struct {
+	Sideways float32 // Positive to the left of the player
+	Foward   float32 // Positive forward
+	Flags    uint8   // Bit mask. 0x1: jump, 0x2: unmount
+}
+
+func (packet *PacketPlaySteerVehicle) Read(r *stream.ProtocolReader, length int) (err error) {
+	packet.Sideways, err = r.ReadFloat32()
+	if err != nil {
+		return
+	}
+	packet.Foward, err = r.ReadFloat32()
+	if err != nil {
+		return
+	}
+	packet.Flags, err = r.ReadUInt8()
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayCreativeInventoryAction struct {
+	Slot        uint16 // Inventory Slot
+	ClickedItem slot.SlotItem
+}
+
+func (packet *PacketPlayCreativeInventoryAction) Read(r *stream.ProtocolReader, length int) (err error) {
+	packet.Slot, err = r.ReadUInt16()
+	if err != nil {
+		return
+	}
+	packet.ClickedItem, err = r.ReadSlotItem()
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayEnchantItem struct {
+	WindowID    uint8 // The ID of the enchantment table window sent by Open Window
+	Enchantment uint8 // The position of the enchantment on the enchantment table window, starting with 0 as the topmost one
+}
+
+func (packet *PacketPlayEnchantItem) Read(r *stream.ProtocolReader, length int) (err error) {
+	packet.WindowID, err = r.ReadUInt8()
+	if err != nil {
+		return
+	}
+	packet.Enchantment, err = r.ReadUInt8()
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayTabCompleteServer struct {
+	Text          string // All text behind the cursor
+	HasPosition   bool
+	LookedAtBlock world.BlockPosition // The position of the block being looked at. Only sent if Has Position is true.
+}
+
+func (packet *PacketPlayTabCompleteServer) Read(r *stream.ProtocolReader, length int) (err error) {
+	packet.Text, err = r.ReadString()
+	if err != nil {
+		return
+	}
+	packet.HasPosition, err = r.ReadBool()
+	if err != nil {
+		return
+	}
+	if packet.HasPosition {
+		packet.LookedAtBlock, err = r.ReadBlockPosition()
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
+type PacketPlaySpectate struct {
+	TargetPlayer uuid.UUID
+}
+
+func (packet *PacketPlaySpectate) Read(r *stream.ProtocolReader, length int) (err error) {
+	packet.TargetPlayer, err = r.ReadUUID()
+	if err != nil {
+		return
+	}
+	return
+}
+
+type PacketPlayResourcePackStatus struct {
+	Hash   string
+	Result types.ResourcePackResult // 0: successfully loaded, 1: declined, 2: failed download, 3: accepted
+}
+
+func (packet *PacketPlayResourcePackStatus) Read(r *stream.ProtocolReader, length int) (err error) {
+	packet.Hash, err = r.ReadString()
+	if err != nil {
+		return
+	}
+	res, err := r.ReadVarInt()
+	if err != nil {
+		return
+	}
+	packet.Result = types.ResourcePackResult(res)
 	return
 }

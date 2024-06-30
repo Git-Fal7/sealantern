@@ -8,6 +8,7 @@ import (
 
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/pkg/slot"
+	"github.com/google/uuid"
 	"github.com/seebs/nbt"
 )
 
@@ -152,4 +153,16 @@ func (r *ProtocolReader) ReadSlotItem() (slotItem slot.SlotItem, err error) {
 		NBT:        compoundTag,
 	}
 	return slotItem, err
+}
+
+func (r *ProtocolReader) ReadUUID() (uid uuid.UUID, err error) {
+	uuidArray, err := r.ReadByteArray(16)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	uid, err = uuid.FromBytes(uuidArray)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return uid, err
 }

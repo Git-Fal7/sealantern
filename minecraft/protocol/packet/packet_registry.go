@@ -33,13 +33,20 @@ func InitRegistry() {
 	serverBoundPackets[packetTypeHash(types.PLAY, 0x09)] = reflect.TypeOf((*PacketPlayHeldItemChange)(nil)).Elem()
 	serverBoundPackets[packetTypeHash(types.PLAY, 0x0A)] = reflect.TypeOf((*PacketPlaySwingArm)(nil)).Elem()
 	serverBoundPackets[packetTypeHash(types.PLAY, 0x0B)] = reflect.TypeOf((*PacketPlayEntityAction)(nil)).Elem()
-	serverBoundPackets[packetTypeHash(types.PLAY, 0x0E)] = reflect.TypeOf((*PacketPlayClickWindow)(nil)).Elem()
+	serverBoundPackets[packetTypeHash(types.PLAY, 0x0C)] = reflect.TypeOf((*PacketPlaySteerVehicle)(nil)).Elem()
 	serverBoundPackets[packetTypeHash(types.PLAY, 0x0D)] = reflect.TypeOf((*PacketPlayCloseWindow)(nil)).Elem()
+	serverBoundPackets[packetTypeHash(types.PLAY, 0x0E)] = reflect.TypeOf((*PacketPlayClickWindow)(nil)).Elem()
 	serverBoundPackets[packetTypeHash(types.PLAY, 0x0F)] = reflect.TypeOf((*PacketPlayConfirmTransaction)(nil)).Elem()
+	serverBoundPackets[packetTypeHash(types.PLAY, 0x10)] = reflect.TypeOf((*PacketPlayCreativeInventoryAction)(nil)).Elem()
+	serverBoundPackets[packetTypeHash(types.PLAY, 0x11)] = reflect.TypeOf((*PacketPlayEnchantItem)(nil)).Elem()
+	serverBoundPackets[packetTypeHash(types.PLAY, 0x12)] = reflect.TypeOf((*PacketPlayUpdateSign)(nil)).Elem()
 	serverBoundPackets[packetTypeHash(types.PLAY, 0x13)] = reflect.TypeOf((*PacketPlayPlayerAbilitiesServer)(nil)).Elem()
+	serverBoundPackets[packetTypeHash(types.PLAY, 0x14)] = reflect.TypeOf((*PacketPlayTabCompleteServer)(nil)).Elem()
 	serverBoundPackets[packetTypeHash(types.PLAY, 0x15)] = reflect.TypeOf((*PacketPlayClientSettings)(nil)).Elem()
 	serverBoundPackets[packetTypeHash(types.PLAY, 0x16)] = reflect.TypeOf((*PacketPlayClientStatus)(nil)).Elem()
 	serverBoundPackets[packetTypeHash(types.PLAY, 0x17)] = reflect.TypeOf((*PacketPlayPluginMessage)(nil)).Elem()
+	serverBoundPackets[packetTypeHash(types.PLAY, 0x18)] = reflect.TypeOf((*PacketPlaySpectate)(nil)).Elem()
+	serverBoundPackets[packetTypeHash(types.PLAY, 0x19)] = reflect.TypeOf((*PacketPlayResourcePackStatus)(nil)).Elem()
 
 	// Status
 	clientBoundPackets[reflect.TypeOf((*PacketStatusResponse)(nil)).Elem()] = 0x00

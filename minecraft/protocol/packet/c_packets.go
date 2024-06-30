@@ -1829,6 +1829,18 @@ type PacketPlayUpdateSign struct {
 	Components [4]component.ChatComponent
 }
 
+func (packet *PacketPlayUpdateSign) Read(r *stream.ProtocolReader, length int) (err error) {
+	packet.Location, err = r.ReadBlockPosition()
+	if err != nil {
+		return
+	}
+	for i := 0; i < 4; i++ {
+		// TODO: serialize json
+		_, err = r.ReadString()
+	}
+	return
+}
+
 func (packet *PacketPlayUpdateSign) Write(w *stream.ProtocolWriter) (err error) {
 	err = w.WriteBlockPosition(packet.Location)
 	if err != nil {

@@ -19,7 +19,6 @@ import (
 	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/events"
 	"github.com/git-fal7/sealantern/pkg/inventory"
-	"github.com/git-fal7/sealantern/pkg/rayutil"
 	"github.com/git-fal7/sealantern/pkg/slot"
 	"github.com/git-fal7/sealantern/pkg/uuidutil"
 	"github.com/git-fal7/sealantern/sealantern/server"
@@ -447,38 +446,6 @@ func (h *PlayEntityUseHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket
 	if !damageEvent.Allowed {
 		return
 	}
-	animationPacket := &packet.PacketPlayAnimationClient{
-		EntityID:  targetID,
-		Animation: types.TakeDamage,
-	}
-	distance := rayutil.GetRayBetween(victim.Position(), p.Position())
-	rayLength := rayutil.GetVelocityRay(distance).Normalize()
-	rayLength = rayLength.Multiply(world.Vector{
-		X: ((0.5 + 1) / 3.0),
-		Y: 0,
-		Z: ((0.5 + 1) / 3.0),
-	})
-	rayLength.Y = 0.45
-	for _, player := range instance.Players.GetPlayers() {
-		player.WritePacket(animationPacket)
-	}
-	victim.WritePacket(&packet.PacketPlayEntityVelocity{
-		EntityID: 0,
-		Velocity: rayLength,
-	})
-	victim.Invincibile = true
-	timer := time.NewTimer(time.Millisecond * 400)
-	go func() {
-		<-timer.C
-		victim.Invincibile = false
-	}()
-
-	victim.Health = victim.Health - 0.5
-	victim.WritePacket(&packet.PacketPlayUpdateHealth{
-		Health:         victim.Health,
-		Food:           20,
-		FoodSaturation: 5,
-	})
 }
 
 type PlayClientSettingsHandler struct {

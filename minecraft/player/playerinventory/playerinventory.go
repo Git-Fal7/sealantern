@@ -25,7 +25,7 @@ func (inv PlayerInventory) Title() string {
 }
 
 func (inv PlayerInventory) Size() uint16 {
-	return 45
+	return 36
 }
 
 func (inv *PlayerInventory) SetArmor(slot types.PlayerInventoryArmor, slotData slot.SlotItem) {
@@ -98,5 +98,46 @@ func (inv *PlayerInventory) GetArmorPackets(eid uint16) []protocol.PacketOut {
 			Slot:     types.EquipimentSlotBoots,
 			Item:     inv.slots[5+types.PlayerInventoryArmorBoots],
 		},
+	}
+}
+
+func (inv *PlayerInventory) AddItem(item slot.SlotItem) {
+	// Look for existing stacks
+	toAdd := int(item.Amount)
+	for i := 0; i < 36 || toAdd > 0; i++ {
+		slotItem := inv.slots[9+i]
+		if slotItem.ID != 0 {
+			if slotItem.ID == item.ID && slotItem.Durability == item.Durability {
+				space := 64 - int(slotItem.Amount)
+				if space < 0 {
+					continue
+				}
+				if space > toAdd {
+					space = toAdd
+				}
+				slotItem.Amount += uint8(space)
+				inv.slots[9+i] = slotItem
+				toAdd -= space
+			}
+		}
+	}
+
+	// Look for empty slots
+	if toAdd > 0 {
+		for i := 0; i < 36 || toAdd > 0; i++ {
+			slotItem := inv.slots[9+i]
+			if slotItem.ID == 0 {
+				var num int
+				if toAdd > 64 {
+					num = 64
+				} else {
+					num = toAdd
+				}
+				slotItem = item
+				slotItem.Amount = uint8(num)
+				inv.slots[9+i] = slotItem
+				toAdd -= num
+			}
+		}
 	}
 }

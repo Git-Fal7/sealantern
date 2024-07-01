@@ -573,16 +573,18 @@ func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 	blockPlacementPacket, _ := protoPacket.(*packet.PacketPlayBlockPlacement)
 	action := types.ClickActionRightClickBlock
 	instance := h.Server.GetInstanceFromUUID(p.UUID())
-	blockAt := instance.World.GetBlock(blockPlacementPacket.Location.X, blockPlacementPacket.Location.Y, blockPlacementPacket.Location.Z)
+	var blockIDAt int
 	if blockPlacementPacket.Face == 0xff {
 		previous := p.LastPlacementPacket
 		if previous == nil || previous.HeldItem.ID != blockPlacementPacket.HeldItem.ID {
 			action = types.ClickActionLeftClickBlock
-			blockAt = -1
+			blockIDAt = -1
 		} else {
 			p.LastPlacementPacket = nil
 			return
 		}
+	} else {
+		blockIDAt = instance.World.GetBlock(blockPlacementPacket.Location.X, blockPlacementPacket.Location.Y, blockPlacementPacket.Location.Z)
 	}
 	p.LastPlacementPacket = blockPlacementPacket
 	timer := time.NewTimer(time.Millisecond * 100) // 2 ticks
@@ -597,7 +599,7 @@ func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 		Player:          p,
 		Slot:            p.PlayerInventory().GetHeldItem(),
 		Action:          action,
-		BlockAt:         blockAt,
+		BlockAt:         blockIDAt,
 		BlockAtLocation: blockPlacementPacket.Location,
 	})
 }

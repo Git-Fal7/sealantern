@@ -129,7 +129,7 @@ func (inv *PlayerInventory) AddItem(item slot.SlotItem) {
 	// Look for empty slots
 	if toAdd > 0 {
 		for i := 0; i < 36 && toAdd > 0; i++ {
-			var selectedSlotIndex = 9 + i
+			var selectedSlotIndex = i - 9
 			if i < 9 {
 				selectedSlotIndex = 36 + i
 			}

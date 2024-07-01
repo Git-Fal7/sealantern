@@ -105,7 +105,7 @@ func (inv *PlayerInventory) AddItem(item slot.SlotItem) {
 	// Look for existing stacks
 	toAdd := int(item.Amount)
 	for i := 0; i < 36 && toAdd > 0; i++ {
-		var selectedSlotIndex = i
+		var selectedSlotIndex = i - 9
 		if i < 9 {
 			selectedSlotIndex = 36 + i
 		}

@@ -145,10 +145,12 @@ func (e *PlayerBreakBlockEvent) SetAllowed(allowed bool) {
 	e.Allowed = allowed
 }
 
-type PlayerInteractItemEvent struct {
-	Player player.IPlayer
-	Slot   slot.SlotItem
-	Action types.ClickAction
+type PlayerInteractEvent struct {
+	Player          player.IPlayer
+	Slot            slot.SlotItem
+	Action          types.ClickAction
+	BlockAt         int
+	BlockAtLocation world.BlockPosition
 }
 
 type PlayerHeldItemChangeEvent struct {

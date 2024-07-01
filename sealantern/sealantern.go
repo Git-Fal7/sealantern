@@ -146,7 +146,9 @@ func (c *Core) handleConnection(conn *socket.Conn, id int) {
 			for _, instance := range c.instances {
 				instance.QuitPlayer(registeredPlayer)
 			}
-			registeredPlayer.Team().RemovePlayer(registeredPlayer.Username())
+			if registeredPlayer.Team() != nil {
+				registeredPlayer.Team().RemovePlayer(registeredPlayer.Username())
+			}
 		}
 	}
 	conn.Disconnected = true

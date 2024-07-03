@@ -118,7 +118,7 @@ func (w *ProtocolWriter) WriteBlockPosition(i world.BlockPosition) (err error) {
 }
 
 func (w *ProtocolWriter) WriteChatComponent(component component.IChatComponent) (err error) {
-	componentText := `{"text":""}` // Empty text.
+	componentText := `{"translate":""}` // Empty text.
 	if component != nil {
 		componentJSON, jsonError := component.JSON()
 		if jsonError == nil {

@@ -1,8 +1,6 @@
 package connplayer
 
 import (
-	"log"
-
 	"github.com/git-fal7/sealantern/minecraft/player/clientsettings"
 	"github.com/git-fal7/sealantern/minecraft/player/playerinventory"
 	"github.com/git-fal7/sealantern/minecraft/player/profile"
@@ -62,25 +60,15 @@ func (p *ConnectedPlayer) Profile() *profile.PlayerProfile {
 }
 
 func (p *ConnectedPlayer) SendMessage(message component.IChatComponent) {
-	msg, err := message.JSON()
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
 	p.WritePacket(&packet.PacketPlayMessage{
-		Component: msg,
+		Component: message,
 		Position:  types.CHAT_BOX,
 	})
 }
 
 func (p *ConnectedPlayer) SendActionbar(message component.IChatComponent) {
-	msg, err := message.JSON()
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
 	p.WritePacket(&packet.PacketPlayMessage{
-		Component: msg,
+		Component: message,
 		Position:  types.ACTION_BAR,
 	})
 }
@@ -174,37 +162,21 @@ func (p *ConnectedPlayer) UpdateInventory() {
 }
 
 func (p *ConnectedPlayer) SetTablistHeader(header component.IChatComponent) {
-	headerJson := ""
-	if header != nil {
-		headerJson, _ = header.JSON()
-	}
 	p.WritePacket(&packet.PacketPlayerListHeaderFooter{
-		Header: headerJson,
+		Header: header,
 	})
 }
 
 func (p *ConnectedPlayer) SetTablistFooter(footer component.IChatComponent) {
-	footerJson := ""
-	if footer != nil {
-		footerJson, _ = footer.JSON()
-	}
 	p.WritePacket(&packet.PacketPlayerListHeaderFooter{
-		Footer: footerJson,
+		Footer: footer,
 	})
 }
 
 func (p *ConnectedPlayer) SetTablistHeaderFooter(header component.IChatComponent, footer component.IChatComponent) {
-	headerJson := ""
-	if header != nil {
-		headerJson, _ = header.JSON()
-	}
-	footerJson := ""
-	if footer != nil {
-		footerJson, _ = footer.JSON()
-	}
 	p.WritePacket(&packet.PacketPlayerListHeaderFooter{
-		Header: headerJson,
-		Footer: footerJson,
+		Header: header,
+		Footer: footer,
 	})
 }
 

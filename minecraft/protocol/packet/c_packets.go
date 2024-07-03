@@ -98,12 +98,12 @@ func (packet *PacketPlayTabComplete) Write(w *stream.ProtocolWriter) (err error)
 }
 
 type PacketPlayMessage struct {
-	Component string
+	Component component.IChatComponent
 	Position  types.ChatPosition
 }
 
 func (packet *PacketPlayMessage) Write(w *stream.ProtocolWriter) (err error) {
-	err = w.WriteString(packet.Component)
+	err = w.WriteChatComponent(packet.Component)
 	if err != nil {
 		return
 	}
@@ -398,22 +398,16 @@ func (packet *PacketPlaySpawnPosition) Write(w *stream.ProtocolWriter) (err erro
 }
 
 type PacketPlayerListHeaderFooter struct {
-	Header string
-	Footer string
+	Header component.IChatComponent
+	Footer component.IChatComponent
 }
 
 func (packet *PacketPlayerListHeaderFooter) Write(w *stream.ProtocolWriter) (err error) {
-	if packet.Header == "" {
-		packet.Header = `{"translate":""}`
-	}
-	if packet.Footer == "" {
-		packet.Footer = `{"translate":""}`
-	}
-	err = w.WriteString(packet.Header)
+	err = w.WriteChatComponent(packet.Header)
 	if err != nil {
 		return
 	}
-	err = w.WriteString(packet.Footer)
+	err = w.WriteChatComponent(packet.Footer)
 	if err != nil {
 		return
 	}

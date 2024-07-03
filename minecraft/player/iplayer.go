@@ -34,4 +34,5 @@ type IPlayer interface {
 	SetTablistHeader(header component.IChatComponent)
 	SetTablistFooter(footer component.IChatComponent)
 	SetTablistHeaderFooter(header component.IChatComponent, footer component.IChatComponent)
+	SendTitle(title component.IChatComponent, subtitle component.IChatComponent, fadein int32, stay int32, fadeout int32)
 }

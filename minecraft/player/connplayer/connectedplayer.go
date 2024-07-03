@@ -207,3 +207,27 @@ func (p *ConnectedPlayer) SetTablistHeaderFooter(header component.IChatComponent
 		Footer: footerJson,
 	})
 }
+
+func (p *ConnectedPlayer) SendTitle(title component.IChatComponent, subtitle component.IChatComponent, fadein int32, stay int32, fadeout int32) {
+	if title == nil && subtitle == nil {
+		return
+	}
+	if title != nil {
+		p.WritePacket(&packet.PacketPlayTitle{
+			Action: types.TitleActionSetTitle,
+			Title:  title,
+		})
+	}
+	if subtitle != nil {
+		p.WritePacket(&packet.PacketPlayTitle{
+			Action: types.TitleActionSetSubtitle,
+			Title:  subtitle,
+		})
+	}
+	p.WritePacket(&packet.PacketPlayTitle{
+		Action:  types.TitleActionSetTimesAndDisplay,
+		FadeIn:  fadein,
+		Stay:    stay,
+		FadeOut: fadeout,
+	})
+}

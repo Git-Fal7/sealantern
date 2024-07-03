@@ -6,6 +6,7 @@ import (
 
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/metadata"
+	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/slot"
 	"github.com/google/uuid"
 	"github.com/seebs/nbt"
@@ -114,6 +115,18 @@ func (w *ProtocolWriter) WriteBlockPosition(i world.BlockPosition) (err error) {
 		((uint64(i.X) & 0x3FFFFFF) << 38) |
 			((uint64(i.Y) & 0xFFF) << 26) |
 			(uint64(i.Z) & 0x3FFFFFF))
+}
+
+func (w *ProtocolWriter) WriteChatComponent(component component.IChatComponent) (err error) {
+	componentText := `{"text":""}` // Empty text.
+	if component != nil {
+		componentJSON, jsonError := component.JSON()
+		if jsonError == nil {
+			componentText = componentJSON
+		}
+	}
+	err = w.WriteString(componentText)
+	return
 }
 
 func (w *ProtocolWriter) WriteSlotItem(item slot.SlotItem) (err error) {

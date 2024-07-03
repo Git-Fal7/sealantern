@@ -1951,15 +1951,50 @@ func (packet *PacketPlayWorldBorder) Write(w *stream.ProtocolWriter) (err error)
 }
 
 type PacketPlayTitle struct {
-	Action int
+	Action   types.TitleAction
+	Title    component.IChatComponent
+	Subtitle component.IChatComponent
+	FadeIn   int32 // ticks
+	Stay     int32 // ticks
+	FadeOut  int32 // ticks
 }
 
 func (packet *PacketPlayTitle) Write(w *stream.ProtocolWriter) (err error) {
-	err = w.WriteVarInt(packet.Action)
+	err = w.WriteVarInt(int(packet.Action))
 	if err != nil {
 		return
 	}
-	// TODO
+	switch packet.Action {
+	case types.TitleActionSetTitle:
+		{
+			err = w.WriteChatComponent(packet.Title)
+			if err != nil {
+				return
+			}
+		}
+	case types.TitleActionSetSubtitle:
+		{
+			err = w.WriteChatComponent(packet.Subtitle)
+			if err != nil {
+				return
+			}
+		}
+	case types.TitleActionSetTimesAndDisplay:
+		{
+			err = w.WriteInt32(packet.FadeIn)
+			if err != nil {
+				return
+			}
+			err = w.WriteInt32(packet.Stay)
+			if err != nil {
+				return
+			}
+			err = w.WriteInt32(packet.FadeOut)
+			if err != nil {
+				return
+			}
+		}
+	}
 	return
 }
 

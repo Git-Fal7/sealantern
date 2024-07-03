@@ -55,7 +55,7 @@ func (p Position) ToBlockPosition() BlockPosition {
 }
 
 type BlockPosition struct {
-	X int
-	Y int
-	Z int
+	X int `json:"x"`
+	Y int `json:"y"`
+	Z int `json:"z"`
 }

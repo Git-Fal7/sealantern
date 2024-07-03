@@ -57,10 +57,6 @@ func (packet *PacketLoginStart) Read(r *stream.ProtocolReader, length int) (err 
 	return
 }
 
-type PacketLoginDisconnect struct {
-	Component string
-}
-
 type PacketPlayChat struct {
 	Message string
 }

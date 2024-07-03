@@ -120,18 +120,13 @@ func (c *Conn) HandlePacket(id int, length int) (handledPacket protocol.PacketIn
 }
 
 func (c *Conn) Disconnect(message component.IChatComponent) {
-	msg, err := message.JSON()
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
 	if c.State == types.LOGIN {
 		c.WritePacket(&packet.PacketLoginDisconnect{
-			Component: msg,
+			Component: message,
 		})
 	} else {
 		c.WritePacket(&packet.PacketPlayDisconnect{
-			Component: msg,
+			Component: message,
 		})
 	}
 	c.Disconnected = true

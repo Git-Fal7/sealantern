@@ -3,10 +3,12 @@ package stream
 import (
 	"bufio"
 	"encoding/binary"
+	"encoding/json"
 	"io"
 	"math"
 
 	"github.com/git-fal7/sealantern/minecraft/world"
+	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/slot"
 	"github.com/google/uuid"
 	"github.com/seebs/nbt"
@@ -165,4 +167,16 @@ func (r *ProtocolReader) ReadUUID() (uid uuid.UUID, err error) {
 		return uuid.Nil, err
 	}
 	return uid, err
+}
+
+func (r *ProtocolReader) ReadChatComponent() (chat *component.ChatComponent, err error) {
+	componentJSON, err := r.ReadString()
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal([]byte(componentJSON), chat)
+	if err != nil {
+		return nil, err
+	}
+	return chat, err
 }

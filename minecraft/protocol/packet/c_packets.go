@@ -42,8 +42,12 @@ func (packet *PacketStatusPing) Write(w *stream.ProtocolWriter) (err error) {
 	return
 }
 
+type PacketLoginDisconnect struct {
+	Component component.IChatComponent
+}
+
 func (packet *PacketLoginDisconnect) Write(w *stream.ProtocolWriter) (err error) {
-	err = w.WriteString(packet.Component)
+	err = w.WriteChatComponent(packet.Component)
 	if err != nil {
 		return
 	}
@@ -155,18 +159,18 @@ func (packet *PacketPlayPluginMessage) Write(w *stream.ProtocolWriter) (err erro
 }
 
 type PacketPlayDisconnect struct {
-	Component string
+	Component component.IChatComponent
 }
 
 func (packet *PacketPlayDisconnect) Read(r *stream.ProtocolReader, length int) (err error) {
-	packet.Component, err = r.ReadString()
+	packet.Component, err = r.ReadChatComponent()
 	if err != nil {
 		return
 	}
 	return
 }
 func (packet *PacketPlayDisconnect) Write(w *stream.ProtocolWriter) (err error) {
-	err = w.WriteString(packet.Component)
+	err = w.WriteChatComponent(packet.Component)
 	if err != nil {
 		return
 	}
@@ -483,12 +487,7 @@ func (packet *PacketPlayPlayerListItem) Write(w *stream.ProtocolWriter) (err err
 					if err != nil {
 						return
 					}
-					var json string
-					json, err = entry.DisplayName.JSON()
-					if err != nil {
-						return
-					}
-					err = w.WriteString(json)
+					err = w.WriteChatComponent(entry.DisplayName)
 					if err != nil {
 						return
 					}
@@ -522,12 +521,7 @@ func (packet *PacketPlayPlayerListItem) Write(w *stream.ProtocolWriter) (err err
 					if err != nil {
 						return
 					}
-					var json string
-					json, err = entry.DisplayName.JSON()
-					if err != nil {
-						return
-					}
-					err = w.WriteString(json)
+					err = w.WriteChatComponent(entry.DisplayName)
 					if err != nil {
 						return
 					}
@@ -1820,7 +1814,7 @@ func (packet *PacketPlayWindowProperty) Write(w *stream.ProtocolWriter) (err err
 
 type PacketPlayUpdateSign struct {
 	Location   world.BlockPosition
-	Components [4]component.ChatComponent
+	Components [4]component.IChatComponent
 }
 
 func (packet *PacketPlayUpdateSign) Read(r *stream.ProtocolReader, length int) (err error) {
@@ -1829,8 +1823,10 @@ func (packet *PacketPlayUpdateSign) Read(r *stream.ProtocolReader, length int) (
 		return
 	}
 	for i := 0; i < 4; i++ {
-		// TODO: serialize json
-		_, err = r.ReadString()
+		packet.Components[i], err = r.ReadChatComponent()
+		if err != nil {
+			return
+		}
 	}
 	return
 }
@@ -1841,11 +1837,7 @@ func (packet *PacketPlayUpdateSign) Write(w *stream.ProtocolWriter) (err error) 
 		return
 	}
 	for _, component := range packet.Components {
-		componentJson, jsonErr := component.JSON()
-		if jsonErr != nil {
-			w.WriteString("{}")
-		}
-		err = w.WriteString(componentJson)
+		err = w.WriteChatComponent(component)
 		if err != nil {
 			return
 		}

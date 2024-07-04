@@ -192,8 +192,8 @@ func (p *ConnectedPlayer) SendTitle(title component.IChatComponent, subtitle com
 	}
 	if subtitle != nil {
 		p.WritePacket(&packet.PacketPlayTitle{
-			Action: types.TitleActionSetSubtitle,
-			Title:  subtitle,
+			Action:   types.TitleActionSetSubtitle,
+			Subtitle: subtitle,
 		})
 	}
 	p.WritePacket(&packet.PacketPlayTitle{

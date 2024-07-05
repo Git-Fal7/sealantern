@@ -203,3 +203,12 @@ func (p *ConnectedPlayer) SendTitle(title component.IChatComponent, subtitle com
 		FadeOut: fadeout,
 	})
 }
+
+func (p *ConnectedPlayer) PlaySound(location world.BlockPosition, sound types.SoundEffect, volume float32, pitch float32) {
+	p.WritePacket(&packet.PacketPlaySoundEffect{
+		SoundName:      sound,
+		EffectPosition: location,
+		Volume:         volume,
+		Pitch:          pitch,
+	})
+}

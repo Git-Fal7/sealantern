@@ -1754,28 +1754,26 @@ func (packet *PacketPlayEffect) Write(w *stream.ProtocolWriter) (err error) {
 }
 
 type PacketPlaySoundEffect struct {
-	SoundName       string  // https://github.com/SirCmpwn/Craft.Net/blob/master/source/Craft.Net.Common/SoundEffect.cs
-	EffectPositionX int32   // Effect X multiplied by 8
-	EffectPositionY int32   // Effect Y multiplied by 8
-	EffectPositionZ int32   // Effect Z multiplied by 8
-	Volume          float32 // 1 is 100%, can be more
-	Pitch           uint8   // 63 is 100%, can be more
+	SoundName      types.SoundEffect   // https://github.com/SirCmpwn/Craft.Net/blob/master/source/Craft.Net.Common/SoundEffect.cs
+	EffectPosition world.BlockPosition // All dimensions multipled by 8
+	Volume         float32             // 1 is 100%, can be more
+	Pitch          float32             // 63 is 100%, can be more
 }
 
 func (packet *PacketPlaySoundEffect) Write(w *stream.ProtocolWriter) (err error) {
-	err = w.WriteString(packet.SoundName)
+	err = w.WriteString(string(packet.SoundName))
 	if err != nil {
 		return
 	}
-	err = w.WriteInt32(packet.EffectPositionX)
+	err = w.WriteInt32(int32(8 * (float32(packet.EffectPosition.X) + 0.5)))
 	if err != nil {
 		return
 	}
-	err = w.WriteInt32(packet.EffectPositionY)
+	err = w.WriteInt32(int32(8 * (float32(packet.EffectPosition.Y) + 0.5)))
 	if err != nil {
 		return
 	}
-	err = w.WriteInt32(packet.EffectPositionZ)
+	err = w.WriteInt32(int32(8 * (float32(packet.EffectPosition.Z) + 0.5)))
 	if err != nil {
 		return
 	}
@@ -1783,7 +1781,7 @@ func (packet *PacketPlaySoundEffect) Write(w *stream.ProtocolWriter) (err error)
 	if err != nil {
 		return
 	}
-	err = w.WriteUInt8(packet.Pitch)
+	err = w.WriteUInt8(uint8(packet.Pitch * 63))
 	if err != nil {
 		return
 	}

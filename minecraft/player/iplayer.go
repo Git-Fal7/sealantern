@@ -5,6 +5,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/player/playerinventory"
 	"github.com/git-fal7/sealantern/minecraft/player/profile"
 	"github.com/git-fal7/sealantern/minecraft/protocol"
+	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/chunk"
 	"github.com/git-fal7/sealantern/pkg/component"
@@ -35,4 +36,5 @@ type IPlayer interface {
 	SetTablistFooter(footer component.IChatComponent)
 	SetTablistHeaderFooter(header component.IChatComponent, footer component.IChatComponent)
 	SendTitle(title component.IChatComponent, subtitle component.IChatComponent, fadein int32, stay int32, fadeout int32)
+	PlaySound(Location world.BlockPosition, Sound types.SoundEffect, volume float32, pitch float32)
 }

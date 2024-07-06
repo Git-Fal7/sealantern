@@ -222,6 +222,9 @@ func (c *Core) readPacketWithoutCompression(conn *socket.Conn) (packet protocol.
 }
 
 func (c *Core) SwitchToInstance(p *connplayer.ConnectedPlayer, newInstance *gameinstance.GameInstance) {
+	if p == nil {
+		return
+	}
 	instance := c.GetInstanceFromUUID(p.UUID())
 	if instance == newInstance {
 		return

@@ -2,6 +2,7 @@ package types
 
 type SoundEffect string
 
+// ref: https://github.com/ddevault/Craft.Net/blob/master/source/Craft.Net.Common/SoundEffect.cs
 const (
 	SoundEffectAmbienceCave               SoundEffect = "ambient.cave.cave"
 	SoundEffectAmbienceRain               SoundEffect = "ambient.weather.rain"
@@ -141,4 +142,32 @@ const (
 	SoundEffectMobSlimeAttack             SoundEffect = "mob.slime.attack"
 	SoundEffectMobSlimeBig                SoundEffect = "mob.slime.big"
 	SoundEffectMobSlimeSmall              SoundEffect = "mob.slime.small"
+	SoundEffectMobSpiderSay               SoundEffect = "mob.spider.say"
+	SoundEffectMobSpiderStep              SoundEffect = "mob.spider.step"
+	SoundEffectMobWolfStep                SoundEffect = "mob.wolf.step"
+	SoundEffectMobZombieDeath             SoundEffect = "mob.zombie.death"
+	SoundEffectMobZombieHurt              SoundEffect = "mob.zombie.hurt"
+	SoundEffectMobZombieSay               SoundEffect = "mob.zombie.say"
+	SoundEffectMobZombieStep              SoundEffect = "mob.zombie.step"
+	SoundEffectRandomClassicHurt          SoundEffect = "random.classic_hurt"
+	SoundEffectStepLadder                 SoundEffect = "step.ladder"
+	SoundEffectMobBatDeath                SoundEffect = "mob.bat.death"
+	SoundEffectMobBatHurt                 SoundEffect = "mob.bat.hurt"
+	SoundEffectMobBatIdle                 SoundEffect = "mob.bat.idle"
+	SoundEffectMobBatTakeoff              SoundEffect = "mob.bat.takeoff"
+	SoundEffectMobEnderdragonEnd          SoundEffect = "mob.enderdragon.end"
+	SoundEffectMobEnderdragonGrowl        SoundEffect = "mob.enderdragon.growl"
+	SoundEffectMobEnderdragonHit          SoundEffect = "mob.enderdragon.hit"
+	SoundEffectMobEnderdragonWings        SoundEffect = "mob.enderdragon.wings"
+	SoundEffectMobWitherDeath             SoundEffect = "mob.wither.death"
+	SoundEffectMobWitherHurt              SoundEffect = "mob.wither.hurt"
+	SoundEffectMobWitherIdle              SoundEffect = "mob.wither.idle"
+	SoundEffectMobWitherShoot             SoundEffect = "mob.wither.shoot"
+	SoundEffectMobWitherSpawn             SoundEffect = "mob.wither.spawn"
+	SoundEffectMobZombieInfect            SoundEffect = "mob.zombie.infect"
+	SoundEffectMobZombieRemedy            SoundEffect = "mob.zombie.remedy"
+	SoundEffectMobZombieUnfect            SoundEffect = "mob.zombie.unfect"
+	SoundEffectRandomAnvilBreak           SoundEffect = "random.anvil_break"
+	SoundEffectRandomAnvilLand            SoundEffect = "random.anvil_land"
+	SoundEffectRandomAnvilUse             SoundEffect = "random.anvil_use"
 )

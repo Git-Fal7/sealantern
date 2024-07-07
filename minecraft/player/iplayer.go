@@ -37,4 +37,10 @@ type IPlayer interface {
 	SetTablistHeaderFooter(header component.IChatComponent, footer component.IChatComponent)
 	SendTitle(title component.IChatComponent, subtitle component.IChatComponent, fadein int32, stay int32, fadeout int32)
 	PlaySound(Location world.BlockPosition, Sound types.SoundEffect, volume float32, pitch float32)
+	Health() float32
+	SetHealth(health float32)
+	FoodLevel() int
+	SetFoodLevel(foodLevel int)
+	Saturation() float32
+	SetSaturation(saturation float32)
 }

@@ -436,18 +436,12 @@ func (h *PlayEntityUseHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket
 	if entityUsePacket.Type != types.UseEntityAttack {
 		return
 	}
-	if victim.Invincibile {
-		return
-	}
 	damageEvent := &events.PlayerDamageEvent{
 		Attacker: p,
 		Victim:   victim,
 		Allowed:  true,
 	}
 	h.Server.Event().Fire(damageEvent)
-	if !damageEvent.Allowed {
-		return
-	}
 }
 
 type PlayClientSettingsHandler struct {

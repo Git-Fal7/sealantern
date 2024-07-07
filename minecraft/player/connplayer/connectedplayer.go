@@ -27,8 +27,9 @@ type ConnectedPlayer struct {
 	PermFunc            permission.Func
 	eid                 uint16
 	Sneaking            bool
-	Health              float32
-	Invincibile         bool
+	health              float32
+	foodLevel           int
+	saturation          float32
 	Settings            clientsettings.ClientSettings
 	CurrentTeam         *team.Team
 	KnownChunkKeys      map[chunk.ChunkKey]bool
@@ -43,8 +44,9 @@ func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16
 		profile:         profile,
 		Conn:            conn,
 		eid:             eid,
-		Health:          20,
-		Invincibile:     false,
+		health:          20,
+		foodLevel:       20,
+		saturation:      5,
 		KnownChunkKeys:  make(map[chunk.ChunkKey]bool),
 		OpenedInventory: nil,
 		Inventory:       playerinventory.NewPlayerInventory(),
@@ -215,4 +217,39 @@ func (p *ConnectedPlayer) PlaySound(location world.BlockPosition, sound types.So
 		Volume:         volume,
 		Pitch:          pitch,
 	})
+}
+
+func (p *ConnectedPlayer) sendHealth() {
+	p.WritePacket(&packet.PacketPlayUpdateHealth{
+		Health:         p.health,
+		Food:           p.foodLevel,
+		FoodSaturation: p.saturation,
+	})
+}
+
+func (p *ConnectedPlayer) Health() float32 {
+	return p.health
+}
+
+func (p *ConnectedPlayer) SetHealth(health float32) {
+	p.health = health
+	p.sendHealth()
+}
+
+func (p *ConnectedPlayer) FoodLevel() int {
+	return p.foodLevel
+}
+
+func (p *ConnectedPlayer) SetFoodLevel(foodLevel int) {
+	p.foodLevel = min(foodLevel, 20)
+	p.sendHealth()
+}
+
+func (p *ConnectedPlayer) Saturation() float32 {
+	return p.saturation
+}
+
+func (p *ConnectedPlayer) SetSaturation(saturation float32) {
+	p.saturation = min(saturation, float32(p.foodLevel))
+	p.sendHealth()
 }

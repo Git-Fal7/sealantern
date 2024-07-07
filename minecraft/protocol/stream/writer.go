@@ -130,11 +130,11 @@ func (w *ProtocolWriter) WriteChatComponent(component component.IChatComponent) 
 }
 
 func (w *ProtocolWriter) WriteSlotItem(item slot.SlotItem) (err error) {
-	if item.Material.ID == 0 {
+	if item.Material.GetID() == 0 {
 		err = w.WriteInt16(-1)
 		return
 	}
-	err = w.WriteUInt16(uint16(item.Material.ID))
+	err = w.WriteUInt16(item.Material.GetID())
 	if err != nil {
 		return
 	}

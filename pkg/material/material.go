@@ -1,9 +1,19 @@
 package material
 
 type Material struct {
-	ID            int16
-	MaxStack      int8
-	MaxDurability int16
+	id            uint16
+	maxStack      uint8
+	maxDurability uint16
+}
+
+func (m Material) GetID() uint16 {
+	return m.id
+}
+func (m Material) GetStack() uint8 {
+	return m.maxStack
+}
+func (m Material) GetMaxDurability() uint16 {
+	return m.maxDurability
 }
 
 var (
@@ -783,21 +793,21 @@ var (
 	}
 )
 
-func newMaterial(id int16) Material {
-	return Material{ID: id, MaxStack: 64, MaxDurability: -1}
+func newMaterial(id uint16) Material {
+	return Material{id: id, maxStack: 64}
 }
 
-func newMaterialWithStack(id int16, maxStack int8) Material {
-	return Material{ID: id, MaxStack: maxStack, MaxDurability: -1}
+func newMaterialWithStack(id uint16, maxStack uint8) Material {
+	return Material{id: id, maxStack: maxStack}
 }
 
-func newMaterialWithStackDurability(id int16, maxStack int8, durability int16) Material {
-	return Material{ID: id, MaxStack: maxStack, MaxDurability: durability}
+func newMaterialWithStackDurability(id uint16, maxStack uint8, durability uint16) Material {
+	return Material{id: id, maxStack: maxStack, maxDurability: durability}
 }
 
-func FindMaterialByID(id int16) Material {
+func FindMaterialByID(id uint16) Material {
 	for _, m := range materialArray {
-		if m.ID == id {
+		if m.id == id {
 			return m
 		}
 	}

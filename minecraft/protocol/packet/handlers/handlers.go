@@ -522,7 +522,7 @@ func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 	if clickWindowPacket.WindowID == 0 {
 		// Save stuff
 		if clickWindowPacket.Mode == 0 {
-			if p.Inventory.GetDirectSlot(int(clickWindowPacket.Slot)).Material.ID != 0 {
+			if p.Inventory.GetDirectSlot(int(clickWindowPacket.Slot)).Material != material.Air {
 				p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), slot.SlotItem{Material: material.Air})
 			}
 			if p.ItemOnCursor.Material != material.Air {
@@ -548,7 +548,7 @@ func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 						break
 					}
 					if itemutil.IsEqual(item, clickWindowPacket.ClickedItem) {
-						space := int(item.Material.MaxStack) - int(item.Amount)
+						space := int(item.Material.GetStack()) - int(item.Amount)
 						if space < 0 {
 							continue
 						}
@@ -578,7 +578,7 @@ func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 						break
 					}
 					if itemutil.IsEqual(item, clickWindowPacket.ClickedItem) {
-						space := int(item.Material.MaxStack) - int(item.Amount)
+						space := int(item.Material.GetStack()) - int(item.Amount)
 						if space < 0 {
 							continue
 						}

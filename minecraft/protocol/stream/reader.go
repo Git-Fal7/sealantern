@@ -150,7 +150,7 @@ func (r *ProtocolReader) ReadSlotItem() (slotItem slot.SlotItem, err error) {
 		return slot.SlotItem{}, err
 	}
 	slotItem = slot.SlotItem{
-		Material:   material.FindMaterialByID(int16(itemID)),
+		Material:   material.FindMaterialByID(itemID),
 		Amount:     amount,
 		Durability: durability,
 		NBT:        compoundTag,

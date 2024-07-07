@@ -128,7 +128,7 @@ func (inv *PlayerInventory) AddItem(item slot.SlotItem) {
 		slotItem := inv.slots[selectedSlotIndex]
 		if slotItem.Material != material.Air {
 			if itemutil.IsEqual(slotItem, item) {
-				space := int(slotItem.Material.MaxStack) - int(slotItem.Amount)
+				space := int(slotItem.Material.GetStack()) - int(slotItem.Amount)
 				if space < 0 {
 					continue
 				}
@@ -152,8 +152,8 @@ func (inv *PlayerInventory) AddItem(item slot.SlotItem) {
 			slotItem := inv.slots[selectedSlotIndex]
 			if slotItem.Material == material.Air {
 				var num int
-				if toAdd > int(slotItem.Material.MaxStack) {
-					num = int(slotItem.Material.MaxStack)
+				if toAdd > int(slotItem.Material.GetStack()) {
+					num = int(slotItem.Material.GetStack())
 				} else {
 					num = toAdd
 				}

@@ -49,7 +49,7 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 		EntityID:       p.ID(),
 		PlayerUUID:     p.UUID(),
 		PlayerPosition: p.Position(),
-		CurrentItem:    uint16(p.PlayerInventory().GetHeldItem().Material.ID),
+		CurrentItem:    p.PlayerInventory().GetHeldItem().Material.GetID(),
 	}
 	packetHeadRotation := &packet.PacketPlayEntityHeadLook{
 		EntityID: p.ID(),
@@ -77,7 +77,7 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 				EntityID:       player.ID(),
 				PlayerUUID:     player.UUID(),
 				PlayerPosition: player.Position(),
-				CurrentItem:    uint16(player.PlayerInventory().GetHeldItem().Material.ID),
+				CurrentItem:    player.PlayerInventory().GetHeldItem().Material.GetID(),
 			})
 			p.WritePacket(&packet.PacketPlayEntityMetadata{
 				EntityID: player.ID(),
@@ -206,7 +206,7 @@ func (instance *GameInstance) Tick() {
 					EntityID:       player.ID(),
 					PlayerUUID:     player.UUID(),
 					PlayerPosition: player.Position(),
-					CurrentItem:    uint16(player.PlayerInventory().GetHeldItem().Material.ID),
+					CurrentItem:    player.PlayerInventory().GetHeldItem().Material.GetID(),
 				})
 				for _, eqiupmentPacket := range player.PlayerInventory().GetArmorPackets(player.ID()) {
 					p.WritePacket(eqiupmentPacket)

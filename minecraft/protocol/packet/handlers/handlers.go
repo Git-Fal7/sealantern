@@ -20,6 +20,7 @@ import (
 	"github.com/git-fal7/sealantern/pkg/events"
 	"github.com/git-fal7/sealantern/pkg/inventory"
 	"github.com/git-fal7/sealantern/pkg/itemutil"
+	"github.com/git-fal7/sealantern/pkg/material"
 	"github.com/git-fal7/sealantern/pkg/slot"
 	"github.com/git-fal7/sealantern/pkg/uuidutil"
 	"github.com/git-fal7/sealantern/sealantern/server"
@@ -521,28 +522,26 @@ func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 	if clickWindowPacket.WindowID == 0 {
 		// Save stuff
 		if clickWindowPacket.Mode == 0 {
-			if p.Inventory.GetDirectSlot(int(clickWindowPacket.Slot)).ID != 0 {
-				p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), slot.SlotItem{
-					ID: 0,
-				})
+			if p.Inventory.GetDirectSlot(int(clickWindowPacket.Slot)).Material.ID != 0 {
+				p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), slot.SlotItem{Material: material.Air})
 			}
-			if p.ItemOnCursor.ID != 0 {
+			if p.ItemOnCursor.Material != material.Air {
 				// process inventory
 				p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), p.ItemOnCursor)
 			}
 			p.ItemOnCursor = clickWindowPacket.ClickedItem
 		}
 		if clickWindowPacket.Mode == 1 {
-			if clickWindowPacket.ClickedItem.ID == 0 {
+			if clickWindowPacket.ClickedItem.Material != material.Air {
 				return
 			}
-			p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), slot.SlotItem{ID: 0})
+			p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), slot.SlotItem{Material: material.Air})
 			// Hotbar shift click
 			toAdd := int(clickWindowPacket.ClickedItem.Amount)
 			if clickWindowPacket.Slot >= 36 {
 				for i := 9; i <= 35; i++ {
 					item := p.Inventory.GetDirectSlot(i)
-					if item.ID == 0 {
+					if item.Material == material.Air {
 						clickWindowPacket.ClickedItem.Amount = uint8(toAdd)
 						p.Inventory.SetDirectSlot(i, clickWindowPacket.ClickedItem)
 						toAdd -= toAdd
@@ -572,7 +571,7 @@ func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 				for i := 36; i <= 44; i++ {
 
 					item := p.Inventory.GetDirectSlot(i)
-					if item.ID == 0 {
+					if item.Material == material.Air {
 						clickWindowPacket.ClickedItem.Amount = uint8(toAdd)
 						p.Inventory.SetDirectSlot(i, clickWindowPacket.ClickedItem)
 						toAdd -= toAdd
@@ -616,9 +615,7 @@ func (h *PlayCloseWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 	if closeWindowPacket.WindowID != 0 {
 		p.OpenedInventory = nil
 	}
-	p.ItemOnCursor = slot.SlotItem{
-		ID: 0,
-	}
+	p.ItemOnCursor = slot.SlotItem{Material: material.Air}
 }
 
 type PlayPlayerDiggingHandler struct {
@@ -667,7 +664,7 @@ func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 	var blockIDAt int
 	if blockPlacementPacket.Face == 0xff {
 		previous := p.LastPlacementPacket
-		if previous == nil || previous.HeldItem.ID != blockPlacementPacket.HeldItem.ID {
+		if previous == nil || previous.HeldItem.Material != blockPlacementPacket.HeldItem.Material {
 			action = types.ClickActionLeftClickBlock
 			blockIDAt = -1
 		} else {

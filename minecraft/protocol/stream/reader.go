@@ -9,6 +9,7 @@ import (
 
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/pkg/component"
+	"github.com/git-fal7/sealantern/pkg/material"
 	"github.com/git-fal7/sealantern/pkg/slot"
 	"github.com/google/uuid"
 	"github.com/seebs/nbt"
@@ -129,11 +130,11 @@ func (r *ProtocolReader) ReadNBTCompound() (tag nbt.Compound, err error) {
 }
 
 func (r *ProtocolReader) ReadSlotItem() (slotItem slot.SlotItem, err error) {
-	slotType, err := r.ReadUInt16()
+	itemID, err := r.ReadUInt16()
 	if err != nil {
 		return slot.SlotItem{}, err
 	}
-	if int16(slotType) == -1 {
+	if int16(itemID) == -1 {
 		return slot.SlotItem{}, err
 	}
 	amount, err := r.ReadByte()
@@ -149,7 +150,7 @@ func (r *ProtocolReader) ReadSlotItem() (slotItem slot.SlotItem, err error) {
 		return slot.SlotItem{}, err
 	}
 	slotItem = slot.SlotItem{
-		ID:         slotType,
+		Material:   material.FindMaterialByID(int16(itemID)),
 		Amount:     amount,
 		Durability: durability,
 		NBT:        compoundTag,

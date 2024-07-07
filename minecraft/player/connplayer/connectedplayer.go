@@ -12,6 +12,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/world/chunk"
 	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/inventory"
+	"github.com/git-fal7/sealantern/pkg/material"
 	"github.com/git-fal7/sealantern/pkg/permission"
 	"github.com/git-fal7/sealantern/pkg/scoreboard/team"
 	"github.com/git-fal7/sealantern/pkg/slot"
@@ -47,7 +48,7 @@ func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16
 		KnownChunkKeys:  make(map[chunk.ChunkKey]bool),
 		OpenedInventory: nil,
 		Inventory:       playerinventory.NewPlayerInventory(),
-		ItemOnCursor:    slot.SlotItem{ID: 0},
+		ItemOnCursor:    slot.SlotItem{Material: material.Air},
 	}
 }
 

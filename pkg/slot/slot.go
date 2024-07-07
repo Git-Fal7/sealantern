@@ -1,9 +1,12 @@
 package slot
 
-import "github.com/seebs/nbt"
+import (
+	"github.com/git-fal7/sealantern/pkg/material"
+	"github.com/seebs/nbt"
+)
 
 type SlotItem struct {
-	ID         uint16
+	Material   material.Material
 	Amount     uint8
 	Durability uint16
 	NBT        nbt.Compound

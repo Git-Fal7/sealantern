@@ -5,6 +5,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/pkg/itemutil"
+	"github.com/git-fal7/sealantern/pkg/material"
 	"github.com/git-fal7/sealantern/pkg/slot"
 )
 
@@ -45,9 +46,7 @@ func (inv *PlayerInventory) SetDirectSlot(slot int, slotData slot.SlotItem) {
 
 func (inv *PlayerInventory) GetDirectSlot(slotIndex int) slot.SlotItem {
 	if slotIndex >= 45 {
-		return slot.SlotItem{
-			ID: 0,
-		}
+		return slot.SlotItem{Material: material.Air}
 	}
 	return inv.slots[slotIndex]
 }
@@ -127,7 +126,7 @@ func (inv *PlayerInventory) AddItem(item slot.SlotItem) {
 			selectedSlotIndex = 36 + i
 		}
 		slotItem := inv.slots[selectedSlotIndex]
-		if slotItem.ID != 0 {
+		if slotItem.Material != material.Air {
 			if itemutil.IsEqual(slotItem, item) {
 				space := 64 - int(slotItem.Amount)
 				if space < 0 {
@@ -151,7 +150,7 @@ func (inv *PlayerInventory) AddItem(item slot.SlotItem) {
 				selectedSlotIndex = 36 + i
 			}
 			slotItem := inv.slots[selectedSlotIndex]
-			if slotItem.ID == 0 {
+			if slotItem.Material == material.Air {
 				var num int
 				if toAdd > 64 {
 					num = 64

@@ -548,7 +548,7 @@ func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 						break
 					}
 					if itemutil.IsEqual(item, clickWindowPacket.ClickedItem) {
-						space := 64 - int(item.Amount)
+						space := int(item.Material.MaxStack) - int(item.Amount)
 						if space < 0 {
 							continue
 						}
@@ -578,7 +578,7 @@ func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 						break
 					}
 					if itemutil.IsEqual(item, clickWindowPacket.ClickedItem) {
-						space := 64 - int(item.Amount)
+						space := int(item.Material.MaxStack) - int(item.Amount)
 						if space < 0 {
 							continue
 						}

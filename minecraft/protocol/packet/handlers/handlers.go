@@ -532,7 +532,7 @@ func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 			p.ItemOnCursor = clickWindowPacket.ClickedItem
 		}
 		if clickWindowPacket.Mode == 1 {
-			if clickWindowPacket.ClickedItem.Material != material.Air {
+			if clickWindowPacket.ClickedItem.Material == material.Air {
 				return
 			}
 			p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), slot.SlotItem{Material: material.Air})

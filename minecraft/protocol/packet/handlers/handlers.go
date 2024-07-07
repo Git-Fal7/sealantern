@@ -19,6 +19,7 @@ import (
 	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/events"
 	"github.com/git-fal7/sealantern/pkg/inventory"
+	"github.com/git-fal7/sealantern/pkg/itemutil"
 	"github.com/git-fal7/sealantern/pkg/slot"
 	"github.com/git-fal7/sealantern/pkg/uuidutil"
 	"github.com/git-fal7/sealantern/sealantern/server"
@@ -512,12 +513,99 @@ func (h *PlayClickWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 		p.WritePacket(&packet.PacketPlaySetSlot{
 			WindowID: 0xff,
 			Slot:     -1,
-			SlotData: slot.SlotItem{
-				ID: 0,
-			},
+			SlotData: p.ItemOnCursor,
 		})
 		p.UpdateInventory()
 		return
+	}
+	if clickWindowPacket.WindowID == 0 {
+		// Save stuff
+		if clickWindowPacket.Mode == 0 {
+			if p.Inventory.GetDirectSlot(int(clickWindowPacket.Slot)).ID != 0 {
+				p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), slot.SlotItem{
+					ID: 0,
+				})
+			}
+			if p.ItemOnCursor.ID != 0 {
+				// process inventory
+				p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), p.ItemOnCursor)
+			}
+			p.ItemOnCursor = clickWindowPacket.ClickedItem
+		}
+		if clickWindowPacket.Mode == 1 {
+			if clickWindowPacket.ClickedItem.ID == 0 {
+				return
+			}
+			p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), slot.SlotItem{ID: 0})
+			// Hotbar shift click
+			toAdd := int(clickWindowPacket.ClickedItem.Amount)
+			if clickWindowPacket.Slot >= 36 {
+				for i := 9; i <= 35; i++ {
+					item := p.Inventory.GetDirectSlot(i)
+					if item.ID == 0 {
+						clickWindowPacket.ClickedItem.Amount = uint8(toAdd)
+						p.Inventory.SetDirectSlot(i, clickWindowPacket.ClickedItem)
+						toAdd -= toAdd
+						break
+					}
+					if itemutil.IsEqual(item, clickWindowPacket.ClickedItem) {
+						space := 64 - int(item.Amount)
+						if space < 0 {
+							continue
+						}
+						if space > toAdd {
+							space = toAdd
+						}
+						item.Amount += uint8(space)
+						p.Inventory.SetDirectSlot(i, item)
+						toAdd -= space
+						if toAdd <= 0 {
+							break
+						}
+					}
+				}
+				if toAdd > 0 {
+					clickWindowPacket.ClickedItem.Amount = uint8(toAdd)
+					p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), clickWindowPacket.ClickedItem)
+				}
+			} else {
+				for i := 36; i <= 44; i++ {
+
+					item := p.Inventory.GetDirectSlot(i)
+					if item.ID == 0 {
+						clickWindowPacket.ClickedItem.Amount = uint8(toAdd)
+						p.Inventory.SetDirectSlot(i, clickWindowPacket.ClickedItem)
+						toAdd -= toAdd
+						break
+					}
+					if itemutil.IsEqual(item, clickWindowPacket.ClickedItem) {
+						space := 64 - int(item.Amount)
+						if space < 0 {
+							continue
+						}
+						if space > toAdd {
+							space = toAdd
+						}
+						item.Amount += uint8(space)
+						p.Inventory.SetDirectSlot(i, item)
+						toAdd -= space
+						if toAdd <= 0 {
+							break
+						}
+					}
+				}
+				if toAdd > 0 {
+					clickWindowPacket.ClickedItem.Amount = uint8(toAdd)
+					p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), clickWindowPacket.ClickedItem)
+				}
+			}
+		}
+		if clickWindowPacket.Mode == 2 {
+			selectedItem := p.Inventory.GetDirectSlot(int(clickWindowPacket.Slot))
+			movedItem := p.Inventory.GetDirectSlot(36 + int(clickWindowPacket.Button))
+			p.Inventory.SetDirectSlot(int(clickWindowPacket.Slot), movedItem)
+			p.Inventory.SetDirectSlot(36+int(clickWindowPacket.Button), selectedItem)
+		}
 	}
 }
 
@@ -527,6 +615,9 @@ func (h *PlayCloseWindowHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 	closeWindowPacket, _ := protoPacket.(*packet.PacketPlayCloseWindow)
 	if closeWindowPacket.WindowID != 0 {
 		p.OpenedInventory = nil
+	}
+	p.ItemOnCursor = slot.SlotItem{
+		ID: 0,
 	}
 }
 

@@ -14,6 +14,7 @@ import (
 	"github.com/git-fal7/sealantern/pkg/inventory"
 	"github.com/git-fal7/sealantern/pkg/permission"
 	"github.com/git-fal7/sealantern/pkg/scoreboard/team"
+	"github.com/git-fal7/sealantern/pkg/slot"
 
 	"github.com/google/uuid"
 )
@@ -33,6 +34,7 @@ type ConnectedPlayer struct {
 	OpenedInventory     inventory.Inventory
 	Inventory           *playerinventory.PlayerInventory
 	LastPlacementPacket *packet.PacketPlayBlockPlacement
+	ItemOnCursor        slot.SlotItem
 }
 
 func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16) *ConnectedPlayer {
@@ -45,6 +47,7 @@ func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16
 		KnownChunkKeys:  make(map[chunk.ChunkKey]bool),
 		OpenedInventory: nil,
 		Inventory:       playerinventory.NewPlayerInventory(),
+		ItemOnCursor:    slot.SlotItem{ID: 0},
 	}
 }
 

@@ -152,8 +152,8 @@ func (inv *PlayerInventory) AddItem(item slot.SlotItem) {
 			slotItem := inv.slots[selectedSlotIndex]
 			if slotItem.Material == material.Air {
 				var num int
-				if toAdd > int(slotItem.Material.GetStack()) {
-					num = int(slotItem.Material.GetStack())
+				if toAdd > int(item.Material.GetStack()) {
+					num = int(item.Material.GetStack())
 				} else {
 					num = toAdd
 				}

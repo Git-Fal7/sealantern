@@ -43,4 +43,6 @@ type IPlayer interface {
 	SetFoodLevel(foodLevel int)
 	Saturation() float32
 	SetSaturation(saturation float32)
+	Gamemode() types.Gamemode
+	SetGamemode(gamemode types.Gamemode)
 }

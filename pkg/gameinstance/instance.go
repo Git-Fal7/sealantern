@@ -37,7 +37,7 @@ func (instance *GameInstance) JoinPlayer(p *connplayer.ConnectedPlayer) error {
 	for _, player := range players {
 		entries = append(entries, types.PlayerListEntry{
 			Profile:  *player.Profile(),
-			GameMode: instance.Gamemode,
+			GameMode: player.Gamemode(),
 			Ping:     0,
 		})
 	}

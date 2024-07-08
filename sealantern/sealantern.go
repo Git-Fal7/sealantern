@@ -257,10 +257,7 @@ func (c *Core) SwitchToInstance(p *connplayer.ConnectedPlayer, newInstance *game
 		Gamemode:   types.SURVIVAL,
 		LevelType:  world.DEFAULT,
 	})
-	p.WritePacket(&packet.PacketPlayChangeGameState{
-		Reason: types.GameStateReasonChangeGamemode,
-		Value:  float32(newInstance.Gamemode),
-	})
+	p.SetGamemode(newInstance.Gamemode)
 	p.KnownChunkKeys = make(map[chunk.ChunkKey]bool)
 	newInstance.JoinPlayer(p)
 	c.Event().Fire(&events.PlayerSwitchInstanceEvent{

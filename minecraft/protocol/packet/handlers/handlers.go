@@ -162,6 +162,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 		})
 		return
 	}
+	selectedInstance := loginEvent.Instance
 
 	permissionSetupEvent := &events.PermissionSetupEvent{
 		Subject:     player,
@@ -172,9 +173,9 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 
 	p.State = types.PLAY
 	p.WritePacket(&packet.PacketPlayJoinGame{
-		Gamemode:     loginEvent.Instance.Gamemode,
-		Dimension:    loginEvent.Instance.World.Dimension,
-		Difficulty:   loginEvent.Instance.Difficulty,
+		Gamemode:     selectedInstance.Gamemode,
+		Dimension:    selectedInstance.World.Dimension,
+		Difficulty:   selectedInstance.Difficulty,
 		LevelType:    world.DEFAULT,
 		MaxPlayers:   0xFF,
 		ReducedDebug: false,
@@ -187,10 +188,11 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 		FlyingSpeed:  0.1,
 		FieldOfView:  0.1,
 	})
+	player.SetGamemode(selectedInstance.Gamemode)
 	h.Server.Event().Fire(&events.PlayerJoinEvent{
 		Player: player,
 	})
-	err := loginEvent.Instance.JoinPlayer(player)
+	err := selectedInstance.JoinPlayer(player)
 	if err != nil {
 		p.Disconnect(&component.StringChatComponent{
 			Text: err.Error(),

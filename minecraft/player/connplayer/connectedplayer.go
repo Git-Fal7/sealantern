@@ -37,6 +37,7 @@ type ConnectedPlayer struct {
 	Inventory           *playerinventory.PlayerInventory
 	LastPlacementPacket *packet.PacketPlayBlockPlacement
 	ItemOnCursor        slot.SlotItem
+	gamemode            types.Gamemode
 }
 
 func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16) *ConnectedPlayer {
@@ -51,6 +52,7 @@ func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16
 		OpenedInventory: nil,
 		Inventory:       playerinventory.NewPlayerInventory(),
 		ItemOnCursor:    slot.SlotItem{Material: material.Air},
+		gamemode:        types.SURVIVAL,
 	}
 }
 
@@ -252,4 +254,18 @@ func (p *ConnectedPlayer) Saturation() float32 {
 func (p *ConnectedPlayer) SetSaturation(saturation float32) {
 	p.saturation = min(saturation, float32(p.foodLevel))
 	p.sendHealth()
+}
+
+func (p *ConnectedPlayer) Gamemode() types.Gamemode {
+	return p.gamemode
+}
+
+func (p *ConnectedPlayer) SetGamemode(gamemode types.Gamemode) {
+	if p.gamemode != gamemode {
+		p.gamemode = gamemode
+		p.WritePacket(&packet.PacketPlayChangeGameState{
+			Reason: types.GameStateReasonChangeGamemode,
+			Value:  float32(p.gamemode),
+		})
+	}
 }

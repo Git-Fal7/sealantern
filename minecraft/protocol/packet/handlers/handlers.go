@@ -366,13 +366,11 @@ type PlayEntityActionHandler struct {
 func (h *PlayEntityActionHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
 	actionPacket, _ := protoPacket.(*packet.PacketPlayEntityAction)
 	if actionPacket.ActionID == types.StartSneaking {
-		//p.Sneaking = true
+		p.SetSneaking(true)
 		instance := h.Server.GetInstanceFromUUID(p.UUID())
 		metaDataPacket := &packet.PacketPlayEntityMetadata{
 			EntityID: p.ID(),
-			Metadata: metadata.MetadataMap{
-				metadata.MetadataIndexStatus: metadata.StatusFlagSneaking,
-			},
+			Metadata: p.GetMetadata(),
 		}
 		for _, player := range instance.Players.GetPlayers() {
 			if player.UUID() != p.UUID() {
@@ -380,12 +378,11 @@ func (h *PlayEntityActionHandler) Handle(p *connplayer.ConnectedPlayer, protoPac
 			}
 		}
 	} else if actionPacket.ActionID == types.StopSneaking {
+		p.SetSneaking(false)
 		instance := h.Server.GetInstanceFromUUID(p.UUID())
 		metaDataPacket := &packet.PacketPlayEntityMetadata{
 			EntityID: p.ID(),
-			Metadata: metadata.MetadataMap{
-				metadata.MetadataIndexStatus: metadata.MetadataIndexStatus.Index & ^metadata.StatusFlagSneaking,
-			},
+			Metadata: p.GetMetadata(),
 		}
 		for _, player := range instance.Players.GetPlayers() {
 			if player.UUID() != p.UUID() {
@@ -646,6 +643,22 @@ func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPa
 		for _, player := range instance.Players.GetPlayers() {
 			player.WritePacket(blockChangePacket)
 		}
+	} else if diggingPacket.Status == types.ShootArrowOrFinishEating {
+		instance := h.Server.GetInstanceFromUUID(p.UUID())
+		heldItem := p.Inventory.GetHeldItem()
+		if material.IsSword(heldItem.Material) {
+			// Send blocking packet
+			p.SetBlocking(false)
+			metadataPacket := &packet.PacketPlayEntityMetadata{
+				EntityID: p.ID(),
+				Metadata: p.GetMetadata(),
+			}
+			for _, player := range instance.Players.GetPlayers() {
+				if player.UUID() != p.UUID() {
+					player.WritePacket(metadataPacket)
+				}
+			}
+		}
 	}
 }
 
@@ -669,6 +682,19 @@ func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 		}
 	} else {
 		blockIDAt = instance.World.GetBlock(blockPlacementPacket.Location.X, blockPlacementPacket.Location.Y, blockPlacementPacket.Location.Z)
+	}
+	if material.IsSword(blockPlacementPacket.HeldItem.Material) {
+		// Send blocking packet
+		p.SetBlocking(true)
+		metadataPacket := &packet.PacketPlayEntityMetadata{
+			EntityID: p.ID(),
+			Metadata: p.GetMetadata(),
+		}
+		for _, player := range instance.Players.GetPlayers() {
+			if player.UUID() != p.UUID() {
+				player.WritePacket(metadataPacket)
+			}
+		}
 	}
 	p.LastPlacementPacket = blockPlacementPacket
 	timer := time.NewTimer(time.Millisecond * 100) // 2 ticks
@@ -700,6 +726,7 @@ func (h *PlayHeldItemChangeHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 		CurrentSlot:  heldItemChange.Slot,
 		Allowed:      true,
 	}
+	p.SetBlocking(false)
 	h.Server.Event().Fire(slotChangeEvent)
 	if !slotChangeEvent.Allowed {
 		p.WritePacket(&packet.PacketPlayHeldItemChange{

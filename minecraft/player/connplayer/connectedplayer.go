@@ -10,6 +10,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/chunk"
+	"github.com/git-fal7/sealantern/minecraft/world/metadata"
 	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/inventory"
 	"github.com/git-fal7/sealantern/pkg/material"
@@ -26,7 +27,6 @@ type ConnectedPlayer struct {
 	Pos                 world.Position
 	PermFunc            permission.Func
 	eid                 uint16
-	Sneaking            bool
 	health              float32
 	foodLevel           int
 	saturation          float32
@@ -38,6 +38,7 @@ type ConnectedPlayer struct {
 	LastPlacementPacket *packet.PacketPlayBlockPlacement
 	ItemOnCursor        slot.SlotItem
 	gamemode            types.Gamemode
+	metadata            metadata.MetadataMap
 }
 
 func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16) *ConnectedPlayer {
@@ -53,6 +54,7 @@ func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16
 		Inventory:       playerinventory.NewPlayerInventory(),
 		ItemOnCursor:    slot.SlotItem{Material: material.Air},
 		gamemode:        types.SURVIVAL,
+		metadata:        make(metadata.MetadataMap),
 	}
 }
 
@@ -116,7 +118,7 @@ func (p *ConnectedPlayer) PermissionValue(permission string) permission.TriState
 /* Else */
 func (p *ConnectedPlayer) GetEyePosition() world.Position {
 	var pos world.Position
-	if p.Sneaking {
+	if p.IsSneaking() {
 		//		return 1.54
 		pos = p.Position().Add(world.Position{
 			X: 0,
@@ -268,4 +270,40 @@ func (p *ConnectedPlayer) SetGamemode(gamemode types.Gamemode) {
 			Value:  float32(p.gamemode),
 		})
 	}
+}
+
+func (p *ConnectedPlayer) GetMetadata() metadata.MetadataMap {
+	return p.metadata
+}
+
+func (p *ConnectedPlayer) SetSneaking(sneaking bool) {
+	var status uint8 = 0
+	status, _ = p.metadata[metadata.MetadataIndexStatus].(uint8)
+	if sneaking {
+		p.metadata[metadata.MetadataIndexStatus] = status | metadata.StatusFlagSneaking
+	} else {
+		p.metadata[metadata.MetadataIndexStatus] = status & ^metadata.StatusFlagSneaking
+	}
+}
+
+func (p *ConnectedPlayer) IsSneaking() bool {
+	var status uint8 = 0
+	status, _ = p.metadata[metadata.MetadataIndexStatus].(uint8)
+	return status&metadata.StatusFlagSneaking != 0
+}
+
+func (p *ConnectedPlayer) SetBlocking(blocking bool) {
+	var status uint8 = 0
+	status, _ = p.metadata[metadata.MetadataIndexStatus].(uint8)
+	if blocking {
+		p.metadata[metadata.MetadataIndexStatus] = status | metadata.StatusFlagBlocking
+	} else {
+		p.metadata[metadata.MetadataIndexStatus] = status & ^metadata.StatusFlagBlocking
+	}
+}
+
+func (p *ConnectedPlayer) IsBlocking() bool {
+	var status uint8 = 0
+	status, _ = p.metadata[metadata.MetadataIndexStatus].(uint8)
+	return status&metadata.StatusFlagBlocking != 0
 }

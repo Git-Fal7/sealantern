@@ -8,6 +8,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/chunk"
+	"github.com/git-fal7/sealantern/minecraft/world/metadata"
 	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/inventory"
 	"github.com/git-fal7/sealantern/pkg/scoreboard/team"
@@ -45,4 +46,9 @@ type IPlayer interface {
 	SetSaturation(saturation float32)
 	Gamemode() types.Gamemode
 	SetGamemode(gamemode types.Gamemode)
+	GetMetadata() metadata.MetadataMap
+	SetSneaking(sneaking bool)
+	IsSneaking() bool
+	SetBlocking(blocking bool)
+	IsBlocking() bool
 }

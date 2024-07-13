@@ -813,3 +813,7 @@ func FindMaterialByID(id uint16) Material {
 	}
 	return Air
 }
+
+func IsSword(material Material) bool {
+	return material == WoodSword || material == StoneSword || material == IronSword || material == GoldSword || material == DiamondSword
+}

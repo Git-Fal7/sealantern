@@ -169,3 +169,12 @@ type PlayerSwitchInstanceEvent struct {
 	PreviousInstance *gameinstance.GameInstance
 	CurrentInstance  *gameinstance.GameInstance
 }
+
+type PlayerShootBowEvent struct {
+	Player  player.IPlayer
+	Allowed bool
+}
+
+func (e *PlayerShootBowEvent) SetAllowed(allowed bool) {
+	e.Allowed = allowed
+}

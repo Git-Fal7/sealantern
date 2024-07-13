@@ -650,7 +650,14 @@ func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPa
 			// Send blocking packet
 			if heldItem.Material == material.Bow {
 				if p.PlayerInventory().HasItem(material.Arrow) {
-					// Shoot event
+					shootEvent := &events.PlayerShootBowEvent{
+						Player:  p,
+						Allowed: true,
+					}
+					h.Server.Event().Fire(shootEvent)
+					if !shootEvent.Allowed {
+						p.UpdateInventory()
+					}
 				}
 			}
 			p.SetBlocking(false)

@@ -214,7 +214,9 @@ func (c *Core) readPacketWithoutCompression(conn *socket.Conn) (packet protocol.
 		return
 	} else if packet != nil {
 		if config.LanternConfig.Logs {
-			log.Printf("# -> %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
+			if id != 0x03 {
+				log.Printf("# -> %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
+			}
 		}
 		packethandler.ExecutePacketHandler(conn, packet, id, c.playerRegistry)
 	}

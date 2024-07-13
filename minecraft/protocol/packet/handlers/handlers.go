@@ -661,7 +661,7 @@ func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 	if blockPlacementPacket.Face == 0xff {
 		previous := p.LastPlacementPacket
 		if previous == nil || previous.HeldItem.Material != blockPlacementPacket.HeldItem.Material {
-			action = types.ClickActionLeftClickBlock
+			action = types.ClickActionRightClickAir
 			blockIDAt = -1
 		} else {
 			p.LastPlacementPacket = nil

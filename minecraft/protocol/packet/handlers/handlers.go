@@ -646,8 +646,13 @@ func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPa
 	} else if diggingPacket.Status == types.ShootArrowOrFinishEating {
 		instance := h.Server.GetInstanceFromUUID(p.UUID())
 		heldItem := p.Inventory.GetHeldItem()
-		if material.IsSword(heldItem.Material) {
+		if material.IsSword(heldItem.Material) || heldItem.Material == material.Bow {
 			// Send blocking packet
+			if heldItem.Material == material.Bow {
+				if p.PlayerInventory().HasItem(material.Arrow) {
+					// Shoot event
+				}
+			}
 			p.SetBlocking(false)
 			metadataPacket := &packet.PacketPlayEntityMetadata{
 				EntityID: p.ID(),
@@ -683,8 +688,23 @@ func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 	} else {
 		blockIDAt = instance.World.GetBlock(blockPlacementPacket.Location.X, blockPlacementPacket.Location.Y, blockPlacementPacket.Location.Z)
 	}
-	if material.IsSword(blockPlacementPacket.HeldItem.Material) {
+	if material.IsSword(blockPlacementPacket.HeldItem.Material) || (blockPlacementPacket.HeldItem.Material == material.Bow && p.PlayerInventory().HasItem(material.Arrow)) {
 		// Send blocking packet
+		// Deep copying the metadata
+		removeBlockingMetadata := make(metadata.MetadataMap)
+		for k, v := range p.GetMetadata() {
+			if k == metadata.MetadataIndexStatus {
+				var status uint8 = 0
+				status, _ = v.(uint8)
+				removeBlockingMetadata[k] = status & ^metadata.StatusFlagBlocking
+			}
+			removeBlockingMetadata[k] = v
+		}
+		removeBlockingPacket := &packet.PacketPlayEntityMetadata{
+			EntityID: p.ID(),
+			Metadata: removeBlockingMetadata,
+		}
+
 		p.SetBlocking(true)
 		metadataPacket := &packet.PacketPlayEntityMetadata{
 			EntityID: p.ID(),
@@ -692,7 +712,12 @@ func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 		}
 		for _, player := range instance.Players.GetPlayers() {
 			if player.UUID() != p.UUID() {
-				player.WritePacket(metadataPacket)
+				player.WritePacket(removeBlockingPacket)
+				go func(player *connplayer.ConnectedPlayer) {
+					// might redo.
+					time.Sleep(50 * time.Millisecond)
+					player.WritePacket(metadataPacket)
+				}(player)
 			}
 		}
 	}

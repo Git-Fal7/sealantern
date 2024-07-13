@@ -165,3 +165,13 @@ func (inv *PlayerInventory) AddItem(item slot.SlotItem) {
 		}
 	}
 }
+
+func (inv *PlayerInventory) HasItem(material material.Material) bool {
+	for i := 0; i < 36; i++ {
+		slotItem := inv.slots[9+i]
+		if slotItem.Material == material {
+			return true
+		}
+	}
+	return false
+}

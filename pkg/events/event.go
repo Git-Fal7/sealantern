@@ -172,6 +172,7 @@ type PlayerSwitchInstanceEvent struct {
 
 type PlayerShootBowEvent struct {
 	Player  player.IPlayer
+	Force   float32
 	Allowed bool
 }
 

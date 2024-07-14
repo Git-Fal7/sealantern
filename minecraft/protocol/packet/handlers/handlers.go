@@ -648,10 +648,16 @@ func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPa
 		heldItem := p.Inventory.GetHeldItem()
 		if material.IsSword(heldItem.Material) || heldItem.Material == material.Bow {
 			// Send blocking packet
+			p.SetBlocking(false)
+			metadataPacket := &packet.PacketPlayEntityMetadata{
+				EntityID: p.ID(),
+				Metadata: p.GetMetadata(),
+			}
 			if heldItem.Material == material.Bow {
 				if p.PlayerInventory().HasItem(material.Arrow) {
 					shootEvent := &events.PlayerShootBowEvent{
 						Player:  p,
+						Force:   p.BowCharge,
 						Allowed: true,
 					}
 					h.Server.Event().Fire(shootEvent)
@@ -659,11 +665,7 @@ func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPa
 						p.UpdateInventory()
 					}
 				}
-			}
-			p.SetBlocking(false)
-			metadataPacket := &packet.PacketPlayEntityMetadata{
-				EntityID: p.ID(),
-				Metadata: p.GetMetadata(),
+				p.BowCharge = 0
 			}
 			for _, player := range instance.Players.GetPlayers() {
 				if player.UUID() != p.UUID() {
@@ -717,6 +719,13 @@ func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 			EntityID: p.ID(),
 			Metadata: p.GetMetadata(),
 		}
+		p.BowCharge = 0
+		go func() {
+			for p.BowCharge < 1 || p.IsBlocking() {
+				p.BowCharge += 0.10
+				time.Sleep(time.Millisecond * 100)
+			}
+		}()
 		for _, player := range instance.Players.GetPlayers() {
 			if player.UUID() != p.UUID() {
 				player.WritePacket(removeBlockingPacket)
@@ -759,6 +768,7 @@ func (h *PlayHeldItemChangeHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 		Allowed:      true,
 	}
 	p.SetBlocking(false)
+	p.BowCharge = 0
 	h.Server.Event().Fire(slotChangeEvent)
 	if !slotChangeEvent.Allowed {
 		p.WritePacket(&packet.PacketPlayHeldItemChange{

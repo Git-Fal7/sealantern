@@ -39,6 +39,7 @@ type ConnectedPlayer struct {
 	ItemOnCursor        slot.SlotItem
 	gamemode            types.Gamemode
 	metadata            metadata.MetadataMap
+	BowCharge           float32
 }
 
 func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16) *ConnectedPlayer {

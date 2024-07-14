@@ -721,7 +721,7 @@ func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 		}
 		p.BowCharge = 0
 		go func() {
-			for p.BowCharge < 1 || p.IsBlocking() {
+			for p.BowCharge < 1 && p.IsBlocking() {
 				p.BowCharge += 0.10
 				time.Sleep(time.Millisecond * 100)
 			}

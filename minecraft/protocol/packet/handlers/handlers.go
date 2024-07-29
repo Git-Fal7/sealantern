@@ -36,9 +36,6 @@ func (h *HandshakeHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) {
 		split := strings.Split(packet.Address, "\x00")
 		if (len(split) == 3 && split[2] != "") || len(split) == 4 {
 			p.ProxyData = split
-		} else {
-			p.Disconnect(component.ChatMessage("If you wish to use IP forwarding, please enable it in your BungeeCord config as well!"))
-			return
 		}
 	}
 	p.State = packet.State
@@ -108,7 +105,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 	var playerProfile *profile.PlayerProfile
 	if config.LanternConfig.InfoFowarding == config.InfoFowardingBungeeMode {
 		if p.ProxyData == nil {
-			p.Disconnect(component.ChatMessage("If you wish to use IP forwarding, please enable it in your BungeeCord config as well! (ProxyData not retrived)"))
+			p.Disconnect(component.ChatMessage("If you wish to use IP forwarding, please enable it in your BungeeCord config as well!"))
 			return
 		}
 		proxyData := p.ProxyData

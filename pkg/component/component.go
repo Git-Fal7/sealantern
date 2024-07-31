@@ -112,12 +112,13 @@ func ChatHoverMessage(components []IChatComponent) *ChatAction {
 type IChatComponent interface {
 	JSON() (string, error)
 }
+
 type ChatComponent struct {
-	Bold          bool             `json:"bold"`
-	Italic        bool             `json:"italic"`
-	Underlined    bool             `json:"underlined"`
-	StrikeThrough bool             `json:"strikethrough"`
-	Obfuscated    bool             `json:"obfuscated"`
+	Bold          bool             `json:"bold,omitempty"`
+	Italic        bool             `json:"italic,omitempty"`
+	Underlined    bool             `json:"underlined,omitempty"`
+	StrikeThrough bool             `json:"strikethrough,omitempty"`
+	Obfuscated    bool             `json:"obfuscated,omitempty"`
 	Color         *string          `json:"color,omitempty"`
 	Insertion     *string          `json:"insertion,omitempty"`
 	ClickEvent    *ChatAction      `json:"clickEvent,omitempty"`
@@ -172,19 +173,6 @@ func (component *StringChatComponent) SetText(text string) {
 	component.Text = text
 }
 func (component *StringChatComponent) JSON() (string, error) {
-	b, err := json.Marshal(component)
-	return string(b), err
-}
-
-type StringDisconnectComponent struct {
-	Text string `json:"text"`
-}
-
-func (component *StringDisconnectComponent) SetText(text string) {
-	component.Text = text
-}
-
-func (component *StringDisconnectComponent) JSON() (string, error) {
 	b, err := json.Marshal(component)
 	return string(b), err
 }

@@ -95,9 +95,8 @@ type LoginStartHandler struct {
 func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) {
 	loginStartPacket, _ := protoPacket.(*packet.PacketLoginStart)
 	if p.Protocol != 47 {
-		p.Disconnect(&component.StringDisconnectComponent{
-			Text: "Bad version no",
-		})
+		println(p.Protocol)
+		p.Disconnect(component.ChatMessage("Bad version no"))
 		return
 	}
 
@@ -144,7 +143,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 	}
 	h.Server.Event().Fire(preLoginEvent)
 	if preLoginEvent.PreLoginResult == events.DeniedPreLogin {
-		p.Disconnect(&preLoginEvent.Reason)
+		p.Disconnect(preLoginEvent.Reason)
 	}
 
 	player := connplayer.NewconnPlayer(playerProfile, p, h.Server.NextEID())
@@ -154,9 +153,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 	}
 	h.Server.Event().Fire(loginEvent)
 	if loginEvent.Instance == nil {
-		p.Disconnect(&component.StringDisconnectComponent{
-			Text: "No instances found for you",
-		})
+		p.Disconnect(component.ChatMessage("No instances found for you"))
 		return
 	}
 	selectedInstance := loginEvent.Instance

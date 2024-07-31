@@ -23,15 +23,15 @@ const (
 type PlayerPreLoginEvent struct {
 	Connection     *socket.Conn
 	PreLoginResult PlayerPreLoginResult
-	Reason         component.StringDisconnectComponent
+	Reason         component.IChatComponent
 }
 
-func (e *PlayerPreLoginEvent) Deny(component component.StringDisconnectComponent) {
+func (e *PlayerPreLoginEvent) Deny(component component.IChatComponent) {
 	e.PreLoginResult = DeniedPreLogin
 	e.Reason = component
 }
 
-func (e *PlayerPreLoginEvent) Allow(component component.StringDisconnectComponent) {
+func (e *PlayerPreLoginEvent) Allow(component component.IChatComponent) {
 	e.PreLoginResult = AllowedPreLogin
 	e.Reason = component
 }

@@ -49,6 +49,9 @@ func NewConn(conn net.Conn) *Conn {
 }
 
 func (c *Conn) WritePacket(packetOut protocol.PacketOut) (err error) {
+	if c.Disconnected {
+		return
+	}
 	id := packet.GetPacketIDFromClientPacket(reflect.TypeOf(packetOut).Elem())
 	if id == -1 {
 		return
@@ -130,7 +133,6 @@ func (c *Conn) Disconnect(message component.IChatComponent) {
 		})
 	}
 	c.Disconnected = true
-	c.Conn.Close()
 }
 
 func (c *Conn) Active() bool {

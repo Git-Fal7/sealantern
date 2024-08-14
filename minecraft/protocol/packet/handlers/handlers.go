@@ -804,7 +804,6 @@ func (h *PlayTabCompleteHandler) Handle(p *connplayer.ConnectedPlayer, protoPack
 		return
 	}
 	cmd, err := h.Server.Command().GetCommand(cmdText)
-	println(strings.Join(splitCmd, " "))
 	if err != nil {
 		// not found
 		return

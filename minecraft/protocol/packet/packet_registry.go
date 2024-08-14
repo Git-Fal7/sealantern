@@ -7,13 +7,12 @@ import (
 )
 
 var (
-	serverBoundPackets map[int64]reflect.Type = make(map[int64]reflect.Type)
-
-	clientBoundPackets map[reflect.Type]int32 = make(map[reflect.Type]int32)
+	serverBoundPackets map[int16]reflect.Type = make(map[int16]reflect.Type)
+	clientBoundPackets map[reflect.Type]int16 = make(map[reflect.Type]int16)
 )
 
-func packetTypeHash(state types.State, id int) int64 {
-	return int64(id) ^ (int64(state) << 32)
+func packetTypeHash(state types.State, id int) int16 {
+	return int16(id) + (int16(state) << 8)
 }
 
 func InitRegistry() {
@@ -137,7 +136,7 @@ func GetPacketTypeFromRegistry(state types.State, id int) reflect.Type {
 	return serverBoundPackets[packetTypeHash(state, id)]
 }
 
-func GetPacketIDFromClientPacket(packetType reflect.Type) int32 {
+func GetPacketIDFromClientPacket(packetType reflect.Type) int16 {
 	id, ok := clientBoundPackets[packetType]
 	if !ok {
 		return -1

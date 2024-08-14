@@ -61,11 +61,11 @@ func (c *Conn) WritePacket(packetOut protocol.PacketOut) (err error) {
 	return c.writePacket(packetOut, id)
 }
 
-func (c *Conn) writePacket(packet protocol.PacketOut, id int32) (err error) {
+func (c *Conn) writePacket(packet protocol.PacketOut, id int16) (err error) {
 	return c.writePacketWithoutCompression(packet, id)
 }
 
-func (c *Conn) writePacketWithoutCompression(packet protocol.PacketOut, id int32) (err error) {
+func (c *Conn) writePacketWithoutCompression(packet protocol.PacketOut, id int16) (err error) {
 	packetWriter := &stream.ProtocolWriter{}
 	packetWriter.WriteVarInt(int(id))
 	packet.Write(packetWriter)

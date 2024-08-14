@@ -11,12 +11,12 @@ import (
 )
 
 var (
-	packets     map[int64]handler.SocketHandler = make(map[int64]handler.SocketHandler)
-	playPackets map[int32]handler.PlayerHandler = make(map[int32]handler.PlayerHandler)
+	packets     map[int16]handler.SocketHandler = make(map[int16]handler.SocketHandler)
+	playPackets map[uint8]handler.PlayerHandler = make(map[uint8]handler.PlayerHandler)
 )
 
-func packetTypeHash(state types.State, id int) int64 {
-	return int64(id) ^ (int64(state) << 32)
+func packetTypeHash(state types.State, id int) int16 {
+	return int16(id) + (int16(state) << 8)
 }
 
 func InitRegistry(server server.Server) {
@@ -77,7 +77,7 @@ func InitRegistry(server server.Server) {
 
 func ExecutePacketHandler(conn *socket.Conn, packet protocol.Packet, id int, playerRegistry *player.PlayerRegistry) {
 	if conn.State == types.PLAY {
-		handler, ok := playPackets[int32(id)]
+		handler, ok := playPackets[uint8(id)]
 		if !ok {
 			return
 		}

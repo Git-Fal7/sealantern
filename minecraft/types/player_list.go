@@ -9,7 +9,7 @@ type PlayerListEntry struct {
 	Profile     profile.PlayerProfile
 	GameMode    Gamemode
 	Ping        int
-	DisplayName *component.StringChatComponent
+	DisplayName component.IChatComponent
 }
 
 type PlayerListAction uint8

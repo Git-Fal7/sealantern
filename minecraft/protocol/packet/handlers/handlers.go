@@ -188,9 +188,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 	})
 	err := selectedInstance.JoinPlayer(player)
 	if err != nil {
-		p.Disconnect(&component.StringChatComponent{
-			Text: err.Error(),
-		})
+		p.Disconnect(component.ChatMessage(err.Error()))
 		return
 	}
 }

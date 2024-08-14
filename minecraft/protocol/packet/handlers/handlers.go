@@ -781,3 +781,39 @@ func (h *PlayHeldItemChangeHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 		}
 	}
 }
+
+type PlayTabCompleteHandler struct {
+	Server server.Server
+}
+
+func (h *PlayTabCompleteHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket protocol.Packet) {
+	tabCompletePacket, _ := protoPacket.(*packet.PacketPlayTabCompleteServer)
+	if len(tabCompletePacket.Text) == 0 {
+		return
+	}
+	// TODO: fire tab complete event
+	splitString := strings.Split(tabCompletePacket.Text, "")
+	if splitString[0] != "/" {
+		return
+	}
+	splitString = splitString[1:] // remove the first slash
+	splitCmd := strings.Split(strings.Join(splitString, ""), " ")
+	cmdText := splitCmd[0]
+	args := splitCmd[1:]
+	if len(args) == 0 {
+		return
+	}
+	cmd, err := h.Server.Command().GetCommand(cmdText)
+	println(strings.Join(splitCmd, " "))
+	if err != nil {
+		// not found
+		return
+	}
+	suggestions := cmd.Suggest(command.SimpleCommandInvocation{
+		Arguments: args,
+		Source:    p,
+	})
+	p.WritePacket(&packet.PacketPlayTabComplete{
+		Matches: suggestions,
+	})
+}

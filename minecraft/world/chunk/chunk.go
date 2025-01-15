@@ -1,28 +1,8 @@
 package chunk
 
 import (
-	"github.com/git-fal7/sealantern/minecraft/blocks"
 	"github.com/git-fal7/sealantern/minecraft/protocol/stream"
 )
-
-type BlockPalette interface {
-	GetId(name string) int
-	RecoverName(id int) string
-	GetSize() int
-	GetContent() []string
-}
-
-type ChunkBlockPalette struct {
-	Map []string
-}
-
-type ChunkSection struct {
-	Palette BlockPalette
-	// This is a ridiculous way to put blocks in.. lmao
-	Blocks     [4096]byte // 16 * 16 * 16
-	SkyLight   [2048]byte
-	BlockLight [2048]byte
-}
 
 type Chunk struct {
 	ChunkX   int32
@@ -52,7 +32,7 @@ func (chunk *Chunk) GetSection(y int, skylight bool) *ChunkSection {
 	}
 	c := &ChunkSection{
 		Palette: &ChunkBlockPalette{
-			[]string{"minecraft:air"},
+			[]uint16{0},
 		},
 		BlockLight: blockLight,
 		SkyLight:   skyLight,
@@ -69,22 +49,24 @@ func (chunk Chunk) toData(skyLight bool, entireChunk bool) ([]byte, uint16) {
 	w := &stream.ProtocolWriter{}
 
 	var bitmask uint16 = 0
+
 	// Write blocks
 	for i, s := range chunk.Sections {
-		if s == nil ||
-			(s.Palette.GetSize() == 1 && s.Palette.RecoverName(0) == "minecraft:air") {
+		if s == nil {
 			continue
-		} else {
-			bitmask |= 1 << i
 		}
-
-		for _, block := range s.Blocks {
-			if block == 0 {
+		sectionPalette := s.Palette.GetContent()
+		if len(sectionPalette) == 1 && sectionPalette[0] == 0 {
+			continue
+		}
+		bitmask |= 1 << i
+		for _, sectionID := range s.Blocks {
+			if sectionID == 0 {
 				w.WriteLittleEndianUInt16(0) // no need to convert and do all that for nothing.
-			} else {
-				value := uint16(blocks.BLOCK_REGISTRY.GetBlockId(s.Palette.RecoverName(int(block))))
-				w.WriteLittleEndianUInt16(value)
-			}
+				continue;
+			} 
+			blockID := sectionPalette[sectionID]
+			w.WriteLittleEndianUInt16(blockID)
 		}
 	}
 
@@ -110,33 +92,4 @@ func (chunk Chunk) toData(skyLight bool, entireChunk bool) ([]byte, uint16) {
 		w.WriteByteArray(chunk.Biomes[:])
 	}
 	return w.Bytes(), bitmask // Last 3 bytes are useless and also breaks map chunk packet
-}
-
-func (palette *ChunkBlockPalette) GetId(name string) int {
-	for i, v := range palette.Map {
-		if v == name {
-			return i
-		}
-	}
-	palette.Map = append(palette.Map, name)
-	return len(palette.Map) - 1
-}
-
-func (palette *ChunkBlockPalette) RecoverName(id int) string {
-	if id < 0 || id >= len(palette.Map) {
-		return "minecraft:air"
-	}
-	return palette.Map[id]
-}
-
-func (palette *ChunkBlockPalette) GetSize() int {
-	return len(palette.Map)
-}
-
-func (palette *ChunkBlockPalette) GetContent() []string {
-	return palette.Map
-}
-
-func (section *ChunkSection) SetBlock(x, y, z int, typ string) {
-	section.Blocks[y<<8|z<<4|x] = byte(section.Palette.GetId(typ))
 }

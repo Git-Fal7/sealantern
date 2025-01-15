@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/git-fal7/sealantern/config"
+	"github.com/git-fal7/sealantern/minecraft/blocks"
 	"github.com/git-fal7/sealantern/minecraft/player/connplayer"
 	"github.com/git-fal7/sealantern/minecraft/player/profile"
 	"github.com/git-fal7/sealantern/minecraft/player/socket"
@@ -615,7 +616,7 @@ func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPa
 		block := instance.World.GetBlock(diggingPacket.Location.X, diggingPacket.Location.Y, diggingPacket.Location.Z)
 		breakEvent := &events.PlayerBreakBlockEvent{
 			Player:   p,
-			Block:    block,
+			Block:    block.GetFullID(),
 			Location: diggingPacket.Location,
 			Allowed:  true,
 		}
@@ -623,7 +624,7 @@ func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPa
 		if !breakEvent.Allowed {
 			p.WritePacket(&packet.PacketPlayBlockChange{
 				Location: diggingPacket.Location,
-				Type:     block,
+				Type:     block.GetFullID(),
 			})
 			return
 		}
@@ -631,7 +632,7 @@ func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPa
 			Location: diggingPacket.Location,
 			Type:     0,
 		}
-		instance.World.SetBlock(diggingPacket.Location.X, diggingPacket.Location.Y, diggingPacket.Location.Z, "minecraft:air", true)
+		instance.World.SetBlock(diggingPacket.Location.X, diggingPacket.Location.Y, diggingPacket.Location.Z, blocks.Block{})
 		for _, player := range instance.Players.GetPlayers() {
 			player.WritePacket(blockChangePacket)
 		}
@@ -687,7 +688,7 @@ func (h *PlayBlockPlacementHandler) Handle(p *connplayer.ConnectedPlayer, protoP
 			return
 		}
 	} else {
-		blockIDAt = instance.World.GetBlock(blockPlacementPacket.Location.X, blockPlacementPacket.Location.Y, blockPlacementPacket.Location.Z)
+		blockIDAt = instance.World.GetBlock(blockPlacementPacket.Location.X, blockPlacementPacket.Location.Y, blockPlacementPacket.Location.Z).GetFullID()
 	}
 	if material.IsSword(blockPlacementPacket.HeldItem.Material) || (blockPlacementPacket.HeldItem.Material == material.Bow && p.PlayerInventory().HasItem(material.Arrow)) {
 		// Send blocking packet

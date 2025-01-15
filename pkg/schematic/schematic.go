@@ -5,7 +5,6 @@ import (
 	"errors"
 	"os"
 
-	"github.com/git-fal7/sealantern/minecraft/blocks"
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/chunk"
 	"github.com/git-fal7/sealantern/minecraft/world/map_world"
@@ -53,9 +52,12 @@ func LoadSchematic(file string) (*map_world.Map, error) {
 		for z := 0; z < length; z++ {
 			for y := 0; y < height; y++ {
 				index = y*width*length + z*width + x
-				bigId := blocks.GetLegacyBlockState(int(uint8(blocksArray[index])), int(uint8(data[index])))
-				name := blocks.GetLegacyFromState(int(bigId)).Name
-				m.SetBlock(x, y, z, name, false)
+				if blocksArray[index] == 0 {
+					continue
+				}
+				blockID := int16(uint8(blocksArray[index]))
+				blockData := int16(uint8(data[index]))
+				m.SetBlockByID(x, y, z, uint16(blockID<<4 | (blockData & 0xF)))
 			}
 		}
 	}

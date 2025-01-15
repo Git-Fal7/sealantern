@@ -17,21 +17,26 @@ type Map struct {
 	ChunkMap  map[chunk.ChunkKey]*chunk.Chunk
 }
 
-func (m *Map) SetBlock(x, y, z int, typ string, overrideAir bool) {
-	// MASSIVE MEMORY IMPROVEMENT - We dont need to redeclare already aired blocks
-	// overrideAir is here when we have block changes (when player breaks the block)
-	if typ == "minecraft:air" && !overrideAir {
-		return
-	}
+func (m *Map) SetBlock(x, y, z int, blk blocks.Block) {
 	chunk := m.GetChunk(int32(x)/16, int32(z)/16)
 	chunkSection := chunk.GetSection(y/16, m.Dimension == world.OVERWORLD)
-	chunkSection.SetBlock(x%16, y%16, z%16, typ)
+	chunkSection.SetBlock(x%16, y%16, z%16, uint16(blk.GetFullID()))
 }
 
-func (m *Map) GetBlock(x, y, z int) int {
+func (m *Map) SetBlockByID(x, y, z int, fullId uint16) {
 	chunk := m.GetChunk(int32(x)/16, int32(z)/16)
 	chunkSection := chunk.GetSection(y/16, m.Dimension == world.OVERWORLD)
-	return blocks.BLOCK_REGISTRY.GetBlockId(chunkSection.Palette.RecoverName(int(chunkSection.Blocks[(y%16)<<8|(z%16)<<4|(x%16)])))
+	chunkSection.SetBlock(x%16, y%16, z%16, fullId)
+}
+
+func (m *Map) GetBlock(x, y, z int) blocks.Block {
+	chunk := m.GetChunk(int32(x)/16, int32(z)/16)
+	chunkSection := chunk.GetSection(y/16, m.Dimension == world.OVERWORLD)
+	fullId := int(chunkSection.Palette.GetContent()[chunkSection.Blocks[(y%16)<<8|(z%16)<<4|(x%16)]])
+	return blocks.Block{
+		Id:   uint8(fullId >> 0x4),
+		Data: uint8(fullId & 0xf),
+	}
 }
 
 func (m *Map) GetChunk(x int32, z int32) *chunk.Chunk {
@@ -156,7 +161,7 @@ func (m *Map) Copy() *Map {
 			sectionBlockLight := bytes.Clone(section.BlockLight[:])
 			sectionSlice[i] = &chunk.ChunkSection{
 				Palette: &chunk.ChunkBlockPalette{
-					Map: sectionPalette.Map,
+					Content: sectionPalette.Content,
 				},
 				Blocks:     [4096]byte(sectionBlocks),
 				SkyLight:   [2048]byte(sectionSkylight),

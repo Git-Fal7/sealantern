@@ -248,18 +248,21 @@ func (c *Core) SwitchToInstance(p *connplayer.ConnectedPlayer, newInstance *game
 	if instance.World.Dimension == newInstance.World.Dimension {
 		p.WritePacket(&packet.PacketPlayRespawn{
 			Dimension:  (instance.World.Dimension + 1) % 2,
-			Difficulty: newInstance.Difficulty,
-			Gamemode:   types.SURVIVAL,
+			Difficulty: instance.Difficulty,
+			Gamemode:   (instance.Gamemode + 1) % 3,
 			LevelType:  world.DEFAULT,
 		})
 	}
 	p.WritePacket(&packet.PacketPlayRespawn{
 		Dimension:  newInstance.World.Dimension,
-		Difficulty: newInstance.Difficulty,
-		Gamemode:   types.SURVIVAL,
+		Difficulty: instance.Difficulty,
+		Gamemode:   newInstance.Gamemode,
 		LevelType:  world.DEFAULT,
 	})
 	p.SetGamemode(newInstance.Gamemode)
+	p.WritePacket(&packet.PacketPlayServerDifficulty{
+		Difficulty: newInstance.Difficulty,
+	})
 	p.KnownChunkKeys = make(map[chunk.ChunkKey]bool)
 	newInstance.JoinPlayer(p)
 	c.Event().Fire(&events.PlayerSwitchInstanceEvent{

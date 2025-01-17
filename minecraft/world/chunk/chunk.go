@@ -7,6 +7,8 @@ import (
 type Chunk struct {
 	ChunkX   int32
 	ChunkZ   int32
+	data []byte
+	bitmask uint16
 	Sections [16]*ChunkSection // Max is 16
 	Biomes   [256]byte
 }
@@ -41,11 +43,17 @@ func (chunk *Chunk) GetSection(y int, skylight bool) *ChunkSection {
 	return c
 }
 
-func (chunk Chunk) ToData(skyLight bool) ([]byte, uint16) {
-	return chunk.toData(skyLight, true)
+func (chunk *Chunk) Reload(skyLight bool) {
+	data, bitmask := chunk.getData(skyLight, true)
+	chunk.data = data
+	chunk.bitmask = bitmask
 }
 
-func (chunk Chunk) toData(skyLight bool, entireChunk bool) ([]byte, uint16) {
+func (chunk Chunk) Data() ([]byte, uint16) {
+	return chunk.data, chunk.bitmask
+}
+
+func (chunk Chunk) getData(skyLight bool, entireChunk bool) ([]byte, uint16) {
 	w := &stream.ProtocolWriter{}
 
 	var bitmask uint16 = 0
@@ -86,7 +94,6 @@ func (chunk Chunk) toData(skyLight bool, entireChunk bool) ([]byte, uint16) {
 			w.WriteByteArray(section.SkyLight[:])
 		}
 	}
-
 	// Write biomes
 	if entireChunk {
 		w.WriteByteArray(chunk.Biomes[:])

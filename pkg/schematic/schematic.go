@@ -47,11 +47,10 @@ func LoadSchematic(file string) (*map_world.Map, error) {
 
 	blocksArray := []int8(c["Blocks"].(nbt.ByteArray))
 	data := []int8(c["Data"].(nbt.ByteArray))
-	var index int
 	for x := 0; x < width; x++ {
 		for z := 0; z < length; z++ {
 			for y := 0; y < height; y++ {
-				index = y*width*length + z*width + x
+				index := y*width*length + z*width + x
 				if blocksArray[index] == 0 {
 					continue
 				}
@@ -59,6 +58,14 @@ func LoadSchematic(file string) (*map_world.Map, error) {
 				blockData := int16(uint8(data[index]))
 				m.SetBlockByID(x, y, z, uint16(blockID<<4 | (blockData & 0xF)))
 			}
+		}
+	}
+	skyLight := m.Dimension == world.OVERWORLD
+	
+	for actualX := 0; actualX < width; actualX += 16 {
+		for actualZ := 0; actualZ < length; actualZ += 16 {
+			chunk := m.GetChunk(int32(actualX)/16, int32(actualZ)/16)
+			chunk.Reload(skyLight)
 		}
 	}
 	return m, nil

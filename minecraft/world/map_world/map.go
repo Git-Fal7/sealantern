@@ -108,7 +108,11 @@ func (m *Map) SendChunksAroundPlayer(p player.IPlayer) (map[chunk.ChunkKey]bool,
 	packets := make([]packet.PacketPlayChunkData, 0)
 	for _, key := range newChunksSlice {
 		c := m.GetChunk(key.X, key.Z)
-		data, sectionBitmask := c.ToData(skyLight)
+		data, bitmask := c.Data()
+		if len(data) == 0 {
+			c.Reload(skyLight)
+			data, bitmask = c.Data()
+		}
 		messageSize := 10 + len(data)
 		if bulkSize+messageSize > 0x1fffef {
 			p.WritePacket(&packet.PacketPlayMapChunkBulk{
@@ -122,7 +126,7 @@ func (m *Map) SendChunksAroundPlayer(p player.IPlayer) (map[chunk.ChunkKey]bool,
 		packets = append(packets, packet.PacketPlayChunkData{
 			X:              c.ChunkX,
 			Z:              c.ChunkZ,
-			SectionBitMask: sectionBitmask,
+			SectionBitMask: bitmask,
 			Data:           data,
 		})
 	}

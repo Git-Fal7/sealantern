@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/git-fal7/sealantern/config"
-	"github.com/git-fal7/sealantern/minecraft/blocks"
 	"github.com/git-fal7/sealantern/minecraft/player/connplayer"
 	"github.com/git-fal7/sealantern/minecraft/player/profile"
 	"github.com/git-fal7/sealantern/minecraft/player/socket"
@@ -632,7 +631,7 @@ func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPa
 			Location: diggingPacket.Location,
 			Type:     0,
 		}
-		instance.World.SetBlock(diggingPacket.Location.X, diggingPacket.Location.Y, diggingPacket.Location.Z, blocks.Block{})
+		instance.World.SetBlockByID(diggingPacket.Location.X, diggingPacket.Location.Y, diggingPacket.Location.Z, 0)
 		for _, player := range instance.Players.GetPlayers() {
 			player.WritePacket(blockChangePacket)
 		}

@@ -5,14 +5,14 @@ import (
 )
 
 type Block struct {
-	Id   uint8
+	Id   uint16
 	Data uint8
 }
 
 func (b Block) GetMaterial() material.Material {
-	return material.FindMaterialByID(uint16(b.Id))
+	return material.FindMaterialByID(b.Id)
 }
 
 func (b Block) GetFullID() int {
-	return int((b.Id << 4) | (b.Data & 0xF))
+	return int(b.Id << 4) | int(b.Data & 0xF)
 }

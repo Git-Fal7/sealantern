@@ -34,7 +34,7 @@ func (m *Map) GetBlock(x, y, z int) blocks.Block {
 	chunkSection := chunk.GetSection(y/16, m.Dimension == world.OVERWORLD)
 	fullId := int(chunkSection.Palette.GetContent()[chunkSection.Blocks[(y%16)<<8|(z%16)<<4|(x%16)]])
 	return blocks.Block{
-		Id:   uint8(fullId >> 0x4),
+		Id:   uint16(fullId >> 4),
 		Data: uint8(fullId & 0xf),
 	}
 }

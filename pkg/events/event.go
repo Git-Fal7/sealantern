@@ -1,6 +1,7 @@
 package events
 
 import (
+	"github.com/git-fal7/sealantern/minecraft/blocks"
 	"github.com/git-fal7/sealantern/minecraft/player"
 	"github.com/git-fal7/sealantern/minecraft/player/socket"
 	"github.com/git-fal7/sealantern/minecraft/types"
@@ -133,10 +134,9 @@ func (e *InventoryInteractEvent) SetAllowed(allowed bool) {
 	e.Allowed = allowed
 }
 
-// TODO: Implement block.
 type PlayerBreakBlockEvent struct {
 	Player   player.IPlayer
-	Block    int
+	Block    blocks.Block
 	Location world.BlockPosition
 	Allowed  bool
 }

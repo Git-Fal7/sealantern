@@ -615,7 +615,7 @@ func (h *PlayPlayerDiggingHandler) Handle(p *connplayer.ConnectedPlayer, protoPa
 		block := instance.World.GetBlock(diggingPacket.Location.X, diggingPacket.Location.Y, diggingPacket.Location.Z)
 		breakEvent := &events.PlayerBreakBlockEvent{
 			Player:   p,
-			Block:    block.GetFullID(),
+			Block:    block,
 			Location: diggingPacket.Location,
 			Allowed:  true,
 		}

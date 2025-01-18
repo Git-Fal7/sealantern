@@ -96,7 +96,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 	loginStartPacket, _ := protoPacket.(*packet.PacketLoginStart)
 	if p.Protocol != 47 {
 		println(p.Protocol)
-		p.Disconnect(component.ChatMessage("Bad version no"))
+		p.Disconnect(component.ChatMessage("Bad version"))
 		return
 	}
 
@@ -132,7 +132,15 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 		}
 	}
 
+
 	// check if compression is on
+	if config.LanternConfig.Compression {
+		p.WritePacket(&packet.PacketLoginSetCompression{
+			Threshold: config.LanternConfig.Threshold,
+		})
+		p.Compression = true
+	}
+
 	p.WritePacket(&packet.PacketLoginSuccess{
 		UUID:     p.UUID,
 		Username: p.Username,

@@ -1,6 +1,10 @@
 package sealantern
 
 import (
+	"bufio"
+	"bytes"
+	"compress/zlib"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -17,6 +21,7 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/protocol"
 	"github.com/git-fal7/sealantern/minecraft/protocol/packet"
 	"github.com/git-fal7/sealantern/minecraft/protocol/packethandler"
+	"github.com/git-fal7/sealantern/minecraft/protocol/stream"
 	"github.com/git-fal7/sealantern/minecraft/types"
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/chunk"
@@ -196,6 +201,9 @@ func (c *Core) GetInstanceFromUUID(uuid uuid.UUID) *gameinstance.GameInstance {
 }
 
 func (c *Core) readPacket(conn *socket.Conn) (packet protocol.PacketIn, err error) {
+	if conn.Compression {
+		return c.readPacketWithCompression(conn)
+	}
 	return c.readPacketWithoutCompression(conn)
 }
 
@@ -222,6 +230,72 @@ func (c *Core) readPacketWithoutCompression(conn *socket.Conn) (packet protocol.
 	}
 	return
 }
+
+func (c *Core) readPacketWithCompression(conn *socket.Conn) (packet protocol.PacketIn, err error) {
+	packetLength, err := conn.Reader.ReadVarInt()
+	if err != nil {
+		return
+	}
+
+	dataLength, err := conn.Reader.ReadVarInt()
+	if err != nil {
+		return
+	}
+	dataLengthLength := binary.PutUvarint(conn.Reader.Buffer[:], uint64(dataLength))
+	var id int
+	if dataLength == 0 {
+		id, err = conn.Reader.ReadVarInt()
+		if err != nil {
+			return
+		}
+		idLength := binary.PutUvarint(conn.Reader.Buffer[:], uint64(id))
+		length := packetLength - dataLengthLength - idLength
+		packet, err = conn.HandlePacket(id, length)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		var compressed []byte = make([]byte, packetLength-dataLengthLength)
+		conn.Reader.Read(compressed[:])
+		var uncompressed []byte = make([]byte, packetLength-dataLengthLength)
+		r, err := zlib.NewReader(bytes.NewReader(compressed))
+		if err == nil {
+			r.Read(uncompressed[:])
+			r.Close()
+		} else if compressed[0] == 0 {
+			uncompressed = compressed[1:]
+		} else {
+			return nil, err
+		}
+
+		tmp := conn.Reader
+		uncompressedReader := &stream.ProtocolReader{
+			Reader: bufio.NewReader(bytes.NewBuffer(uncompressed)),
+		}
+		conn.Reader = uncompressedReader
+
+		id, err = conn.Reader.ReadVarInt()
+		if err != nil {
+			return nil, err
+		}
+		packet, err = conn.HandlePacket(id, 0) // length is not mentioned compressed data
+		if err != nil {
+			return nil, err
+		}
+		conn.Reader = tmp
+	}
+
+	if packet != nil {
+		if config.LanternConfig.Logs {
+			if id != 0x03 {
+				log.Printf("#%d u-> %d %s %s", conn.State, id, reflect.TypeOf(packet), fmt.Sprint(packet))
+			}
+		}
+		packethandler.ExecutePacketHandler(conn, packet, id, c.playerRegistry)
+	}
+	return
+}
+
 
 func (c *Core) SwitchToInstance(p *connplayer.ConnectedPlayer, newInstance *gameinstance.GameInstance) {
 	if p == nil {

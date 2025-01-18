@@ -2,6 +2,8 @@ package socket
 
 import (
 	"bufio"
+	"bytes"
+	"compress/zlib"
 	"fmt"
 	"log"
 	"net"
@@ -61,21 +63,75 @@ func (c *Conn) WritePacket(packetOut protocol.PacketOut) (err error) {
 	return c.writePacket(packetOut, id)
 }
 
+
 func (c *Conn) writePacket(packet protocol.PacketOut, id int16) (err error) {
+	if c.Compression {
+		return c.writePacketWithCompression(packet, id)		
+	}
 	return c.writePacketWithoutCompression(packet, id)
 }
 
+
+/*
+Without compression
+Field Name 		Field Type 		Notes
+Length 			VarInt 			Length of packet data + length of the packet ID
+Packet ID 		VarInt 	
+Data 			Byte Array 		Depends on the connection state and packet ID, see the sections below 
+*/
 func (c *Conn) writePacketWithoutCompression(packet protocol.PacketOut, id int16) (err error) {
+	packetWriter := &stream.ProtocolWriter{}
+	packetWriter.WriteVarInt(int(id)) // Packet ID
+	packet.Write(packetWriter)		  // Data
+
+	packetData := packetWriter.Bytes() // Packet ID + Data Uncompressed
+
+	writer := &stream.ProtocolWriter{}
+	writer.WriteVarInt(len(packetData)) // Length
+	writer.WriteByteArray(packetData) 
+
+	c.Conn.Write(writer.Bytes())
+
+	if config.LanternConfig.Logs {
+		if id != 0x26 {
+			log.Printf("# <- %d %s %s", id, reflect.TypeOf(packet), fmt.Sprint(packet))
+		}
+	}
+	return nil
+}
+
+/*
+With Compression
+Compressed? 	Field Name 		Field Type 		Notes
+No 				Packet Length 	VarInt 			Length of Data Length + compressed length of (Packet ID + Data)
+No 				Data Length 	VarInt 			Length of uncompressed (Packet ID + Data) or 0
+Yes 			Packet ID 		Varint 			zlib compressed packet ID (see the sections below)
+|__				Data 			Byte Array 		zlib compressed packet data (see the sections below)
+*/
+var encoder *zlib.Writer = zlib.NewWriter(nil)
+func (c *Conn) writePacketWithCompression(packet protocol.PacketOut, id int16) (err error) {
 	packetWriter := &stream.ProtocolWriter{}
 	packetWriter.WriteVarInt(int(id))
 	packet.Write(packetWriter)
 
 	packetData := packetWriter.Bytes()
 
-	writer := &stream.ProtocolWriter{}
-	writer.WriteVarInt(len(packetData))
-	writer.WriteByteArray(packetData)
+	dataWriter := &stream.ProtocolWriter{}
+	if len(packetData) < config.LanternConfig.Threshold {
+		dataWriter.WriteVarInt(0) // Data Length
+		dataWriter.Write(packetData)
+	} else {
+		var b bytes.Buffer
+		encoder.Reset(&b)
+		encoder.Write(packetData)
+		encoder.Flush()
+		dataWriter.WriteVarInt(len(packetData))
+		dataWriter.Write(b.Bytes())
+	}
 
+	writer := &stream.ProtocolWriter{}
+	writer.WriteVarInt(dataWriter.Len())
+	writer.Write(dataWriter.Bytes())
 	c.Conn.Write(writer.Bytes())
 
 	if config.LanternConfig.Logs {

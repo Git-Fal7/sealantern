@@ -3,5 +3,6 @@
   "logs": true,
   "enable_compression": false,
   "compression_threshold": 256,
+  "compression_level": -1,
   "info_fowarding": "offline"
 }

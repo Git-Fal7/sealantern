@@ -108,7 +108,7 @@ No 				Data Length 	VarInt 			Length of uncompressed (Packet ID + Data) or 0
 Yes 			Packet ID 		Varint 			zlib compressed packet ID (see the sections below)
 |__				Data 			Byte Array 		zlib compressed packet data (see the sections below)
 */
-var encoder *zlib.Writer
+
 func (c *Conn) writePacketWithCompression(packet protocol.PacketOut, id int16) (err error) {
 	packetWriter := &stream.ProtocolWriter{}
 	packetWriter.WriteVarInt(int(id))
@@ -122,16 +122,14 @@ func (c *Conn) writePacketWithCompression(packet protocol.PacketOut, id int16) (
 		dataWriter.Write(packetData)
 	} else {
 		var b bytes.Buffer
-		if encoder == nil {
-			if config.LanternConfig.CompressionLevel > 9 || config.LanternConfig.CompressionLevel < -1 {
-				encoder, _ = zlib.NewWriterLevel(nil, -1)
-			} else {
-				encoder, _ = zlib.NewWriterLevel(nil, config.LanternConfig.CompressionLevel)
-			}
+		var encoder *zlib.Writer
+		if config.LanternConfig.CompressionLevel > 9 || config.LanternConfig.CompressionLevel < -1 {
+			encoder, _ = zlib.NewWriterLevel(&b, -1)
+		} else {
+			encoder, _ = zlib.NewWriterLevel(&b, config.LanternConfig.CompressionLevel)
 		}
-		encoder.Reset(&b)
 		encoder.Write(packetData)
-		encoder.Flush()
+		encoder.Close()
 		dataWriter.WriteVarInt(len(packetData))
 		dataWriter.Write(b.Bytes())
 	}

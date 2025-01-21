@@ -147,7 +147,7 @@ func (c *Conn) writePacketWithCompression(packet protocol.PacketOut, id int16) (
 	return nil
 }
 
-func (c *Conn) HandlePacket(id int, length int) (handledPacket protocol.PacketIn, err error) {
+func (c *Conn) HandlePacket(id int, length int, reader *stream.ProtocolReader) (handledPacket protocol.PacketIn, err error) {
 	typ := packet.GetPacketTypeFromRegistry(c.State, id)
 
 	if typ == nil {
@@ -165,10 +165,10 @@ func (c *Conn) HandlePacket(id int, length int) (handledPacket protocol.PacketIn
 
 		for nbr < length {
 			if length-nbr > 500 {
-				c.Reader.Read(buff)
+				reader.Read(buff)
 				nbr += 500
 			} else {
-				c.Reader.Read(buff[:length-nbr])
+				reader.Read(buff[:length-nbr])
 				nbr = length
 			}
 		}
@@ -177,7 +177,7 @@ func (c *Conn) HandlePacket(id int, length int) (handledPacket protocol.PacketIn
 
 	handledPacket, _ = reflect.New(typ).Interface().(protocol.PacketIn)
 
-	if err = handledPacket.Read(c.Reader, length); err != nil {
+	if err = handledPacket.Read(reader, length); err != nil {
 		return nil, err
 	}
 	return

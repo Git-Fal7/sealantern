@@ -217,7 +217,7 @@ func (c *Core) readPacketWithoutCompression(conn *socket.Conn) (packet protocol.
 	if err != nil {
 		return
 	}
-	packet, err = conn.HandlePacket(id, length)
+	packet, err = conn.HandlePacket(id, length, conn.Reader)
 	if err != nil {
 		return
 	} else if packet != nil {
@@ -242,42 +242,39 @@ func (c *Core) readPacketWithCompression(conn *socket.Conn) (packet protocol.Pac
 		return
 	}
 	dataLengthLength := binary.PutUvarint(conn.Reader.Buffer[:], uint64(dataLength))
+	length := packetLength - dataLengthLength
 	var id int
 	if dataLength == 0 {
 		id, err = conn.Reader.ReadVarInt()
 		if err != nil {
 			return
 		}
-		length := packetLength - dataLengthLength
-		packet, err = conn.HandlePacket(id, length)
+		packet, err = conn.HandlePacket(id, length, conn.Reader)
 		if err != nil {
 			return nil, err
 		}
 	} else {
-		var compressed []byte = make([]byte, packetLength-dataLengthLength)
+		var compressed []byte = make([]byte, length)
 		conn.Reader.Read(compressed)
-		var uncompressed []byte = make([]byte, packetLength-dataLengthLength)
+		var uncompressed []byte = make([]byte, dataLength)
 		r, err := zlib.NewReader(bytes.NewReader(compressed))
 		if err != nil {
 			return nil, err
 		}
 		r.Read(uncompressed)
 		r.Close()
-		tmp := conn.Reader
 		uncompressedReader := &stream.ProtocolReader{
 			Reader: bufio.NewReader(bytes.NewBuffer(uncompressed)),
 		}
-		conn.Reader = uncompressedReader
 
-		id, err = conn.Reader.ReadVarInt()
+		id, err = uncompressedReader.ReadVarInt()
 		if err != nil {
 			return nil, err
 		}
-		packet, err = conn.HandlePacket(id, len(uncompressed)) // length is not mentioned compressed data
+		packet, err = conn.HandlePacket(id, len(uncompressed), uncompressedReader) // length is not mentioned compressed data
 		if err != nil {
 			return nil, err
 		}
-		conn.Reader = tmp
 	}
 
 	if packet != nil {

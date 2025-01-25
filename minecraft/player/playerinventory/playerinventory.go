@@ -92,7 +92,7 @@ func (inv *PlayerInventory) GetHeldItem() slot.SlotItem {
 	return inv.slots[36+inv.HeldSlot]
 }
 
-func (inv *PlayerInventory) GetArmorPackets(eid uint16) []protocol.PacketOut {
+func (inv *PlayerInventory) GetArmorPackets(eid int32) []protocol.PacketOut {
 	return []protocol.PacketOut{
 		&packet.PacketPlayEntityEquipment{
 			EntityID: eid,

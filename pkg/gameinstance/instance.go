@@ -122,7 +122,7 @@ func (instance *GameInstance) QuitPlayer(p *connplayer.ConnectedPlayer) error {
 		Entries: entries,
 	}
 	packetDestroyEntities := &packet.PacketPlayDestroyEntities{
-		EntityIDs: make([]uint16, 0),
+		EntityIDs: make([]int32, 0),
 	}
 	packetDestroyEntities.EntityIDs = append(packetDestroyEntities.EntityIDs, p.ID())
 	for _, player := range instance.Players.GetPlayers() {
@@ -191,7 +191,7 @@ func (instance *GameInstance) Tick() {
 		if len(newChunks) == 0 {
 			continue
 		}
-		destroyedEntities := make([]uint16, 0)
+		destroyedEntities := make([]int32, 0)
 		for _, player := range players {
 			if player.UUID() == p.UUID() {
 				continue

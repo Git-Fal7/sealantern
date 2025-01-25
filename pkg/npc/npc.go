@@ -6,8 +6,8 @@ import (
 )
 
 type NPC interface {
-	EntityID() uint16
+	EntityID() int32
 	Position() world.Position
 	SendPackets(player.IPlayer)
-	GetDestructionID() []uint16
+	GetDestructionID() []int32
 }

@@ -23,6 +23,7 @@ import (
 	"github.com/git-fal7/sealantern/pkg/material"
 	"github.com/git-fal7/sealantern/pkg/slot"
 	"github.com/git-fal7/sealantern/pkg/uuidutil"
+	"github.com/git-fal7/sealantern/sealantern/entitymanager"
 	"github.com/git-fal7/sealantern/sealantern/server"
 	"github.com/google/uuid"
 )
@@ -154,7 +155,7 @@ func (h *LoginStartHandler) Handle(p *socket.Conn, protoPacket protocol.Packet) 
 		p.Disconnect(preLoginEvent.Reason)
 	}
 
-	player := connplayer.NewconnPlayer(playerProfile, p, h.Server.NextEID())
+	player := connplayer.NewconnPlayer(playerProfile, p, entitymanager.NextEID())
 	h.Server.GetPlayerRegistry().RegisterPlayer(player)
 	loginEvent := &events.PlayerPreJoinEvent{
 		Player: player,
@@ -418,7 +419,7 @@ func (h *PlayEntityUseHandler) Handle(p *connplayer.ConnectedPlayer, protoPacket
 	instance := h.Server.GetInstanceFromUUID(p.UUID())
 	// get victim id from instnace
 	// the id exists in id, p is just for the attacker
-	targetID := uint16(entityUsePacket.TargetID)
+	targetID := int32(entityUsePacket.TargetID)
 	victim := instance.Players.GetPlayerFromEID(targetID)
 	if victim == nil {
 		for _, npc := range instance.NPCs {

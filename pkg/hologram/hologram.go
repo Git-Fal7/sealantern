@@ -9,12 +9,12 @@ import (
 )
 
 type Hologram struct {
-	entityID    uint16
+	entityID    int32
 	DisplayName string
 	position    world.Position
 }
 
-func NewHologram(entityID uint16, displayName string, position world.Position) *Hologram {
+func NewHologram(entityID int32, displayName string, position world.Position) *Hologram {
 	return &Hologram{
 		entityID:    entityID,
 		DisplayName: displayName,
@@ -22,7 +22,7 @@ func NewHologram(entityID uint16, displayName string, position world.Position) *
 	}
 }
 
-func (hologram Hologram) EntityID() uint16 {
+func (hologram Hologram) EntityID() int32 {
 	return hologram.entityID
 }
 

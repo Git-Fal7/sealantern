@@ -1,6 +1,7 @@
 package player
 
 import (
+	"github.com/git-fal7/sealantern/minecraft/entity"
 	"github.com/git-fal7/sealantern/minecraft/player/clientsettings"
 	"github.com/git-fal7/sealantern/minecraft/player/playerinventory"
 	"github.com/git-fal7/sealantern/minecraft/player/profile"
@@ -12,12 +13,10 @@ import (
 	"github.com/git-fal7/sealantern/pkg/component"
 	"github.com/git-fal7/sealantern/pkg/inventory"
 	"github.com/git-fal7/sealantern/pkg/scoreboard/team"
-
-	"github.com/google/uuid"
 )
 
 type IPlayer interface {
-	UUID() uuid.UUID
+	entity.LivingEntity
 	Username() string
 	Profile() *profile.PlayerProfile
 	ClientSettings() clientsettings.ClientSettings
@@ -26,7 +25,6 @@ type IPlayer interface {
 	SendActionbar(msg component.IChatComponent)
 	Disconnect(msg component.IChatComponent)
 	WritePacket(packet protocol.PacketOut) error
-	ID() uint16
 	KnownChunks() map[chunk.ChunkKey]bool
 	Team() *team.Team
 	SetTeam(team *team.Team)
@@ -38,8 +36,6 @@ type IPlayer interface {
 	SetTablistHeaderFooter(header component.IChatComponent, footer component.IChatComponent)
 	SendTitle(title component.IChatComponent, subtitle component.IChatComponent, fadein int32, stay int32, fadeout int32)
 	PlaySound(Location world.BlockPosition, Sound types.SoundEffect, volume float32, pitch float32)
-	Health() float32
-	SetHealth(health float32)
 	FoodLevel() int
 	SetFoodLevel(foodLevel int)
 	Saturation() float32

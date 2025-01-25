@@ -539,7 +539,7 @@ func (packet *PacketPlayPlayerListItem) Write(w *stream.ProtocolWriter) (err err
 }
 
 type PacketPlaySpawnPlayer struct {
-	EntityID       uint16
+	EntityID       int32
 	PlayerUUID     uuid.UUID
 	PlayerPosition world.Position
 	CurrentItem    uint16
@@ -587,7 +587,7 @@ func (packet *PacketPlaySpawnPlayer) Write(w *stream.ProtocolWriter) (err error)
 }
 
 type PacketPlayDestroyEntities struct {
-	EntityIDs []uint16
+	EntityIDs []int32
 }
 
 func (packet *PacketPlayDestroyEntities) Write(w *stream.ProtocolWriter) (err error) {
@@ -605,7 +605,7 @@ func (packet *PacketPlayDestroyEntities) Write(w *stream.ProtocolWriter) (err er
 }
 
 type PacketPlayEntityRelativeMove struct {
-	EntityID uint16
+	EntityID int32
 	DeltaX   int8
 	DeltaY   int8
 	DeltaZ   int8
@@ -637,7 +637,7 @@ func (packet *PacketPlayEntityRelativeMove) Write(w *stream.ProtocolWriter) (err
 }
 
 type PacketPlayEntityLook struct {
-	EntityID uint16
+	EntityID int32
 	Yaw      uint8
 	Pitch    uint8
 	OnGround bool
@@ -664,7 +664,7 @@ func (packet *PacketPlayEntityLook) Write(w *stream.ProtocolWriter) (err error) 
 }
 
 type PacketPlayEntityLookAndRelativeMove struct {
-	EntityID uint16
+	EntityID int32
 	DeltaX   int8
 	DeltaY   int8
 	DeltaZ   int8
@@ -706,7 +706,7 @@ func (packet *PacketPlayEntityLookAndRelativeMove) Write(w *stream.ProtocolWrite
 }
 
 type PacketPlayEntityHeadLook struct {
-	EntityID uint16
+	EntityID int32
 	HeadYaw  uint8
 }
 
@@ -723,7 +723,7 @@ func (packet *PacketPlayEntityHeadLook) Write(w *stream.ProtocolWriter) (err err
 }
 
 type PacketPlayEntityMetadata struct {
-	EntityID uint16
+	EntityID int32
 	Metadata metadata.MetadataMap
 }
 
@@ -740,7 +740,7 @@ func (packet *PacketPlayEntityMetadata) Write(w *stream.ProtocolWriter) (err err
 }
 
 type PacketPlayAnimationClient struct {
-	EntityID  uint16
+	EntityID int32
 	Animation types.Animation
 }
 
@@ -757,7 +757,7 @@ func (packet *PacketPlayAnimationClient) Write(w *stream.ProtocolWriter) (err er
 }
 
 type PacketPlayEntityVelocity struct {
-	EntityID uint16
+	EntityID int32
 	Velocity world.Vector
 }
 
@@ -960,7 +960,7 @@ func (packet *PacketPlayTeams) Write(w *stream.ProtocolWriter) (err error) {
 }
 
 type PacketPlaySpawnMob struct {
-	EntityID  uint16
+	EntityID int32
 	MobType   types.MobType
 	Position  world.Position
 	HeadPitch uint8
@@ -1023,7 +1023,7 @@ func (packet *PacketPlaySpawnMob) Write(w *stream.ProtocolWriter) (err error) {
 }
 
 type PacketPlaySpawnObject struct {
-	EntityID   uint16
+	EntityID int32
 	ObjectType types.ObjectType
 	Position   world.Position
 	Data       int
@@ -1087,7 +1087,7 @@ type PacketPlayOpenWindow struct {
 	WindowType    types.WindowType
 	WindowTitle   string
 	NumberOfSlots uint8
-	HorseEntityID uint16
+	HorseEntityID int32
 }
 
 func (packet *PacketPlayOpenWindow) Write(w *stream.ProtocolWriter) (err error) {
@@ -1258,7 +1258,7 @@ func (packet *PacketPlayHeldItemChange) Write(w *stream.ProtocolWriter) (err err
 }
 
 type PacketPlayEntityEquipment struct {
-	EntityID uint16
+	EntityID int32
 	Slot     types.EquipmentSlot
 	Item     slot.SlotItem
 }
@@ -1341,7 +1341,7 @@ func (packet *PacketPlayTimeUpdate) Write(w *stream.ProtocolWriter) (err error) 
 }
 
 type PacketPlayUseBed struct {
-	EntityID uint16
+	EntityID int32
 	Location world.BlockPosition
 }
 
@@ -1359,7 +1359,7 @@ func (packet *PacketPlayUseBed) Write(w *stream.ProtocolWriter) (err error) {
 
 type PacketPlayCollectItem struct {
 	CollectedItemEntityID int
-	CollectorEntityID     uint16
+	CollectorEntityID int32
 }
 
 func (packet *PacketPlayCollectItem) Write(w *stream.ProtocolWriter) (err error) {
@@ -1444,7 +1444,7 @@ func (packet *PacketPlayEntity) Write(w *stream.ProtocolWriter) (err error) {
 }
 
 type PacketPlayEntityTeleport struct {
-	EntityID uint16
+	EntityID int32
 	Position world.Position
 	OnGround bool
 }
@@ -1482,7 +1482,7 @@ func (packet *PacketPlayEntityTeleport) Write(w *stream.ProtocolWriter) (err err
 }
 
 type PacketPlayEntityStatus struct {
-	EntityID     uint16
+	EntityID int32
 	EntityStatus uint8
 }
 
@@ -1499,7 +1499,7 @@ func (packet *PacketPlayEntityStatus) Write(w *stream.ProtocolWriter) (err error
 }
 
 type PacketPlayAttachEntity struct {
-	EntityID  uint16
+	EntityID int32
 	VehicleID int // -1 to detach
 	Leash     bool
 }
@@ -1593,7 +1593,7 @@ func (packet *PacketPlaySetExperience) Write(w *stream.ProtocolWriter) (err erro
 
 // TODO: Attributes
 type PacketPlayEntityProperties struct {
-	EntityID uint16
+	EntityID int32
 }
 
 func (packet *PacketPlayEntityProperties) Write(w *stream.ProtocolWriter) (err error) {
@@ -2000,7 +2000,7 @@ func (packet *PacketPlayResourcePackSend) Write(w *stream.ProtocolWriter) (err e
 }
 
 type PacketPlayUpdateEntityNBT struct {
-	EntityID uint16
+	EntityID int32
 	Tag      nbt.Compound
 }
 

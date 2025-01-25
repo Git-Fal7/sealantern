@@ -14,6 +14,5 @@ type Server interface {
 	Event() event.Manager
 	Command() *command.Manager
 	GetInstanceFromUUID(uuid.UUID) *gameinstance.GameInstance
-	NextEID() uint16
 	Brand() string
 }

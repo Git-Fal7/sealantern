@@ -40,7 +40,6 @@ type Core struct {
 	instances      map[string]*gameinstance.GameInstance
 	commandMgr     *command.Manager
 	eventMgr       event.Manager
-	eid            uint16
 }
 
 func Init() *Core {
@@ -52,7 +51,6 @@ func Init() *Core {
 		instances:      make(map[string]*gameinstance.GameInstance),
 		commandMgr:     command.NewManager(),
 		eventMgr:       event.New(),
-		eid:            0,
 	}
 	packethandler.InitRegistry(c)
 	packet.InitRegistry()
@@ -184,11 +182,6 @@ func (c *Core) GetGameInstance(name string) *gameinstance.GameInstance {
 		return instance
 	}
 	return nil
-}
-
-func (c *Core) NextEID() uint16 {
-	c.eid = c.eid + 1
-	return c.eid
 }
 
 func (c *Core) GetInstanceFromUUID(uuid uuid.UUID) *gameinstance.GameInstance {

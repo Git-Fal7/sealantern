@@ -51,7 +51,7 @@ func (r *PlayerRegistry) GetPlayerFromUUID(uuid uuid.UUID) *connplayer.Connected
 	return nil
 }
 
-func (r *PlayerRegistry) GetPlayerFromEID(eid uint16) *connplayer.ConnectedPlayer {
+func (r *PlayerRegistry) GetPlayerFromEID(eid int32) *connplayer.ConnectedPlayer {
 	for _, player := range r.GetPlayers() {
 		if player.ID() == eid {
 			return player

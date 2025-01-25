@@ -26,7 +26,7 @@ type ConnectedPlayer struct {
 	profile             *profile.PlayerProfile
 	Pos                 world.Position
 	PermFunc            permission.Func
-	eid                 uint16
+	eid                 int32
 	health              float32
 	foodLevel           int
 	saturation          float32
@@ -42,7 +42,7 @@ type ConnectedPlayer struct {
 	BowCharge           float32
 }
 
-func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid uint16) *ConnectedPlayer {
+func NewconnPlayer(profile *profile.PlayerProfile, conn *socket.Conn, eid int32) *ConnectedPlayer {
 	return &ConnectedPlayer{
 		profile:         profile,
 		Conn:            conn,
@@ -103,7 +103,7 @@ func (p *ConnectedPlayer) Position() world.Position {
 	return p.Pos
 }
 
-func (p *ConnectedPlayer) ID() uint16 {
+func (p *ConnectedPlayer) ID() int32 {
 	return p.eid
 }
 

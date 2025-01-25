@@ -9,12 +9,12 @@ import (
 )
 
 type NPCMob struct {
-	entityID uint16
+	entityID int32
 	mobType  types.MobType
 	position world.Position
 }
 
-func NewNPCMob(entityID uint16, position world.Position, mobType types.MobType) *NPCMob {
+func NewNPCMob(entityID int32, position world.Position, mobType types.MobType) *NPCMob {
 	return &NPCMob{
 		entityID: entityID,
 		mobType:  mobType,
@@ -22,7 +22,7 @@ func NewNPCMob(entityID uint16, position world.Position, mobType types.MobType) 
 	}
 }
 
-func (npc NPCMob) EntityID() uint16 {
+func (npc NPCMob) EntityID() int32 {
 	return npc.entityID
 }
 
@@ -43,8 +43,8 @@ func (npc NPCMob) SendPackets(p player.IPlayer) {
 	})
 }
 
-func (npc NPCMob) GetDestructionID() []uint16 {
-	return []uint16{
+func (npc NPCMob) GetDestructionID() []int32 {
+	return []int32{
 		npc.entityID,
 	}
 }

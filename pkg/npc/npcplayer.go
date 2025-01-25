@@ -3,7 +3,6 @@ package npc
 import (
 	"crypto/rand"
 	"fmt"
-	mathrand "math/rand"
 	"time"
 
 	"github.com/git-fal7/sealantern/minecraft/player"
@@ -13,11 +12,12 @@ import (
 	"github.com/git-fal7/sealantern/minecraft/world"
 	"github.com/git-fal7/sealantern/minecraft/world/metadata"
 	"github.com/git-fal7/sealantern/pkg/hologram"
+	"github.com/git-fal7/sealantern/sealantern/entitymanager"
 	"github.com/google/uuid"
 )
 
 type NPCPlayer struct {
-	entityID  uint16
+	entityID  int32
 	name      string
 	uuid      uuid.UUID
 	profile   profile.PlayerProfile
@@ -25,7 +25,7 @@ type NPCPlayer struct {
 	holograms []*hologram.Hologram
 }
 
-func NewNPCPlayer(entityID uint16, position world.Position, properties []profile.Property) *NPCPlayer {
+func NewNPCPlayer(entityID int32, position world.Position, properties []profile.Property) *NPCPlayer {
 	b := make([]byte, 14)
 	rand.Read(b)
 	name := fmt.Sprintf("NPC-%x", b[2:6])
@@ -49,7 +49,7 @@ func (npc *NPCPlayer) SetText(offset float64, text ...string) {
 		npc.holograms = npc.holograms[0:len(text)]
 	} else if len(npc.holograms) < len(text) {
 		for i := len(npc.holograms); i < len(text); i++ {
-			npc.holograms = append(npc.holograms, hologram.NewHologram(npc.entityID+5000+(uint16(mathrand.Intn(250)+mathrand.Intn(250))*uint16(i)), "", world.Position{
+			npc.holograms = append(npc.holograms, hologram.NewHologram(entitymanager.NextEID(), "", world.Position{
 				X: npc.position.X,
 				Y: npc.position.Y + 1.5 + (offset * float64(len(text)-i)),
 				Z: npc.position.Z,
@@ -61,7 +61,7 @@ func (npc *NPCPlayer) SetText(offset float64, text ...string) {
 	}
 }
 
-func (npc NPCPlayer) EntityID() uint16 {
+func (npc NPCPlayer) EntityID() int32 {
 	return npc.entityID
 }
 
@@ -128,8 +128,8 @@ func (npc NPCPlayer) SendPackets(p player.IPlayer) {
 	}
 }
 
-func (npc NPCPlayer) GetDestructionID() []uint16 {
-	entitiesId := []uint16{
+func (npc NPCPlayer) GetDestructionID() []int32 {
+	entitiesId := []int32{
 		npc.entityID,
 	}
 	for _, hologram := range npc.holograms {
